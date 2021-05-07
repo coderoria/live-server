@@ -32,7 +32,7 @@ function entryPoint() {
     });
 
     bot.on("chat", (channel, userstate, message, self) => {
-        if(self) return;
+        if (self) return;
 
         io.sockets.emit("chat", userstate, message, self);
     })
@@ -42,7 +42,7 @@ function entryPoint() {
     app.set('view engine', 'pug');
     app.use("/static", express.static("static"));
 
-    app.get("/overlay/just-chatting", (req, res) => {
-        res.render("overlays/just-chatting");
+    app.get("/overlay/alertbox", (req, res) => {
+        res.render("overlays/parts/alertbox.pug");
     });
 }

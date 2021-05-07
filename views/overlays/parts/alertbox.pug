@@ -1,11 +1,13 @@
-link(rel="stylesheet", href="/static/css/alert-box.css")
-link(rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap")
-script(src="/static/js/alert-box.js")
-script(src="/static/js/figlet.js") 
-body(style="width:1920px;height:1080px;font-family: 'Roboto Mono';")
-.alert-box(data-function="showAlertBox" style="top: -20%")
-    img(class="alert-box-icon")
-    .alert-box-message-wrapper
-        pre(class="alert-box-user")
-        .alert-box-message
-    span x
+extends ../overlay.pug
+block content
+    link(rel="stylesheet", href="/static/css/alert-box.css")
+    link(rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap")
+    script(src="/static/js/alert-box.js")
+    script(src="/static/js/figlet.js") 
+    body(style="font-family: 'Roboto Mono', monospace;")
+    .alert-box(data-function="showAlertBox" style="top: -100%")
+        img(class="alert-box-icon")
+        .alert-box-message-wrapper
+            pre(class="alert-box-user")
+            .alert-box-message
+        span x
