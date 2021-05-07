@@ -42,7 +42,7 @@ function entryPoint() {
     app.set('view engine', 'pug');
     app.use("/static", express.static("static"));
 
-    app.get("/overlay/alertbox", (req, res) => {
-        res.render("overlays/parts/alertbox.pug");
+    app.get("/overlay/:overlay", (req, res) => {
+        res.render("overlays/parts/"+req.params.overlay);
     });
 }
