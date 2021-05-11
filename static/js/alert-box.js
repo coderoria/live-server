@@ -1,4 +1,5 @@
 let alert_queue = [];
+const ALERT_DELAY=2000;
 
 function addAlert(name, action, message) {
     alert_queue.push({name: name, action: action, message: message});
@@ -8,6 +9,7 @@ function addAlert(name, action, message) {
 }
 
 function showAlertBox(name, action, message) {
+    let messageDelay = message.length * 50;
     figlet(name, function (err, data) {
         if (err) {
             console.log('Something went wrong...');
@@ -22,7 +24,7 @@ function showAlertBox(name, action, message) {
             targets: ".alert-box",
             top: "10%",
             duration: 1000,
-            endDelay: 2000,
+            endDelay: messageDelay > ALERT_DELAY ? messageDelay : ALERT_DELAY,
             complete: next,
             direction: "alternate"
         });
