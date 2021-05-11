@@ -1,3 +1,12 @@
+let alert_queue = [];
+
+function addAlert(name, action, message) {
+    alert_queue.push({name: name, action: action, message: message});
+    if(alert_queue.length == 1) {
+        showAlertBox(name, action, message);
+    }
+}
+
 function showAlertBox(name, action, message) {
     figlet(name, function (err, data) {
         if (err) {
@@ -14,7 +23,16 @@ function showAlertBox(name, action, message) {
             top: "10%",
             duration: 1000,
             endDelay: 2000,
+            complete: next,
             direction: "alternate"
         });
     });
+}
+
+function next() {
+    alert_queue.shift();
+    if(alert_queue.length == 0) return;
+    
+    let alert = alert_queue[0];
+    showAlertBox(alert.name, alert.action, alert.message);
 }
