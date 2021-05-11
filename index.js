@@ -45,4 +45,17 @@ function entryPoint() {
     app.get("/overlay/:overlay", (req, res) => {
         res.render("overlays/parts/"+req.params.overlay);
     });
+
+    setTimeout(testAlert, 3000);
+}
+
+function testAlert() {
+    let alerts = [{name: "BURDEL", message: "This is a moderately long message PogChamp"},
+        {name: "Strike", message: "StrikLuv"},
+        {name: "VeryLongTwitchUsernameLOL", message: "This is a veray long message testing the wrapping of the alert box even with a long name. Like my username. Lol."}];
+    for(i = 0; i < 10; i++) {
+        for(j = 0; j < 3; j++) {
+            io.sockets.emit("chat", {username: alerts[j].name}, alerts[j].message, false);
+        }
+    }
 }
