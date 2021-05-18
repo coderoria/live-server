@@ -46,7 +46,7 @@ function entryPoint() {
         res.render("overlays/parts/"+req.params.overlay);
     });
 
-    setTimeout(testAlert, 3000);
+    if(process.argv.includes("--test")) setTimeout(testAlert, 3000);
 }
 
 function testAlert() {
