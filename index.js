@@ -55,7 +55,7 @@ function testAlert() {
         {name: "VeryLongTwitchUsernameLOL", message: "This is a veray long message testing the wrapping of the alert box even with a long name. Like my username. Lol."}];
     for(i = 0; i < 10; i++) {
         for(j = 0; j < 3; j++) {
-            io.sockets.emit("chat", {username: alerts[j].name}, alerts[j].message, false);
+            io.sockets.emit("follow", {username: alerts[j].name}, alerts[j].message, false);
         }
     }
 }
