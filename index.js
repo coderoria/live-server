@@ -46,10 +46,10 @@ function entryPoint() {
         res.render("overlays/parts/"+req.params.overlay);
     });
 
-    if(process.argv.includes("--test")) setTimeout(testAlert, 3000);
+    if(process.argv.includes("--test")) setTimeout(testEvents, 3000);
 }
 
-function testAlert() {
+function testEvents() {
     let alerts = [{name: "BURDEL", message: "This is a moderately long message PogChamp"},
         {name: "Strike", message: "StrikLuv"},
         {name: "VeryLongTwitchUsernameLOL", message: "This is a veray long message testing the wrapping of the alert box even with a long name. Like my username. Lol."}];
