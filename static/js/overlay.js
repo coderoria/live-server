@@ -13,7 +13,6 @@ socket.on("sub", (userstate, message, self) => {
 });
 
 socket.on("playback", (img, artists, title) => {
-    console.log("called 1");
     let playBackBox = document.querySelector(".playback-box");
     if(playBackBox == undefined) return;
     window[playBackBox.dataset.function](img, artists, title);
