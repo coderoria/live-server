@@ -1,0 +1,9 @@
+extends ../overlay.pug
+block content
+    link(rel="stylesheet", href="/static/css/playback.css")
+    script(src="/static/js/playback.js") 
+    .playback-box(data-function="showPlayBack")
+        img(class="playback-image")
+        .playback-text-container
+            .playback-title
+            .playback-artists

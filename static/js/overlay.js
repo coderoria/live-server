@@ -11,3 +11,10 @@ socket.on("sub", (userstate, message, self) => {
     if(alertBox == undefined) return;
     window[alertBox.dataset.function](userstate["username"], "sub", message);
 });
+
+socket.on("playback", (img, artists, title) => {
+    console.log("called 1");
+    let playBackBox = document.querySelector(".playback-box");
+    if(playBackBox == undefined) return;
+    window[playBackBox.dataset.function](img, artists, title);
+});

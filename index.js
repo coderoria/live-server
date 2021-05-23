@@ -58,4 +58,5 @@ function testEvents() {
             io.sockets.emit("follow", {username: alerts[j].name}, alerts[j].message, false);
         }
     }
+    io.sockets.emit("playback", "https://i.scdn.co/image/107819f5dc557d5d0a4b216781c6ec1b2f3c5ab2", "M4SONIC, MYLKI", "Intoxicated by Youth (Glitchedout Remix)");
 }
