@@ -1,12 +1,25 @@
 function showPlayBack(img, artists, title) {
     document.querySelector(".playback-image").src = img;
-    document.querySelector(".playback-title").innerHTML = title;
-    document.querySelector(".playback-artists").innerHTML = artists;
-    let titleAnim;
+    let titleElement = document.querySelector(".playback-title");
+    titleElement.innerHTML = title;
+
+    let artistsElement = document.querySelector(".playback-artists");
+    artistsElement.innerHTML = artists;
+
+    let titleAnim, artistsAnim;
     if(title.length > 27) {
-        titleAnim = document.querySelector(".playback-title").animate([
-            {transform: 'translateX(100%)'},
-            {transform: 'translateX(-150%)'}
+        titleAnim = titleElement.animate([
+            {transform: `translateX(${titleElement.clientWidth}px)`},
+            {transform: `translateX(-${titleElement.scrollWidth}px)`}
+        ], {
+            duration: 9000,
+            iterations: Infinity
+        });
+    }
+    if(artists.length > 30) {
+        artistsAnim = artistsElement.animate([
+            {transform: `translateX(${artistsElement.clientWidth}px)`},
+            {transform: `translateX(-${artistsElement.scrollWidth}px)`}
         ], {
             duration: 9000,
             iterations: Infinity
@@ -15,11 +28,12 @@ function showPlayBack(img, artists, title) {
     anime({
         targets: ".playback-box",
         bottom: "0px",
-        duration: 1000,
+        duration: 500,
         endDelay: 7000,
         direction: "alternate",
         complete: () => {
             if(titleAnim != undefined) titleAnim.cancel();
+            if(artistsAnim != undefined) artistsAnim.cancel();
         },
         easing: 'cubicBezier(0.000, 0.000, 0.580, 1.000)'
     });

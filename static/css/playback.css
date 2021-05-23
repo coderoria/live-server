@@ -36,4 +36,5 @@ body {
 
 .playback-artists {
     text-align: center;
+    white-space: nowrap;
 }
