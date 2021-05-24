@@ -82,12 +82,15 @@ function entryPoint() {
             res.redirect("/auth/twitch");
             return;
         }
-        auth.checkTwitchAuth(req.cookies.token, success => {
+        auth.checkTwitchAuth(req.cookies.token, (success, username) => {
             if(!success) {
                 res.redirect("/auth/twitch");
                 return;
             }
-            res.render("dashboard/home");
+            res.render("dashboard/home", {
+                title: "Home",
+                username: username
+            });
         });
     });
 

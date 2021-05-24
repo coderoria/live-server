@@ -1,1 +1,14 @@
-div=Test
+extends parts/site
+block content
+    script(src="/static/js/dashboard/home.js") 
+    .container-fluid.text-light.mt-5
+        .row.justify-content-center
+            .col.col-md-4
+                .input-group.form-floating.my-2
+                    input.form-control(type="text" disabled id="alertboxUrl" value=process.env.HOST+"/overlay/alertbox")
+                    label.text-dark(for="alertBoxUrl") Alertbox
+                    button.btn.btn-outline-secondary Copy
+                .input-group.form-floating.my-2
+                    input.form-control(type="text" disabled id="playbackUrl" value=process.env.HOST+"/overlay/playback")
+                    label.text-dark(for="playbackUrl") Playback
+                    button.btn.btn-outline-secondary Copy
