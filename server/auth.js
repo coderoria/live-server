@@ -3,7 +3,6 @@ let router = express.Router();
 const axios = require("axios");
 const mysql = require("mysql");
 const crypto = require("crypto");
-const { RSA_NO_PADDING } = require("constants");
 var pool = mysql.createPool({
     connectionLimit: 10,
     host: process.env.DB_HOST,
@@ -23,8 +22,8 @@ router.get("/auth/twitch", (req, res) => {
         url += `channel:manage:polls channel:manage:predictions channel:manage:redemptions `
         url += `channel:manage:videos channel:read:hype_train channel:read:polls `
         url += `channel:read:predictions channel:read:redemptions channel:read:subscriptions `
-        url += `clips:edit moderation:read`+
-        `&force_verify=true`;
+        url += `clips:edit moderation:read` +
+            `&force_verify=true`;
         res.redirect(url);
         return;
     }
@@ -54,12 +53,12 @@ router.get("/auth/twitch", (req, res) => {
                 pool.query("UPDATE `admins` SET `username`=?, " +
                     "`access_token`=?, `refresh_token`=?, `login_token`=? WHERE `user_id`=?;",
                     [username, access_token, refresh_token, login_token, user_id], (error, dbres) => {
-                        if(error) {
+                        if (error) {
                             console.error(error);
                             res.sendStatus(500);
                             return;
                         }
-                        if(dbres.affectedRows == 0) {
+                        if (dbres.affectedRows == 0) {
                             res.status(401);
                             res.send("You're not invited for registration.");
                             return;
@@ -82,15 +81,15 @@ Adds a user to the admins table.
 */
 function addUser(name, callback) {
     pool.query("SELECT `access_token` FROM `admins` WHERE `user_id`=-1;", (error, dbres) => {
-        if(error) {
+        if (error) {
             console.error(error);
             callback(false);
             return;
         }
         let access_token = dbres[0].access_token;
 
-        axios.get(`https://api.twitch.tv/helix/users`+
-        `?login=${name}`, {
+        axios.get(`https://api.twitch.tv/helix/users` +
+            `?login=${name}`, {
             headers: {
                 "Authorization": "Bearer " + access_token,
                 "Client-Id": process.env.TWITCH_CLIENT_ID
@@ -98,14 +97,14 @@ function addUser(name, callback) {
         }).then(res => {
             let user_id = res.data.data[0].id;
             pool.query("INSERT INTO `admins` (`user_id`, `username`) VALUES (?,?);",
-            [user_id, name], (error) => {
-                if(error) {
-                    console.error(error);
-                    callback(false);
-                    return;
-                }
-                callback(true);
-            });
+                [user_id, name], (error) => {
+                    if (error) {
+                        console.error(error);
+                        callback(false);
+                        return;
+                    }
+                    callback(true);
+                });
         }).catch(error => {
             console.error(error);
             callback(false);
@@ -119,30 +118,90 @@ and we authenticate with twitch to get an app token via
 OAuth Client Credentials Flow
 */
 function authSystem(callback) {
-    axios.post(`https://id.twitch.tv/oauth2/token`+
-    `?client_id=${process.env.TWITCH_CLIENT_ID}`+
-    `&client_secret=${process.env.TWITCH_CLIENT_SECRET}`+
-    `&grant_type=client_credentials`).then(res => {
-        let access_token = res.data.access_token;
+    axios.post(`https://id.twitch.tv/oauth2/token` +
+        `?client_id=${process.env.TWITCH_CLIENT_ID}` +
+        `&client_secret=${process.env.TWITCH_CLIENT_SECRET}` +
+        `&grant_type=client_credentials`).then(res => {
+            let access_token = res.data.access_token;
 
-        pool.query("REPLACE INTO `admins` (`user_id`, `access_token`) VALUES(?,?);",
-        [-1, access_token], (error, dbres) => {
-            if(error) {
-                console.error(error);
-                callback(false);
-                return;
-            }
-            callback(true);
+            pool.query("REPLACE INTO `admins` (`user_id`, `access_token`) VALUES(?,?);",
+                [-1, access_token], (error, dbres) => {
+                    if (error) {
+                        console.error(error);
+                        callback(false);
+                        return;
+                    }
+                    callback(true);
+                });
+        }).catch(error => {
+            console.error("Could not get a System token from Twitch:");
+            console.error(error);
+            callback(false);
         });
-    }).catch(error => {
-        console.error("Could not get a System token from Twitch:");
-        console.error(error);
-        callback(false);
+}
+
+/*
+Checks that the login_token supplied is valid and checks the user authentication
+against Twitch. If the authentication is invalid, it calls refreshTwitchAuth.
+If this function calls your callback with true,
+you can be sure that 1) the user is an admin and 2) the access_token
+in the database is valid and can be used for requests
+*/
+function checkTwitchAuth(token, callback) {
+    pool.query("SELECT * FROM `admins` WHERE `login_token`=?;", token, (error, dbres) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        if (dbres.length == 0) {
+            callback(false);
+            return;
+        }
+        axios.get("https://id.twitch.tv/oauth2/validate", {
+            headers: {
+                Authorization: "OAuth " + dbres[0].access_token
+            }
+        }).then(data => {
+            callback(true, dbres[0].username);
+        }).catch(error => {
+            refreshTwitchAuth(dbres[0].user_id, success => {
+                callback(success);
+            })
+        });
+    });
+}
+
+function refreshTwitchAuth(user_id, callback) {
+    pool.query("SELECT `refresh_token` FROM `admins` WHERE `user_id`=?;", user_id, (error, dbres) => {
+        let refresh_token = dbres[0].refresh_token;
+        
+        axios.post(`https://id.twitch.tv/oauth2/token`+
+        `?grant_type=refresh_token`+
+        `&refresh_token=${refresh_token}`+
+        `&client_id=${process.env.TWITCH_CLIENT_ID}`+
+        `&client_secret=${process.env.TWITCH_CLIENT_SECRET}`)
+        .then(data => {
+            let access_token = data.data.access_token;
+            let refresh_token = data.data.refresh_token;
+
+            pool.query("UPDATE `admins` SET `access_token`=?, `refresh_token`=? WHERE `user_id`=?;",
+            [access_token, refresh_token, user_id], (error) => {
+                if(error) {
+                    console.error(error);
+                    callback(false);
+                    return;
+                }
+                callback(true);
+            });
+        }).catch(error => {
+            callback(false);
+        });
     });
 }
 
 module.exports = {
     router: router,
     authSystem: authSystem,
-    addUser: addUser
+    addUser: addUser,
+    checkTwitchAuth: checkTwitchAuth
 };

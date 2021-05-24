@@ -68,6 +68,7 @@ function entryPoint() {
     app.listen(3001);
     app.locals.basedir = '/views/';
     app.set('view engine', 'pug');
+    app.use(require("cookie-parser")());
     app.use("/static", express.static("static"));
 
     app.get("/overlay/:overlay", (req, res) => {
@@ -75,6 +76,20 @@ function entryPoint() {
     });
 
     app.use(auth.router);
+
+    app.get("/", (req, res) => {
+        if(req.cookies.token == undefined) {
+            res.redirect("/auth/twitch");
+            return;
+        }
+        auth.checkTwitchAuth(req.cookies.token, success => {
+            if(!success) {
+                res.redirect("/auth/twitch");
+                return;
+            }
+            res.render("dashboard/home");
+        });
+    });
 
     if (process.argv.includes("--test")) setTimeout(testEvents, 3000);
 }
