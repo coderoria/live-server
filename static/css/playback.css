@@ -5,11 +5,11 @@ body {
 
 .playback-box {
     position: absolute;
-    bottom: -100px;
+    bottom: -110px;
     display: flex;
     background-color: #1F1F2D;
     border-radius: 0px 10px 0px 0px;
-    box-shadow: 4px 4px 6px -1px black;
+    box-shadow: 0px 0px 6px -1px black;
     max-width: 390px;
     height: 100px;
     left: 50%;
