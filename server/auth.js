@@ -66,7 +66,7 @@ router.get("/auth/twitch", (req, res) => {
                         res.cookie("token", login_token, {
                             expires: new Date(Date.now() + 604800000) //7 days
                         });
-                        res.send("Authorized");
+                        res.redirect("/");
                     });
             }).catch(error => {
                 res.sendStatus(400);
