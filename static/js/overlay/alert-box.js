@@ -9,7 +9,7 @@ function addAlert(name, action, message) {
 }
 
 function showAlertBox(name, action, message) {
-    let messageDelay = message.length * 50;
+    let messageDelay = message == undefined ? 0 : message.length * 50;
     figlet(name, function (err, data) {
         if (err) {
             console.log('Something went wrong...');
@@ -20,6 +20,10 @@ function showAlertBox(name, action, message) {
         document.querySelector(".alert-box-message").innerHTML = message != undefined ? message : "";
         let alertBoxUser = document.querySelector(".alert-box-user");
         alertBoxUser.innerHTML = data;
+
+        let audio = new Audio('/static/follow.mp3');
+        audio.play();
+
         anime({
             targets: ".alert-box",
             top: "10%",

@@ -140,6 +140,16 @@ function authSystem(callback) {
         });
 }
 
+function getSystemAuth(callback) {
+    pool.query("SELECT `access_token` FROM `admins` WHERE `user_id`='-1';", (error, res) => {
+        if(error) {
+            callback(null);
+            return;
+        }
+        callback(res[0].access_token);
+    });
+}
+
 /*
 Checks that the login_token supplied is valid and checks the user authentication
 against Twitch. If the authentication is invalid, it calls refreshTwitchAuth.
@@ -203,5 +213,6 @@ module.exports = {
     router: router,
     authSystem: authSystem,
     addUser: addUser,
-    checkTwitchAuth: checkTwitchAuth
+    checkTwitchAuth: checkTwitchAuth,
+    getSystemAuth: getSystemAuth
 };

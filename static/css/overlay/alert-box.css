@@ -28,6 +28,7 @@
 .alert-box-user {
     margin: 0;
     font-size: 12px;
+    font-weight: bolder;
     color: white;
 }
 

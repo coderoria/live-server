@@ -19,6 +19,7 @@ var pool = mysql.createPool({
     database: process.env.DB_NAME
 });
 const auth = require("./server/auth");
+const eventSub = require("./server/eventsub");
 
 let bot;
 
@@ -63,12 +64,21 @@ function entryPoint() {
         if (self) return;
 
         io.sockets.emit("chat", userstate, message, self);
+    });
+
+    bot.on("subscription", (channel, username, method, message, userstate) => {
+        io.sockets.emit("sub", username, message);
+    });
+
+    bot.on("cheer", (channel, userstate, message) => {
+        io.sockets.emit("cheer", userstate.username, userstate.bits + "x " + message);
     })
 
     app.listen(3001);
     app.locals.basedir = '/views/';
     app.set('view engine', 'pug');
     app.use(require("cookie-parser")());
+    app.use(express.json());
     app.use("/static", express.static("static"));
 
     app.get("/overlay/:overlay", (req, res) => {
@@ -76,6 +86,8 @@ function entryPoint() {
     });
 
     app.use(auth.router);
+    app.use(eventSub.router);
+    eventSub.setIO(io);
 
     app.get("/", (req, res) => {
         if(req.cookies.token == undefined) {
@@ -105,4 +117,7 @@ function testEvents() {
         io.sockets.emit("follow", { username: alerts[j].name }, alerts[j].message, false);
     }
     io.sockets.emit("playback", "https://i.scdn.co/image/107819f5dc557d5d0a4b216781c6ec1b2f3c5ab2", "Rival, VAALEA, Glitchedout", "Intoxicated By Youth (Glitchedout Remix)");
+    auth.addUser("mckytv", () => {
+        eventSub.createSubs();
+    });
 }
