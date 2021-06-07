@@ -114,10 +114,7 @@ function testEvents() {
     { name: "Strike", message: "StrikLuv" },
     { name: "VeryLongTwitchUsernameLOL", message: "This is a veray long message testing the wrapping of the alert box even with a long name. Like my username. Lol." }];
     for (j = 0; j < 3; j++) {
-        io.sockets.emit("follow", { username: alerts[j].name }, alerts[j].message, false);
+        io.sockets.emit("follow", alerts[j].name, alerts[j].message, false);
     }
     io.sockets.emit("playback", "https://i.scdn.co/image/107819f5dc557d5d0a4b216781c6ec1b2f3c5ab2", "Rival, VAALEA, Glitchedout", "Intoxicated By Youth (Glitchedout Remix)");
-    auth.addUser("mckytv", () => {
-        eventSub.createSubs();
-    });
 }
