@@ -1,5 +1,14 @@
 let violations = {};
 
+setInterval(()=>{
+    for (let i in violations){
+        if (Date.now() - violations[i].timestamp < 2700000){
+            continue;
+        }
+        delete violations[i];
+    }
+}, 300000);
+
 function checkMessage(bot, message, userstate) {
     let checks = {
         "checkCaps": {
