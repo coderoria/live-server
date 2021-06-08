@@ -13,19 +13,24 @@ function checkMessage(bot, message, userstate) {
     let checks = {
         "checkCaps": {
             "function": checkCaps,
-            "points": 2,
+            "points": 4,
             "reason": "writing in caps"
         },
         "checkSpamLetters": {
             "function": checkSpamLetters,
-            "points": 4,
+            "points": 10,
             "reason": "using prohibited characters"
         },
         "checkLinks": {
             "function": checkLinks,
             "points": 1,
             "reason": "posting links"
-        }
+        },
+        "checkEmotes":{
+            "function": checkEmotes,
+            "points": 2,
+            "reason": "spaming emotes"
+        } 
     };
     for (let i in checks) {
         if (!checks[i].function(message, userstate)) {
@@ -59,19 +64,15 @@ function checkMessage(bot, message, userstate) {
 
     let points = violations[userstate.username].points;
 
-    if (points < 4) {
+    if (points < 8) {
         bot.deletemessage(channel, userstate.id);
+        bot.say(channel, replyMessage + " (warning)");
+    }
+    if (points >= 8 && points < 20) {
+        bot.timeout(channel, userstate.username, points * points + 40 * points - 324);
         bot.say(channel, replyMessage);
     }
-    if (points >= 4 && points < 6) {
-        bot.timeout(channel, userstate.username, 60);
-        bot.say(channel, replyMessage);
-    }
-    if (points >= 6 && points < 10) {
-        bot.timeout(channel, userstate.username, 300);
-        bot.say(channel, replyMessage);
-    }
-    if (points >= 10) {
+    if (points >= 20) {
         bot.ban(channel, userstate.username);
         bot.say(channel, "@" + userstate["display-name"] + ", enough is enough! you've been " +
             violations[userstate.username].reason + " too much now!" + multipleActions);
@@ -105,4 +106,15 @@ function checkLinks(message, userstate) {
         return false;
     }
     return matches[1] != "clips.twitch.tv";
+}
+
+function checkEmotes(message, userstate){
+    if (userstate.mod) {
+        return false;
+    }
+    let emotes = 0;
+    for (let i in userstate.emotes){
+        emotes = emotes + userstate.emotes[i].length;
+    }
+    return emotes > 10;
 }
