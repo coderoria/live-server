@@ -1,12 +1,40 @@
+let violations = {};
+
+function checkMessage(bot, message, userstate) {
+    let checks = {
+        "checkCaps": {
+            "function": checkCaps,
+            "points": 2
+        },
+        "checkSpamLetters": {
+            "function": checkSpamLetters,
+            "points": 4
+        },
+        "checkLinks": {
+            "function": checkLinks,
+            "points": 1
+        }
+    };
+    for (let i in checks) {
+        if (!checks[i].function(message, userstate)) {
+            continue;
+        }
+        let points = 0;
+        if (violations.hasOwnProperty(userstate.username)) {
+            points = violations[userstate.username].points
+        }
+        points += checks[i].points;
+        violations[userstate.username] = {"timestamp" : Date.now(), "points" : points};
+    }
+}
+
 function checkCaps(message, userstate) {
     if (userstate.mod) {
         return false;
     }
     const re = /[A-Z]/g;
     let caps = (message.match(re) || []).length;
-    if (caps / message.length > 0.8) {
-        return true;
-    } return false;
+    return caps / message.length > 0.8;
 }
 
 function checkSpamLetters(message, userstate) {
@@ -14,9 +42,7 @@ function checkSpamLetters(message, userstate) {
         return false;
     }
     const re = /%CC%/g;
-    if (message.match(re).length != 0) {
-        return true;
-    } return false;
+    return re.test(encodeURIComponent(message));
 }
 
 function checkLinks(message, userstate) {
@@ -28,8 +54,5 @@ function checkLinks(message, userstate) {
     if (matches == null) {
         return false;
     }
-    
-    if(matches[1] === "clips.twitch.tv") {
-
-    }
+    return matches[1] != "clips.twitch.tv";
 }
