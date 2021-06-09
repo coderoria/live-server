@@ -64,7 +64,7 @@ function entryPoint() {
     bot.on("message", (channel, userstate, message, self) => {
         if (self) return;
 
-        checkMessage(bot, message, userstate);
+        filters.checkMessage(bot, message, userstate);
     });
 
     bot.on("subscription", (channel, username, method, message, userstate) => {
