@@ -22,6 +22,18 @@ let commands = [
     {
         "funktion": executeFollowage,
         "text": ["followage", "fa"]
+    },
+    {
+        "funktion": executeShoutout,
+        "text": ["shoutout", "so"]
+    },
+    {
+        "funktion": executeAccoutAge,
+        "text": ["accoutage"]
+    },
+    {
+        "funktion": executeCommands,
+        "text": ["befele", "commands"]
     }
 ];
 
@@ -52,11 +64,11 @@ function findRecipient(matches, userstate) {
 
 function hasPermission(userstate, requiredLevel) {
     let ranks = ["broadcaster", "moderator", "vip", "subscriber"];
-    for(let i in ranks) {
-        if(userstate.badges.hasOwnProperty(ranks[i])) {
+    for (let i in ranks) {
+        if (userstate.badges.hasOwnProperty(ranks[i])) {
             return true;
         }
-        if(ranks[i] === requiredLevel) {
+        if (ranks[i] === requiredLevel) {
             return false;
         }
     }
@@ -87,9 +99,22 @@ function executeCredit(bot, matches, userstate) {
     bot.say(channel, credit);
 }
 
+function executeCommands(bot, matches, userstate) {
+    findRecipient(matches, userstate);
+    let command = "";
+    for (let i in commands){
+        for(let j in commands[i].text) {
+            command += commands[i].text[j];
+            command += ", ";
+        }
+    }
+    let message = "@" + recipient + ", Das sind alle Commands auf diesem Channel: " + command;
+    bot.say(channel, message);
+}
+
 function executeWatchtime(bot, matches, userstate) {
     findRecipient(matches, userstate);
-    
+
 
     let watchtime = " ";
     bot.say(channel, watchtime);
@@ -101,4 +126,19 @@ function executeFollowage(bot, matches, userstate) {
 
     let followage = " ";
     bot.say(channel, followage);
+}
+
+function executeAccoutAge(bot, matches, userstate) {
+    findRecipient(matches, userstate);
+
+    let accountage = " ";
+    bot.say(channel, accountage);
+}
+
+function executeShoutout(bot, matches, userstate) {
+    if (!matches.length > 0) {
+        bot.say(channel, "kein channel angegeben.");
+    }
+    let shoutout = "Hey! Gib @" + matches[0] + " doch einen Follow! Der letzte Stream was" + " ";
+    bot.say(channel, shoutout);
 }
