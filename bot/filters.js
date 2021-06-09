@@ -13,7 +13,7 @@ function checkMessage(bot, message, userstate) {
     let checks = {
         "checkCaps": {
             "function": checkCaps,
-            "points": 4,
+            "points": 3,
             "reason": "writing in caps"
         },
         "checkSpamLetters": {
@@ -32,10 +32,12 @@ function checkMessage(bot, message, userstate) {
             "reason": "spaming emotes"
         } 
     };
+    let violated = false;
     for (let i in checks) {
         if (!checks[i].function(message, userstate)) {
             continue;
         }
+        violated = true;
         let points = 0;
         let multiple = false;
         if (violations.hasOwnProperty(userstate.username)) {
@@ -50,27 +52,30 @@ function checkMessage(bot, message, userstate) {
             "multiple": multiple
         };
     }
-    if (!violations.hasOwnProperty(userstate.username)) {
+    if (!violations.hasOwnProperty(userstate.username) || !violated) {
         return;
     }
     let channel = process.env.CHANNEL;
     let multipleActions = "";
 
     if (violations[userstate.username].multiple) {
-        multipleActions = "(Multiple violations!)";
+        multipleActions = " (Multiple violations)";
     }
-    let replyMessage = "@" + userstate["display-name"] + ", Please stop " +
-        violations[userstate.username].reason + "!" + multipleActions;
 
     let points = violations[userstate.username].points;
+    let currentPoints = " (" + violations[userstate.username].points + " total Points)";
 
     if (points < 8) {
-        bot.deletemessage(channel, userstate.id);
-        bot.say(channel, replyMessage + " (warning)");
+        bot.deletemessage(channel, userstate.id).catch((error) => {
+            console.error(error);
+        });
+        bot.say(channel, "This is a warning. @" + userstate["display-name"] + ", please stop " +
+        violations[userstate.username].reason + "!" + currentPoints + multipleActions);
     }
     if (points >= 8 && points < 20) {
         bot.timeout(channel, userstate.username, points * points + 40 * points - 324);
-        bot.say(channel, replyMessage);
+        bot.say(channel, "@" + userstate["display-name"] + ", stop " +
+        violations[userstate.username].reason + "!" + currentPoints + multipleActions);
     }
     if (points >= 20) {
         bot.ban(channel, userstate.username);
@@ -83,9 +88,9 @@ function checkCaps(message, userstate) {
     if (userstate.mod) {
         return false;
     }
-    const re = /[A-Z]/g;
+    const re = /[A-ZÄÜÖ]/g;
     let caps = (message.match(re) || []).length;
-    return caps / message.length > 0.8;
+    return caps / message.length > 0.8 && message.length > 10;
 }
 
 function checkSpamLetters(message, userstate) {
@@ -117,4 +122,8 @@ function checkEmotes(message, userstate){
         emotes = emotes + userstate.emotes[i].length;
     }
     return emotes > 10;
+}
+
+module.exports = {
+    checkMessage: checkMessage
 }
