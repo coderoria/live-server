@@ -1,4 +1,5 @@
 let commands = [
+    //USER:
     {
         "function": executeDiscord,
         "text": ["discord", "dc"]
@@ -16,6 +17,10 @@ let commands = [
         "text": ["credit", "overlay", "icons"]
     },
     {
+        "funktion": executeDonation,
+        "text": ["donations", "donation", "spende", "spenden"]
+    },
+    {
         "funktion": executeWatchtime,
         "text": ["watchtime", "wt"]
     },
@@ -24,17 +29,47 @@ let commands = [
         "text": ["followage", "fa"]
     },
     {
-        "funktion": executeShoutout,
-        "text": ["shoutout", "so"]
-    },
-    {
         "funktion": executeAccoutAge,
         "text": ["accoutage"]
     },
     {
+        "funktion": executeUptime,
+        "text": ["uptime", "livetime"]
+    },
+    {
         "funktion": executeCommands,
         "text": ["befele", "commands"]
+    },
+    {
+        "funktion": executeLurk,
+        "text": ["lurk"]
+    },
+    {
+        "funktion": executeQuotes,
+        "text": ["quote"]
+    },
+    // MOD:
+    {
+        "funktion": executeShoutout,
+        "text": ["shoutout", "so"]
+    },
+    {
+        "funktion": executePermit,
+        "text": ["permit"]
+    },
+    {
+        "funktion": executeSetGame,
+        "text": ["setgame", "sg"]
+    },
+    {
+        "funktion": executeSetTitle,
+        "text": ["settitle", "st"]
+    },
+    {
+        "funktion": executeCounters,
+        "text": ["counter"]
     }
+    //STREAMER:
 ];
 
 let channel = process.env.CHANNEL;
@@ -75,6 +110,8 @@ function hasPermission(userstate, requiredLevel) {
     return false;
 }
 
+//------------------------ USER ------------------------
+
 function executeDiscord(bot, matches, userstate) {
     findRecipient(matches, userstate);
     let discord = recipient + ", hier ist unser Discord: https://coderoria.com/discord";
@@ -97,19 +134,6 @@ function executeCredit(bot, matches, userstate) {
     findRecipient(matches, userstate);
     let credit = recipient + ", Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/";
     bot.say(channel, credit);
-}
-
-function executeCommands(bot, matches, userstate) {
-    findRecipient(matches, userstate);
-    let command = "";
-    for (let i in commands){
-        for(let j in commands[i].text) {
-            command += commands[i].text[j];
-            command += ", ";
-        }
-    }
-    let message = "@" + recipient + ", Das sind alle Commands auf diesem Channel: " + command;
-    bot.say(channel, message);
 }
 
 function executeWatchtime(bot, matches, userstate) {
@@ -135,10 +159,27 @@ function executeAccoutAge(bot, matches, userstate) {
     bot.say(channel, accountage);
 }
 
+function executeCommands(bot, matches, userstate) {
+    findRecipient(matches, userstate);
+    let command = "";
+    for (let i in commands){
+        for(let j in commands[i].text) {
+            command += commands[i].text[j];
+            command += ", ";
+        }
+    }
+    let message = "@" + recipient + ", Das sind alle Commands auf diesem Channel: " + command;
+    bot.say(channel, message);
+}
+
+//------------------------ MOD -------------------------
+
 function executeShoutout(bot, matches, userstate) {
+    //MOD ONLY
     if (!matches.length > 0) {
         bot.say(channel, "kein channel angegeben.");
     }
     let shoutout = "Hey! Gib @" + matches[0] + " doch einen Follow! Der letzte Stream was" + " ";
     bot.say(channel, shoutout);
 }
+//---------------------- Streamer ----------------------
