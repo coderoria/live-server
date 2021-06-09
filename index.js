@@ -20,6 +20,7 @@ var pool = mysql.createPool({
 });
 const auth = require("./server/auth");
 const eventSub = require("./server/eventsub");
+const filters = require("./bot/filters");
 
 let bot;
 
@@ -60,10 +61,10 @@ function entryPoint() {
         console.error(error);
     });
 
-    bot.on("chat", (channel, userstate, message, self) => {
+    bot.on("message", (channel, userstate, message, self) => {
         if (self) return;
 
-        io.sockets.emit("chat", userstate, message, self);
+        filters.checkMessage(bot, message, userstate);
     });
 
     bot.on("subscription", (channel, username, method, message, userstate) => {
