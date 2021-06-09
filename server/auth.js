@@ -283,10 +283,35 @@ function refreshTwitchAuth(user_id, callback) {
     );
 }
 
+function getUserIdByName(username, callback) {
+    getSystemAuth((token) => {
+        if (token == null) {
+            callback(null);
+            return;
+        }
+        axios
+            .get(`https://api.twitch.tv/helix/users?login=${username}`, {
+                headers: {
+                    Authorization: "Bearer " + token,
+                    "Client-Id": process.env.TWITCH_CLIENT_ID,
+                },
+            })
+            .then((res) => {
+                callback(res.data.data[0].id);
+                return;
+            })
+            .catch((error) => {
+                console.error(error);
+                callback(null);
+            });
+    });
+}
+
 module.exports = {
     router: router,
     authSystem: authSystem,
     addUser: addUser,
     checkTwitchAuth: checkTwitchAuth,
     getSystemAuth: getSystemAuth,
+    getUserIdByName: getUserIdByName,
 };
