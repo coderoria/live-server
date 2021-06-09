@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  formatting:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +19,8 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install Dependencies
-        run: npm i
+      - name: Preparing for CI
+        run: npm ci
         
-      - name: Check formatting
-        run: npx prettier -c
+      - name: Checking format
+        run: npx prettier -c .
