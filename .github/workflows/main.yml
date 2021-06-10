@@ -42,6 +42,6 @@ jobs:
               env:
                   CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
               with:
-                  coverageCommand: npx nyc mocha --reporter=lcov --exit
+                  coverageCommand: npx nyc --reporter=lcov mocha --exit
                   coverageLocations: ${{github.workspace}}/.nyc_output/*.json:lcov
                   debug: true
