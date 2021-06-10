@@ -1,3 +1,5 @@
+const pool = require("./server/database");
+
 let commands = [
     //USER:
     {
@@ -53,7 +55,7 @@ let commands = [
         function: executeShoutout,
         text: ["shoutout", "so"],
     },
-    {
+    /*     {
         function: executePermit,
         text: ["permit"],
     },
@@ -64,7 +66,7 @@ let commands = [
     {
         function: executeSetTitle,
         text: ["settitle", "st"],
-    },
+    }, */
     {
         function: executeCounters,
         text: ["counter"],
@@ -209,24 +211,45 @@ function executeLurk(bot, userstate) {
 }
 
 function executeQuotes(bot, matches, userstate) {
-    let requiredLevel = "mod";
+    let requiredLevel = "moderator";
     let newQuote = "";
     if (matches.shift() === "add" && hasPermission(userstate, requiredLevel)) {
         for (let i in matches) {
             newQuote += matches[i] + " ";
         }
-        bot.say(channel, "Neues Zitat hinzugefügt: " + newQuote);
-        //DATENBANK
+        pool.query(
+            "INSERT INTO quotes (quote) VALUES (?);",
+            newQuote,
+            (error) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                bot.say(channel, 'Neues Zitat hinzugefügt: "' + newQuote + '"');
+            }
+        );
         return;
     }
-    let quote = ""; //DATENBANK
-    bot.say(channel, quote);
+    pool.query(
+        "SELECT * FROM quotes ORDER BY RAND() LIMIT 1;",
+        (error, dbres) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            if (dbres.length == 0) {
+                bot.say(channel, "Es gibt derzeit keine Zitate :(");
+                return;
+            }
+            bot.say(channel, res[0].quote);
+        }
+    );
 }
 
 //------------------------ MOD -------------------------
 
 function executeShoutout(bot, matches, userstate) {
-    let requiredLevel = "mod";
+    let requiredLevel = "moderator";
     if (hasPermission(userstate, requiredLevel)) {
         if (!matches.length > 0) {
             bot.say(channel, "kein channel angegeben.");
@@ -240,6 +263,103 @@ function executeShoutout(bot, matches, userstate) {
         bot.say(channel, shoutout);
     }
 }
+
+function executeCounters(bot, matches, userstate) {
+    let requiredLevel = "moderator";
+    if (!hasPermission(userstate, requiredLevel)) {
+        return;
+    }
+    if (matches[0] === "add") {
+        if (matches[1] == null) {
+            bot.say(channel, "Kein Name angegeben.");
+            return;
+        }
+        pool.query(
+            "INSERT INTO counter (name) VALUES (?);",
+            matches[1],
+            (error) => {
+                if (error) {
+                    if (error.code === "ER_DUP_KEY") {
+                        bot.say(
+                            channel,
+                            `Counter existiert bereits, nutze !counter ${matches[1]} + zum hochzählen`
+                        );
+                        return;
+                    }
+                    console.error(error);
+                    return;
+                }
+                bot.say(channel, "Neuer Counter: " + matches[0]);
+            }
+        );
+    } else {
+        pool.query(
+            "SELECT * FROM counter WHERE name = ?;",
+            matches[0].toLowerCase(),
+            (error, result) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+
+                if (result.length == 0) {
+                    bot.say(
+                        channel,
+                        "Es gibt keinen Counter mit dem Namen " +
+                            matches[0] +
+                            ". Erstelle einen mit !counter add [name]"
+                    );
+                    return;
+                }
+                if (matches[1] == null) {
+                    bot.say(
+                        channel,
+                        "der Counter " +
+                            matches[0] +
+                            " hat den Wert " +
+                            result[0].count
+                    );
+                    return;
+                }
+                let points = result[0].count;
+                const re = /([+-])(\d)*/;
+                let groups = re.exec(matches[1]);
+                if (groups[1] == "+") {
+                    if (groups.length == 3) {
+                        points += groups[2];
+                    } else {
+                        points += 1;
+                    }
+                }
+                if (groups[1] == "-") {
+                    if (groups.length == 3) {
+                        points -= groups[2];
+                    } else {
+                        points -= 1;
+                    }
+                }
+                pool.query(
+                    "UPDATE counter SET count = ? WHERE name = ?;",
+                    [points, matches[0].toLowerCase()],
+                    (error) => {
+                        if (error) {
+                            console.error(error);
+                            return;
+                        }
+                        bot.say(
+                            channel,
+                            "Der Counter " +
+                                matches[0] +
+                                " wurde aktualisiert und ist nun auf dem Wert " +
+                                points
+                        );
+                    }
+                );
+            }
+        );
+    }
+}
+
 //---------------------- Streamer ----------------------
 
 module.exports = {

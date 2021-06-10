@@ -9,15 +9,7 @@ const io = require("socket.io")(3000, {
 const tmi = require("tmi.js");
 const express = require("express");
 const app = express();
-const mysql = require("mysql");
-var pool = mysql.createPool({
-    connectionLimit: 10,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-});
+const pool = require("./server/database");
 const auth = require("./server/auth");
 const eventSub = require("./server/eventsub");
 const filters = require("./bot/filters");
@@ -51,6 +43,20 @@ function entryPoint() {
                     });
                 });
             }
+        }
+    );
+
+    pool.query(
+        "CREATE TABLE IF NOT EXISTS `quotes` (`id` MEDIUMINT NOT NULL AUTO_INCREMENT, `quote` VARCHAR(255) NOT NULL, PRIMARY KEY(`id`);",
+        (error) => {
+            console.log(error);
+        }
+    );
+
+    pool.query(
+        "CREATE TABLE IF NOT EXISTS `counter` (`name` VARCHAR(50) NOT NULL, `count` MEDIUMINT NOT NULL DEFAULT 0, PRIMARY KEY(`name`);",
+        (error) => {
+            console.log(error);
         }
     );
 
@@ -151,3 +157,7 @@ function testEvents() {
         "Intoxicated By Youth (Glitchedout Remix)"
     );
 }
+
+module.exports = {
+    pool: pool,
+};

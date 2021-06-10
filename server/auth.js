@@ -3,14 +3,7 @@ let router = express.Router();
 const axios = require("axios");
 const mysql = require("mysql");
 const crypto = require("crypto");
-var pool = mysql.createPool({
-    connectionLimit: 10,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-});
+const pool = require("./database");
 
 router.get("/auth/twitch", (req, res) => {
     if (req.query.code == undefined) {
