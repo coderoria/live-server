@@ -42,5 +42,5 @@ jobs:
               env:
                 CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
               with:
-                coverageCommand: npx nyc mocha
+                coverageCommand: npx nyc mocha --exit
                 debug: true
