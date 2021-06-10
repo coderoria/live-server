@@ -1,74 +1,74 @@
 let commands = [
     //USER:
     {
-        "function": executeDiscord,
-        "text": ["discord", "dc"]
+        function: executeDiscord,
+        text: ["discord", "dc"],
     },
     {
-        "function": executeTwitter,
-        "text": ["twitter"]
+        function: executeTwitter,
+        text: ["twitter"],
     },
     {
-        "function": executeGitHub,
-        "text": ["git", "github"]
+        function: executeGitHub,
+        text: ["git", "github"],
     },
     {
-        "function": executeCredit,
-        "text": ["credit", "overlay", "icons"]
+        function: executeCredit,
+        text: ["credit", "overlay", "icons"],
     },
     {
-        "funktion": executeDonation,
-        "text": ["donations", "donation", "spende", "spenden"]
+        function: executeDonation,
+        text: ["donations", "donation", "spende", "spenden"],
     },
     {
-        "funktion": executeWatchtime,
-        "text": ["watchtime", "wt"]
+        function: executeWatchtime,
+        text: ["watchtime", "wt"],
     },
     {
-        "funktion": executeFollowage,
-        "text": ["followage", "fa"]
+        function: executeFollowage,
+        text: ["followage", "fa"],
     },
     {
-        "funktion": executeAccoutAge,
-        "text": ["accoutage"]
+        function: executeAccountAge,
+        text: ["accountage"],
     },
     {
-        "funktion": executeUptime,
-        "text": ["uptime", "livetime"]
+        function: executeUptime,
+        text: ["uptime", "livetime"],
     },
     {
-        "funktion": executeCommands,
-        "text": ["befele", "commands"]
+        function: executeCommands,
+        text: ["befele", "commands"],
     },
     {
-        "funktion": executeLurk,
-        "text": ["lurk"]
+        function: executeLurk,
+        text: ["lurk"],
     },
     {
-        "funktion": executeQuotes,
-        "text": ["quote"]
+        function: executeQuotes,
+        text: ["quote"],
     },
     // MOD:
     {
-        "funktion": executeShoutout,
-        "text": ["shoutout", "so"]
+        function: executeShoutout,
+        text: ["shoutout", "so"],
     },
     {
-        "funktion": executePermit,
-        "text": ["permit"]
+        function: executePermit,
+        text: ["permit"],
     },
     {
-        "funktion": executeSetGame,
-        "text": ["setgame", "sg"]
+        function: executeSetGame,
+        text: ["setgame", "sg"],
     },
     {
-        "funktion": executeSetTitle,
-        "text": ["settitle", "st"]
+        function: executeSetTitle,
+        text: ["settitle", "st"],
     },
     {
-        "funktion": executeCounters,
-        "text": ["counter"]
-    }
+        function: executeCounters,
+        text: ["counter"],
+    },
     //STREAMER:
 ];
 
@@ -77,14 +77,18 @@ let channel = process.env.CHANNEL;
 function checkCommand(bot, message, userstate) {
     const re = /^!(\S*)\s?(.*)?$/m;
     const matches = re.exec(message);
-    if (matches.length == 0) {
+    if (matches == null) {
         return;
     }
     matches.shift();
     let command = matches.shift();
     for (let i in commands) {
         if (commands[i].text.includes(command.toLowerCase())) {
-            commands[i].function(bot, matches[0].split(' '), userstate);
+            commands[i].function(
+                bot,
+                matches[0] ? matches[0].split(" ") : [],
+                userstate
+            );
         }
     }
 }
@@ -99,6 +103,9 @@ function findRecipient(matches, userstate) {
 
 function hasPermission(userstate, requiredLevel) {
     let ranks = ["broadcaster", "moderator", "vip", "subscriber"];
+    if (!ranks.includes(requiredLevel)) {
+        return false;
+    }
     for (let i in ranks) {
         if (userstate.badges.hasOwnProperty(ranks[i])) {
             return true;
@@ -107,32 +114,38 @@ function hasPermission(userstate, requiredLevel) {
             return false;
         }
     }
-    return false;
 }
 
 //------------------------ USER ------------------------
 
 function executeDiscord(bot, matches, userstate) {
-    findRecipient(matches, userstate);
-    let discord = recipient + ", hier ist unser Discord: https://coderoria.com/discord";
+    let recipient = findRecipient(matches, userstate);
+    let discord =
+        recipient + ", hier ist unser Discord: https://coderoria.com/discord";
     bot.say(channel, discord);
 }
 
 function executeTwitter(bot, matches, userstate) {
-    findRecipient(matches, userstate);
-    let twitter = recipient + ", hier ist unser Twitter account: https://coderoria.com/twitter";
+    let recipient = findRecipient(matches, userstate);
+    let twitter =
+        recipient +
+        ", hier ist unser Twitter account: https://coderoria.com/twitter";
     bot.say(channel, twitter);
 }
 
 function executeGitHub(bot, matches, userstate) {
-    findRecipient(matches, userstate);
-    let gitHub = recipient + ", hier sind alle unsere Projekte gesammelt: https://coderoria.com/github";
+    let recipient = findRecipient(matches, userstate);
+    let gitHub =
+        recipient +
+        ", hier sind alle unsere Projekte gesammelt: https://coderoria.com/github";
     bot.say(channel, gitHub);
 }
 
 function executeCredit(bot, matches, userstate) {
-    findRecipient(matches, userstate);
-    let credit = recipient + ", Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/";
+    let recipient = findRecipient(matches, userstate);
+    let credit =
+        recipient +
+        ", Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/";
     bot.say(channel, credit);
 }
 
@@ -150,15 +163,15 @@ function executeWatchtime(bot, matches, userstate) {
 }
 
 function executeFollowage(bot, matches, userstate) {
-    findRecipient(matches, userstate);
-    //FOLLOWAGE MISSING
+    let recipient = findRecipient(matches, userstate);
+
     let followage = " ";
     bot.say(channel, followage);
 }
 
-function executeAccoutAge(bot, matches, userstate) {
-    findRecipient(matches, userstate);
-    //ACCOUNTAGE MISSING
+function executeAccountAge(bot, matches, userstate) {
+    let recipient = findRecipient(matches, userstate);
+
     let accountage = " ";
     bot.say(channel, accountage);
 }
@@ -166,21 +179,26 @@ function executeAccoutAge(bot, matches, userstate) {
 function executeUptime(bot, matches, userstate) {
     findRecipient(matches, userstate);
     //UPTIME MISSING
-    let upTime = " "; ""
+    let upTime = " ";
+    ("");
     let message = "@" + recipient + ", CodeRoria ist seit " + upTime + " live.";
     bot.say(channel, message);
 }
 
 function executeCommands(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     let command = "";
-    for (let i in commands){
-        for(let j in commands[i].text) {
+    for (let i in commands) {
+        for (let j in commands[i].text) {
             command += commands[i].text[j];
             command += ", ";
         }
     }
-    let message = "@" + recipient + ", Das sind alle Commands auf diesem Channel: " + command;
+    let message =
+        "@" +
+        recipient +
+        ", Das sind alle Commands auf diesem Channel: " +
+        command;
     bot.say(channel, message);
 }
 
@@ -191,10 +209,10 @@ function executeLurk(bot, userstate) {
 }
 
 function executeQuotes(bot, matches, userstate) {
-    let requiredLevel = "mod"
+    let requiredLevel = "mod";
     let newQuote = "";
-    if (matches.shift() === "add" && hasPermission(userstate, requiredLevel)){
-        for (let i in matches){
+    if (matches.shift() === "add" && hasPermission(userstate, requiredLevel)) {
+        for (let i in matches) {
             newQuote += matches[i] + " ";
         }
         bot.say(channel, "Neues Zitat hinzugefügt: " + newQuote);
@@ -209,13 +227,22 @@ function executeQuotes(bot, matches, userstate) {
 
 function executeShoutout(bot, matches, userstate) {
     let requiredLevel = "mod";
-    if (hasPermission(userstate,requiredLevel)){
-       if (!matches.length > 0) {
-        bot.say(channel, "kein channel angegeben.");
-        return;
-    }
-    let shoutout = "Hey! Gib @" + matches[0] + " doch einen Follow! Der letzte Stream was" + " "; //GAME MISSING
-    bot.say(channel, shoutout); 
+    if (hasPermission(userstate, requiredLevel)) {
+        if (!matches.length > 0) {
+            bot.say(channel, "kein channel angegeben.");
+            return;
+        }
+        let shoutout =
+            "Hey! Gib @" +
+            matches[0] +
+            " doch einen Follow! Der letzte Stream was" +
+            " "; //GAME MISSING
+        bot.say(channel, shoutout);
     }
 }
 //---------------------- Streamer ----------------------
+
+module.exports = {
+    checkCommand: checkCommand,
+    hasPermission: hasPermission,
+};

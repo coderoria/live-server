@@ -7,23 +7,29 @@ function showPlayBack(img, artists, title) {
     artistsElement.innerHTML = artists;
 
     let titleAnim, artistsAnim;
-    if(title.length > 27) {
-        titleAnim = titleElement.animate([
-            {transform: `translateX(${titleElement.clientWidth}px)`},
-            {transform: `translateX(-${titleElement.scrollWidth}px)`}
-        ], {
-            duration: 9000,
-            iterations: Infinity
-        });
+    if (title.length > 27) {
+        titleAnim = titleElement.animate(
+            [
+                { transform: `translateX(${titleElement.clientWidth}px)` },
+                { transform: `translateX(-${titleElement.scrollWidth}px)` },
+            ],
+            {
+                duration: 9000,
+                iterations: Infinity,
+            }
+        );
     }
-    if(artists.length > 30) {
-        artistsAnim = artistsElement.animate([
-            {transform: `translateX(${artistsElement.clientWidth}px)`},
-            {transform: `translateX(-${artistsElement.scrollWidth}px)`}
-        ], {
-            duration: 9000,
-            iterations: Infinity
-        });
+    if (artists.length > 30) {
+        artistsAnim = artistsElement.animate(
+            [
+                { transform: `translateX(${artistsElement.clientWidth}px)` },
+                { transform: `translateX(-${artistsElement.scrollWidth}px)` },
+            ],
+            {
+                duration: 9000,
+                iterations: Infinity,
+            }
+        );
     }
     anime({
         targets: ".playback-box",
@@ -32,9 +38,9 @@ function showPlayBack(img, artists, title) {
         endDelay: 7000,
         direction: "alternate",
         complete: () => {
-            if(titleAnim != undefined) titleAnim.cancel();
-            if(artistsAnim != undefined) artistsAnim.cancel();
+            if (titleAnim != undefined) titleAnim.cancel();
+            if (artistsAnim != undefined) artistsAnim.cancel();
         },
-        easing: 'cubicBezier(0.000, 0.000, 0.580, 1.000)'
+        easing: "cubicBezier(0.000, 0.000, 0.580, 1.000)",
     });
 }
