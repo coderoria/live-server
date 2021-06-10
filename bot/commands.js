@@ -1,4 +1,4 @@
-const pool = require("./server/database");
+const pool = require("../server/database");
 
 let commands = [
     //USER:
