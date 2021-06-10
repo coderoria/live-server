@@ -25,6 +25,14 @@ describe("Commands", function () {
         commands.checkCommand(bot, "kein befehl", userstate);
     });
 
+    it("Command with recipient", function () {
+        botMock
+            .expects("say")
+            .once()
+            .alwaysCalledWith(undefined, sinon.match(/^@TestUser.*/));
+        commands.checkCommand(bot, "!discord @TestUser", userstate);
+    });
+
     describe("Permission checks (user has mod+sub)", function () {
         it("Subscriber required", function () {
             assert(commands.hasPermission(userstate, "subscriber"));

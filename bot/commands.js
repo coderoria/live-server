@@ -114,7 +114,6 @@ function hasPermission(userstate, requiredLevel) {
             return false;
         }
     }
-    return false;
 }
 
 //------------------------ USER ------------------------
