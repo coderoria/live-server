@@ -136,27 +136,39 @@ function executeCredit(bot, matches, userstate) {
     bot.say(channel, credit);
 }
 
+function executeDonation(bot, matches, userstate) {
+    findRecipient(matches, userstate);
+    let donation = "@" + recipient + ", hier ist unser Donationlink: "; //LINK MISSING
+    bot.say(channel, donation);
+}
+
 function executeWatchtime(bot, matches, userstate) {
     findRecipient(matches, userstate);
-
-
+    //WATCHTIME MISSING
     let watchtime = " ";
     bot.say(channel, watchtime);
 }
 
 function executeFollowage(bot, matches, userstate) {
     findRecipient(matches, userstate);
-
-
+    //FOLLOWAGE MISSING
     let followage = " ";
     bot.say(channel, followage);
 }
 
 function executeAccoutAge(bot, matches, userstate) {
     findRecipient(matches, userstate);
-
+    //ACCOUNTAGE MISSING
     let accountage = " ";
     bot.say(channel, accountage);
+}
+
+function executeUptime(bot, matches, userstate) {
+    findRecipient(matches, userstate);
+    //UPTIME MISSING
+    let upTime = " "; ""
+    let message = "@" + recipient + ", CodeRoria ist seit " + upTime + " live.";
+    bot.say(channel, message);
 }
 
 function executeCommands(bot, matches, userstate) {
@@ -172,14 +184,38 @@ function executeCommands(bot, matches, userstate) {
     bot.say(channel, message);
 }
 
+function executeLurk(bot, userstate) {
+    let recipient = userstate.username;
+    let lurk = recipient + " ist jetzt im Lurk";
+    bot.say(channel, lurk);
+}
+
+function executeQuotes(bot, matches, userstate) {
+    let requiredLevel = "mod"
+    let newQuote = "";
+    if (matches.shift() === "add" && hasPermission(userstate, requiredLevel)){
+        for (let i in matches){
+            newQuote += matches[i] + " ";
+        }
+        bot.say(channel, "Neues Zitat hinzugefügt: " + newQuote);
+        //DATENBANK
+        return;
+    }
+    let quote = ""; //DATENBANK
+    bot.say(channel, quote);
+}
+
 //------------------------ MOD -------------------------
 
 function executeShoutout(bot, matches, userstate) {
-    //MOD ONLY
-    if (!matches.length > 0) {
+    let requiredLevel = "mod";
+    if (hasPermission(userstate,requiredLevel)){
+       if (!matches.length > 0) {
         bot.say(channel, "kein channel angegeben.");
+        return;
     }
-    let shoutout = "Hey! Gib @" + matches[0] + " doch einen Follow! Der letzte Stream was" + " ";
-    bot.say(channel, shoutout);
+    let shoutout = "Hey! Gib @" + matches[0] + " doch einen Follow! Der letzte Stream was" + " "; //GAME MISSING
+    bot.say(channel, shoutout); 
+    }
 }
 //---------------------- Streamer ----------------------
