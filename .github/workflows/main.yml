@@ -37,13 +37,11 @@ jobs:
             - name: Preparing for CI
               run: npm ci
 
-            - name: Running tests
-              run: npm test
-
             - uses: paambaati/codeclimate-action@v2.7.2
+              name: Running tests
               env:
                   CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
               with:
-                  coverageCommand: npx nyc report
+                  coverageCommand: npx nyc mocha --exit
                   coverageLocations: ${{github.workspace}}/.nyc_output/*.json:lcov
                   debug: true
