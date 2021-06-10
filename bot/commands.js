@@ -16,59 +16,59 @@ let commands = [
         function: executeCredit,
         text: ["credit", "overlay", "icons"],
     },
-    {
-        funktion: executeDonation,
+    /*{
+        function: executeDonation,
         text: ["donations", "donation", "spende", "spenden"],
-    },
+    },*/
     {
-        funktion: executeWatchtime,
+        function: executeWatchtime,
         text: ["watchtime", "wt"],
     },
     {
-        funktion: executeFollowage,
+        function: executeFollowage,
         text: ["followage", "fa"],
     },
     {
-        funktion: executeAccoutAge,
+        function: executeAccoutAge,
         text: ["accoutage"],
     },
-    {
-        funktion: executeUptime,
+    /* {
+        function: executeUptime,
         text: ["uptime", "livetime"],
-    },
+    }, */
     {
-        funktion: executeCommands,
+        function: executeCommands,
         text: ["befele", "commands"],
     },
-    {
-        funktion: executeLurk,
+    /* {
+        function: executeLurk,
         text: ["lurk"],
-    },
-    {
-        funktion: executeQuotes,
+    }, */
+    /* {
+        function: executeQuotes,
         text: ["quote"],
-    },
+    }, */
     // MOD:
     {
-        funktion: executeShoutout,
+        function: executeShoutout,
         text: ["shoutout", "so"],
     },
-    {
-        funktion: executePermit,
+    /* {
+        function: executePermit,
         text: ["permit"],
-    },
-    {
-        funktion: executeSetGame,
+    }, */
+    /* {
+        function: executeSetGame,
         text: ["setgame", "sg"],
-    },
-    {
-        funktion: executeSetTitle,
+    }, */
+    /* {
+        function: executeSetTitle,
         text: ["settitle", "st"],
-    },
-    {
-        funktion: executeCounters,
+    }, */
+    /* {
+        function: executeCounters,
         text: ["counter"],
-    },
+    }, */
     //STREAMER:
 ];
 
@@ -84,7 +84,11 @@ function checkCommand(bot, message, userstate) {
     let command = matches.shift();
     for (let i in commands) {
         if (commands[i].text.includes(command.toLowerCase())) {
-            commands[i].function(bot, matches[0].split(" "), userstate);
+            commands[i].function(
+                bot,
+                matches[0] ? matches[0].split(" ") : [],
+                userstate
+            );
         }
     }
 }
@@ -113,14 +117,14 @@ function hasPermission(userstate, requiredLevel) {
 //------------------------ USER ------------------------
 
 function executeDiscord(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     let discord =
         recipient + ", hier ist unser Discord: https://coderoria.com/discord";
     bot.say(channel, discord);
 }
 
 function executeTwitter(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     let twitter =
         recipient +
         ", hier ist unser Twitter account: https://coderoria.com/twitter";
@@ -128,7 +132,7 @@ function executeTwitter(bot, matches, userstate) {
 }
 
 function executeGitHub(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     let gitHub =
         recipient +
         ", hier sind alle unsere Projekte gesammelt: https://coderoria.com/github";
@@ -136,7 +140,7 @@ function executeGitHub(bot, matches, userstate) {
 }
 
 function executeCredit(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     let credit =
         recipient +
         ", Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/";
@@ -144,28 +148,28 @@ function executeCredit(bot, matches, userstate) {
 }
 
 function executeWatchtime(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
 
     let watchtime = " ";
     bot.say(channel, watchtime);
 }
 
 function executeFollowage(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
 
     let followage = " ";
     bot.say(channel, followage);
 }
 
 function executeAccoutAge(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
 
     let accountage = " ";
     bot.say(channel, accountage);
 }
 
 function executeCommands(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     let command = "";
     for (let i in commands) {
         for (let j in commands[i].text) {

@@ -120,7 +120,9 @@ function checkCaps(message, userstate) {
     const re = /[A-ZÄÜÖ]/g;
     let caps = (message.match(re) || []).length;
 
-    return caps / message.length > 0.8 && message.length > 10;
+    return (
+        caps / message.replaceAll(/\s/g, "").length > 0.8 && message.length > 10
+    );
 }
 
 function checkSpamLetters(message, userstate) {
