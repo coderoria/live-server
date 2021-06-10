@@ -76,7 +76,7 @@ function entryPoint() {
     bot.on("message", (channel, userstate, message, self) => {
         if (self) return;
 
-        if(!filters.checkMessage(bot, message, userstate)) {
+        if (!filters.checkMessage(bot, message, userstate)) {
             commands.checkCommand(bot, message, userstate);
         }
     });
