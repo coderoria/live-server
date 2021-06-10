@@ -1,6 +1,7 @@
 # Live-Server
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/ecb5636f6bb81b74b50b/maintainability)](https://codeclimate.com/repos/60c1467d688eb00161000010/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/ecb5636f6bb81b74b50b/test_coverage)](https://codeclimate.com/repos/60c1467d688eb00161000010/test_coverage)
 
 Bot and Overlays for CodeRoria-Streams written in Node.js
 
