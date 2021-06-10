@@ -29,8 +29,8 @@ let commands = [
         text: ["followage", "fa"],
     },
     {
-        function: executeAccoutAge,
-        text: ["accoutage"],
+        function: executeAccountAge,
+        text: ["accountage"],
     },
     /* {
         function: executeUptime,
@@ -77,7 +77,7 @@ let channel = process.env.CHANNEL;
 function checkCommand(bot, message, userstate) {
     const re = /^!(\S*)\s?(.*)?$/m;
     const matches = re.exec(message);
-    if (matches.length == 0) {
+    if (matches == null) {
         return;
     }
     matches.shift();
@@ -103,6 +103,9 @@ function findRecipient(matches, userstate) {
 
 function hasPermission(userstate, requiredLevel) {
     let ranks = ["broadcaster", "moderator", "vip", "subscriber"];
+    if (!ranks.includes(requiredLevel)) {
+        return false;
+    }
     for (let i in ranks) {
         if (userstate.badges.hasOwnProperty(ranks[i])) {
             return true;
@@ -161,7 +164,7 @@ function executeFollowage(bot, matches, userstate) {
     bot.say(channel, followage);
 }
 
-function executeAccoutAge(bot, matches, userstate) {
+function executeAccountAge(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
 
     let accountage = " ";
@@ -191,6 +194,7 @@ function executeShoutout(bot, matches, userstate) {
     //MOD ONLY
     if (!matches.length > 0) {
         bot.say(channel, "kein channel angegeben.");
+        return;
     }
     let shoutout =
         "Hey! Gib @" +
@@ -203,4 +207,5 @@ function executeShoutout(bot, matches, userstate) {
 
 module.exports = {
     checkCommand: checkCommand,
+    hasPermission: hasPermission,
 };
