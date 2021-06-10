@@ -43,4 +43,4 @@ jobs:
                 CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
               with:
                 coverageCommand: npx nyc mocha
-              debug: true
+                debug: true
