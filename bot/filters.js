@@ -53,7 +53,7 @@ function checkMessage(bot, message, userstate) {
         };
     }
     if (!violations.hasOwnProperty(userstate.username) || !violated) {
-        return;
+        return false;
     }
     let channel = process.env.CHANNEL;
     let multipleActions = "";
@@ -110,6 +110,7 @@ function checkMessage(bot, message, userstate) {
                 multipleActions
         );
     }
+    return true;
 }
 
 function checkCaps(message, userstate) {

@@ -196,3 +196,8 @@ function executeShoutout(bot, matches, userstate) {
     bot.say(channel, shoutout);
 }
 //---------------------- Streamer ----------------------
+
+
+module.exports = {
+    checkCommand: checkCommand
+}

@@ -21,6 +21,7 @@ var pool = mysql.createPool({
 const auth = require("./server/auth");
 const eventSub = require("./server/eventsub");
 const filters = require("./bot/filters");
+const commands = require("./bot/commands");
 
 let bot;
 
@@ -75,7 +76,9 @@ function entryPoint() {
     bot.on("message", (channel, userstate, message, self) => {
         if (self) return;
 
-        filters.checkMessage(bot, message, userstate);
+        if(!filters.checkMessage(bot, message, userstate)) {
+            commands.checkCommand(bot, message, userstate);
+        }
     });
 
     bot.on("subscription", (channel, username, method, message, userstate) => {
