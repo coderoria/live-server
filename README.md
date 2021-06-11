@@ -1,5 +1,7 @@
 # Live-Server
 
+![](https://github.com/coderoria/live-server/blob/main/.github/logo.png)
+
 <p align="center">
 <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/coderoria/live-server">
 <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/coderoria/live-server/CI">
