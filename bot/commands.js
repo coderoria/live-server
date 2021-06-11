@@ -101,7 +101,7 @@ function checkCommand(bot, message, userstate) {
 }
 
 function findRecipient(matches, userstate) {
-    let recipient = userstate["display-name"];
+    let recipient = "@" + userstate["display-name"];
     if (matches.length > 0) {
         recipient = matches[0];
     }
