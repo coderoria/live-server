@@ -274,14 +274,14 @@ function executeCounters(bot, matches, userstate) {
                     if (error.code === "ER_DUP_KEY") {
                         bot.say(
                             channel,
-                            __("commands.counter.addDuplicate", matches[1])
+                            __("commands.counters.addDuplicate", matches[1])
                         );
                         return;
                     }
                     console.error(error);
                     return;
                 }
-                bot.say(channel, __("commands.counter.addedNew", matches[0]));
+                bot.say(channel, __("commands.counters.addedNew", matches[1]));
             }
         );
     } else if (matches[0] === "delete") {
@@ -289,25 +289,25 @@ function executeCounters(bot, matches, userstate) {
             return;
         }
         if (matches[1] == null) {
-            bot.say(channel, __("commands.counter.noNameProvided"));
+            bot.say(channel, __("commands.counters.noNameProvided"));
             return;
         }
         pool.query(
             "DELETE FROM counter WHERE name = ?;",
             matches[1].toLowerCase(),
-            (error) => {
-                if ((error, result)) {
-                    if (result.affectedRows) {
-                        bot.say(
-                            channel,
-                            __("commands.counter.doesNotExist", matches[1])
-                        );
-                        return;
-                    }
+            (error, result) => {
+                if (error) {
                     console.error(error);
                     return;
                 }
-                bot.say(channel, __("commands.counter.deleted", matches[0]));
+                if (result.affectedRows === 0) {
+                    bot.say(
+                        channel,
+                        __("commands.counters.doesNotExist", matches[1])
+                    );
+                    return;
+                }
+                bot.say(channel, __("commands.counters.deleted", matches[1]));
             }
         );
     } else {
@@ -323,7 +323,7 @@ function executeCounters(bot, matches, userstate) {
                 if (result.length == 0) {
                     bot.say(
                         channel,
-                        __("commands.counter.doesNotExist", matches[0])
+                        __("commands.counters.doesNotExist", matches[0])
                     );
                     return;
                 }
@@ -331,7 +331,7 @@ function executeCounters(bot, matches, userstate) {
                     bot.say(
                         channel,
                         __(
-                            "commands.counter.showCount",
+                            "commands.counters.showCount",
                             matches[0],
                             result[0].count
                         )
@@ -368,7 +368,7 @@ function executeCounters(bot, matches, userstate) {
                         }
                         bot.say(
                             channel,
-                            __("commands.counter.updated", matches[0], points)
+                            __("commands.counters.updated", matches[0], points)
                         );
                     }
                 );

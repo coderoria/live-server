@@ -27,7 +27,7 @@
             "doesNotExist": "Counter %s does not exist.",
             "deleted": "Counter deleted: %s",
             "showCount": "The counter %s has a value of %d",
-            "updated": "The counter %s has been updates and now has a value of %d"
+            "updated": "The counter %s has been updated and now has a value of %d"
         }
     }
 }

@@ -47,16 +47,20 @@ function entryPoint() {
     );
 
     pool.query(
-        "CREATE TABLE IF NOT EXISTS `quotes` (`id` MEDIUMINT NOT NULL AUTO_INCREMENT, `quote` VARCHAR(255) NOT NULL, PRIMARY KEY(`id`);",
+        "CREATE TABLE IF NOT EXISTS `quotes` (`id` MEDIUMINT NOT NULL AUTO_INCREMENT, `quote` VARCHAR(255) NOT NULL, PRIMARY KEY(`id`));",
         (error) => {
-            console.log(error);
+            if (error) {
+                console.log(error);
+            }
         }
     );
 
     pool.query(
-        "CREATE TABLE IF NOT EXISTS `counter` (`name` VARCHAR(50) NOT NULL, `count` MEDIUMINT NOT NULL DEFAULT 0, PRIMARY KEY(`name`);",
+        "CREATE TABLE IF NOT EXISTS `counter` (`name` VARCHAR(50) NOT NULL, `count` MEDIUMINT NOT NULL DEFAULT 0, PRIMARY KEY(`name`));",
         (error) => {
-            console.log(error);
+            if (error) {
+                console.log(error);
+            }
         }
     );
 
