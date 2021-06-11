@@ -263,10 +263,10 @@ function executeShoutout(bot, matches, userstate) {
 
 function executeCounters(bot, matches, userstate) {
     let requiredLevel = "moderator";
-    if (!hasPermission(userstate, requiredLevel)) {
-        return;
-    }
     if (matches[0] === "add") {
+        if (!hasPermission(userstate, requiredLevel)) {
+            return;
+        }
         if (matches[1] == null) {
             bot.say(channel, "Kein Name angegeben.");
             return;
@@ -290,6 +290,9 @@ function executeCounters(bot, matches, userstate) {
             }
         );
     } else if (matches[0] === "delete") {
+        if (!hasPermission(userstate, requiredLevel)) {
+            return;
+        }
         if (matches[1] == null) {
             bot.say(channel, "Kein Name angegeben.");
             return;
@@ -339,6 +342,9 @@ function executeCounters(bot, matches, userstate) {
                             " hat den Wert " +
                             result[0].count
                     );
+                    return;
+                }
+                if (!hasPermission(userstate, requiredLevel)) {
                     return;
                 }
                 let points = result[0].count;
