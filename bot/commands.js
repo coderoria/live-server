@@ -378,9 +378,9 @@ function executeCounters(bot, matches, userstate) {
 }
 
 function executeLanguage(bot, matches, userstate) {
-    /* if (!hasPermission(userstate, "moderator")) {
+    if (!hasPermission(userstate, "moderator")) {
         return;
-    } */
+    }
     let recipient = userstate["display-name"];
     if (matches.length == 0) {
         bot.say(channel, __("commands.language.noLangGiven", recipient));
