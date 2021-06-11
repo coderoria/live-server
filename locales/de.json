@@ -1,33 +1,33 @@
 {
-  "commands": {
-    "credit": "%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
-    "discord": "%s, hier ist unser Discord: https://coderoria.com/discord",
-    "donation": "%s, hier kannst du spenden:",
-    "github": "%s, alle Projekte von uns sind hier zu finden: https://coderoria.com/github",
-    "twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
-    "language": {
-      "noLangGiven": "%s, bitte gebe eine Sprache an, auf die gewechselt werden soll.",
-      "message": "%s, die Sprache wurde gewechselt."
-    },
-    "uptime": "%s, %s ist seit %s live.",
-    "commands": "%s, das sind alle Befehle auf dem Kanal: %s",
-    "lurk": "%s ist jetzt im Lurk.",
-    "quotes": {
-      "newAdded": "Neues Zitat hinzugefügt: %s",
-      "noQuotes": "Es gibt derzeit keine Zitate :("
-    },
-    "shoutout": {
-      "noChannel": "Kein Channel angegeben.",
-      "message": "Hey! Gib %s doch einen Follow! Der letzte Stream war %s"
-    },
-    "counters": {
-      "noNameProvided": "Kein Name angegeben.",
-      "addDuplicate": "Counter existiert bereits, nutze !counter %s + zum hochzählen.",
-      "addedNew": "Neuer Counter: %s",
-      "doesNotExist": "Counter %s existiert nicht.",
-      "deleted": "Counter gelöscht: %s",
-      "showCount": "Der Counter %s hat den Wert %d",
-      "updated": "Der Counter %s wurde aktualisiert und hat nun den Wert %d"
+    "commands": {
+        "credit": "%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
+        "discord": "%s, hier ist unser Discord: https://coderoria.com/discord",
+        "donation": "%s, hier kannst du spenden:",
+        "github": "%s, alle Projekte von uns sind hier zu finden: https://coderoria.com/github",
+        "twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
+        "language": {
+            "noLangGiven": "%s, bitte gebe eine Sprache an, auf die gewechselt werden soll.",
+            "message": "%s, die Sprache wurde gewechselt."
+        },
+        "uptime": "%s, %s ist seit %s live.",
+        "commands": "%s, das sind alle Befehle auf dem Kanal: %s",
+        "lurk": "%s ist jetzt im Lurk.",
+        "quotes": {
+            "newAdded": "Neues Zitat hinzugefügt: %s",
+            "noQuotes": "Es gibt derzeit keine Zitate :("
+        },
+        "shoutout": {
+            "noChannel": "Kein Channel angegeben.",
+            "message": "Hey! Gib %s doch einen Follow! Der letzte Stream war %s"
+        },
+        "counters": {
+            "noNameProvided": "Kein Name angegeben.",
+            "addDuplicate": "Counter existiert bereits, nutze !counter %s + zum hochzählen.",
+            "addedNew": "Neuer Counter: %s",
+            "doesNotExist": "Counter %s existiert nicht.",
+            "deleted": "Counter gelöscht: %s",
+            "showCount": "Der Counter %s hat den Wert %d",
+            "updated": "Der Counter %s wurde aktualisiert und hat nun den Wert %d"
+        }
     }
-  }
 }
