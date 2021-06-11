@@ -1,3 +1,4 @@
+const i18n = require("../i18n");
 const pool = require("../server/database");
 
 let commands = [
@@ -71,6 +72,10 @@ let commands = [
         function: executeCounters,
         text: ["counter"],
     },
+    {
+        function: executeLanguage,
+        text: ["lang", "language"],
+    },
     //STREAMER:
 ];
 
@@ -122,38 +127,35 @@ function hasPermission(userstate, requiredLevel) {
 
 function executeDiscord(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    let discord =
-        recipient + ", hier ist unser Discord: https://coderoria.com/discord";
+    let discord = __("commands.discord", recipient);
     bot.say(channel, discord);
 }
 
 function executeTwitter(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    let twitter =
-        recipient +
-        ", hier ist unser Twitter account: https://coderoria.com/twitter";
+    let twitter = __("commands.twitter", recipient);
     bot.say(channel, twitter);
 }
 
 function executeGitHub(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    let gitHub =
-        recipient +
-        ", hier sind alle unsere Projekte gesammelt: https://coderoria.com/github";
+    let gitHub = __("commands.github", recipient);
     bot.say(channel, gitHub);
 }
 
 function executeCredit(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    let credit =
-        recipient +
-        ", Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/";
+    let credit = __(
+        "commands.credit",
+        recipient
+        //%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
+    );
     bot.say(channel, credit);
 }
 
 function executeDonation(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    let donation = "@" + recipient + ", hier ist unser Donationlink: "; //LINK MISSING
+    let donation = __("commands.donation", recipient); //LINK MISSING
     bot.say(channel, donation);
 }
 
@@ -182,7 +184,8 @@ function executeUptime(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
     //UPTIME MISSING
     let upTime = " ";
-    let message = "@" + recipient + ", CodeRoria ist seit " + upTime + " live.";
+    let message = __("commands.uptime", recipient, channel, null);
+    //"@" + recipient + ", CodeRoria ist seit " + upTime + " live.";
     bot.say(channel, message);
 }
 
@@ -195,17 +198,13 @@ function executeCommands(bot, matches, userstate) {
             command += ", ";
         }
     }
-    let message =
-        "@" +
-        recipient +
-        ", Das sind alle Commands auf diesem Channel: " +
-        command;
+    let message = __("commands.commands", recipient, command);
     bot.say(channel, message);
 }
 
-function executeLurk(bot, userstate) {
+function executeLurk(bot, matches, userstate) {
     let recipient = userstate.username;
-    let lurk = recipient + " ist jetzt im Lurk";
+    let lurk = __("commands.lurk", recipient);
     bot.say(channel, lurk);
 }
 
@@ -222,7 +221,7 @@ function executeQuotes(bot, matches, userstate) {
                     console.error(error);
                     return;
                 }
-                bot.say(channel, 'Neues Zitat hinzugefügt: "' + newQuote + '"');
+                bot.say(channel, __("commands.quotes.newAdded", newQuote));
             }
         );
         return;
@@ -235,7 +234,7 @@ function executeQuotes(bot, matches, userstate) {
                 return;
             }
             if (dbres.length == 0) {
-                bot.say(channel, "Es gibt derzeit keine Zitate :(");
+                bot.say(channel, __("commands.quotes.noQuotes"));
                 return;
             }
             bot.say(channel, dbres[0].quote);
@@ -249,14 +248,10 @@ function executeShoutout(bot, matches, userstate) {
     let requiredLevel = "moderator";
     if (hasPermission(userstate, requiredLevel)) {
         if (!matches.length > 0) {
-            bot.say(channel, "kein channel angegeben.");
+            bot.say(channel, __("commands.shoutout.noChannel"));
             return;
         }
-        let shoutout =
-            "Hey! Gib @" +
-            matches[0] +
-            " doch einen Follow! Der letzte Stream was" +
-            " "; //GAME MISSING
+        let shoutout = __("commands.shoutout.message", matches[0], null); //GAME MISSING
         bot.say(channel, shoutout);
     }
 }
@@ -268,25 +263,25 @@ function executeCounters(bot, matches, userstate) {
             return;
         }
         if (matches[1] == null) {
-            bot.say(channel, "Kein Name angegeben.");
+            bot.say(channel, __("commands.counters.noNameProvided"));
             return;
         }
         pool.query(
             "INSERT INTO counter (name) VALUES (?);",
-            matches[1],
+            matches[1].toLowerCase(),
             (error) => {
                 if (error) {
                     if (error.code === "ER_DUP_KEY") {
                         bot.say(
                             channel,
-                            `Counter existiert bereits, nutze !counter ${matches[1]} + zum hochzählen`
+                            __("commands.counter.addDuplicate", matches[1])
                         );
                         return;
                     }
                     console.error(error);
                     return;
                 }
-                bot.say(channel, "Neuer Counter: " + matches[0]);
+                bot.say(channel, __("commands.counter.addedNew", matches[0]));
             }
         );
     } else if (matches[0] === "delete") {
@@ -294,25 +289,25 @@ function executeCounters(bot, matches, userstate) {
             return;
         }
         if (matches[1] == null) {
-            bot.say(channel, "Kein Name angegeben.");
+            bot.say(channel, __("commands.counter.noNameProvided"));
             return;
         }
         pool.query(
             "DELETE FROM counter WHERE name = ?;",
-            matches[1],
+            matches[1].toLowerCase(),
             (error) => {
                 if ((error, result)) {
                     if (result.affectedRows) {
                         bot.say(
                             channel,
-                            "Counter " + matches[1] + "existiert nicht."
+                            __("commands.counter.doesNotExist", matches[1])
                         );
                         return;
                     }
                     console.error(error);
                     return;
                 }
-                bot.say(channel, "Counter gelöscht: " + matches[0]);
+                bot.say(channel, __("commands.counter.deleted", matches[0]));
             }
         );
     } else {
@@ -328,19 +323,18 @@ function executeCounters(bot, matches, userstate) {
                 if (result.length == 0) {
                     bot.say(
                         channel,
-                        "Es gibt keinen Counter mit dem Namen " +
-                            matches[0] +
-                            ". Erstelle einen mit !counter add [name]"
+                        __("commands.counter.doesNotExist", matches[0])
                     );
                     return;
                 }
                 if (matches[1] == null) {
                     bot.say(
                         channel,
-                        "der Counter " +
-                            matches[0] +
-                            " hat den Wert " +
+                        __(
+                            "commands.counter.showCount",
+                            matches[0],
                             result[0].count
+                        )
                     );
                     return;
                 }
@@ -374,16 +368,26 @@ function executeCounters(bot, matches, userstate) {
                         }
                         bot.say(
                             channel,
-                            "Der Counter " +
-                                matches[0] +
-                                " wurde aktualisiert und ist nun auf dem Wert " +
-                                points
+                            __("commands.counter.updated", matches[0], points)
                         );
                     }
                 );
             }
         );
     }
+}
+
+function executeLanguage(bot, matches, userstate) {
+    /* if (!hasPermission(userstate, "moderator")) {
+        return;
+    } */
+    let recipient = userstate["display-name"];
+    if (matches.length == 0) {
+        bot.say(channel, __("commands.language.noLangGiven", recipient));
+        return;
+    }
+    i18n.setLocale(matches[0]);
+    bot.say(channel, __("commands.language.message", recipient));
 }
 
 //---------------------- Streamer ----------------------
