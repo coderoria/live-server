@@ -152,7 +152,7 @@ function executeCredit(bot, matches, userstate) {
 }
 
 function executeDonation(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     let donation = "@" + recipient + ", hier ist unser Donationlink: "; //LINK MISSING
     bot.say(channel, donation);
 }
@@ -179,10 +179,9 @@ function executeAccountAge(bot, matches, userstate) {
 }
 
 function executeUptime(bot, matches, userstate) {
-    findRecipient(matches, userstate);
+    let recipient = findRecipient(matches, userstate);
     //UPTIME MISSING
     let upTime = " ";
-    ("");
     let message = "@" + recipient + ", CodeRoria ist seit " + upTime + " live.";
     bot.say(channel, message);
 }
@@ -214,9 +213,7 @@ function executeQuotes(bot, matches, userstate) {
     let requiredLevel = "moderator";
     let newQuote = "";
     if (matches.shift() === "add" && hasPermission(userstate, requiredLevel)) {
-        for (let i in matches) {
-            newQuote += matches[i] + " ";
-        }
+        newQuote = matches.join(" ");
         pool.query(
             "INSERT INTO quotes (quote) VALUES (?);",
             newQuote,
@@ -241,7 +238,7 @@ function executeQuotes(bot, matches, userstate) {
                 bot.say(channel, "Es gibt derzeit keine Zitate :(");
                 return;
             }
-            bot.say(channel, res[0].quote);
+            bot.say(channel, dbres[0].quote);
         }
     );
 }
@@ -276,7 +273,7 @@ function executeCounters(bot, matches, userstate) {
         }
         pool.query(
             "INSERT INTO counter (name) VALUES (?);",
-            matches[1],
+            matches[1].toLowerCase(),
             (error) => {
                 if (error) {
                     if (error.code === "ER_DUP_KEY") {
@@ -322,18 +319,18 @@ function executeCounters(bot, matches, userstate) {
                     return;
                 }
                 let points = result[0].count;
-                const re = /([+-])(\d)*/;
+                const re = /([+-])(\d*)/;
                 let groups = re.exec(matches[1]);
                 if (groups[1] == "+") {
-                    if (groups.length == 3) {
-                        points += groups[2];
+                    if (groups[2].length > 0) {
+                        points += parseInt(groups[2]);
                     } else {
                         points += 1;
                     }
                 }
                 if (groups[1] == "-") {
-                    if (groups.length == 3) {
-                        points -= groups[2];
+                    if (groups[2].length > 0) {
+                        points -= parseInt(groups[2]);
                     } else {
                         points -= 1;
                     }
