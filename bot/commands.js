@@ -1,4 +1,4 @@
-const pool = require("../server/database");
+const pool = require("./server/database");
 
 let commands = [
     //USER:
@@ -152,7 +152,7 @@ function executeCredit(bot, matches, userstate) {
 }
 
 function executeDonation(bot, matches, userstate) {
-    let recipient = findRecipient(matches, userstate);
+    findRecipient(matches, userstate);
     let donation = "@" + recipient + ", hier ist unser Donationlink: "; //LINK MISSING
     bot.say(channel, donation);
 }
@@ -179,9 +179,10 @@ function executeAccountAge(bot, matches, userstate) {
 }
 
 function executeUptime(bot, matches, userstate) {
-    let recipient = findRecipient(matches, userstate);
+    findRecipient(matches, userstate);
     //UPTIME MISSING
     let upTime = " ";
+    ("");
     let message = "@" + recipient + ", CodeRoria ist seit " + upTime + " live.";
     bot.say(channel, message);
 }
@@ -213,7 +214,9 @@ function executeQuotes(bot, matches, userstate) {
     let requiredLevel = "moderator";
     let newQuote = "";
     if (matches.shift() === "add" && hasPermission(userstate, requiredLevel)) {
-        newQuote = matches.join(" ");
+        for (let i in matches) {
+            newQuote += matches[i] + " ";
+        }
         pool.query(
             "INSERT INTO quotes (quote) VALUES (?);",
             newQuote,
@@ -238,7 +241,7 @@ function executeQuotes(bot, matches, userstate) {
                 bot.say(channel, "Es gibt derzeit keine Zitate :(");
                 return;
             }
-            bot.say(channel, dbres[0].quote);
+            bot.say(channel, res[0].quote);
         }
     );
 }
@@ -263,17 +266,17 @@ function executeShoutout(bot, matches, userstate) {
 
 function executeCounters(bot, matches, userstate) {
     let requiredLevel = "moderator";
+    if (!hasPermission(userstate, requiredLevel)) {
+        return;
+    }
     if (matches[0] === "add") {
-        if (!hasPermission(userstate, requiredLevel)) {
-            return;
-        }
         if (matches[1] == null) {
             bot.say(channel, "Kein Name angegeben.");
             return;
         }
         pool.query(
             "INSERT INTO counter (name) VALUES (?);",
-            matches[1].toLowerCase(),
+            matches[1],
             (error) => {
                 if (error) {
                     if (error.code === "ER_DUP_KEY") {
@@ -287,6 +290,29 @@ function executeCounters(bot, matches, userstate) {
                     return;
                 }
                 bot.say(channel, "Neuer Counter: " + matches[0]);
+            }
+        );
+    } else if (matches[0] === "delete") {
+        if (matches[1] == null) {
+            bot.say(channel, "Kein Name angegeben.");
+            return;
+        }
+        pool.query(
+            "DELETE FROM counter WHERE name = ?;",
+            matches[1],
+            (error) => {
+                if ((error, result)) {
+                    if (result.affectedRows) {
+                        bot.say(
+                            channel,
+                            "Counter " + matches[1] + "existiert nicht."
+                        );
+                        return;
+                    }
+                    console.error(error);
+                    return;
+                }
+                bot.say(channel, "Counter gelöscht: " + matches[0]);
             }
         );
     } else {
@@ -318,22 +344,19 @@ function executeCounters(bot, matches, userstate) {
                     );
                     return;
                 }
-                if (!hasPermission(userstate, requiredLevel)) {
-                    return;
-                }
                 let points = result[0].count;
-                const re = /([+-])(\d*)/;
+                const re = /([+-])(\d)*/;
                 let groups = re.exec(matches[1]);
                 if (groups[1] == "+") {
-                    if (groups[2].length > 0) {
-                        points += parseInt(groups[2]);
+                    if (groups.length == 3) {
+                        points += groups[2];
                     } else {
                         points += 1;
                     }
                 }
                 if (groups[1] == "-") {
-                    if (groups[2].length > 0) {
-                        points -= parseInt(groups[2]);
+                    if (groups.length == 3) {
+                        points -= groups[2];
                     } else {
                         points -= 1;
                     }
