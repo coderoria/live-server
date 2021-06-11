@@ -44,4 +44,4 @@ jobs:
               with:
                   coverageCommand: npm test
                   coverageLocations: ${{github.workspace}}/.nyc_output/*.json:lcov
-                  debug: true
+                  debug: false
