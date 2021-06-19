@@ -1,33 +1,42 @@
 {
-    "commands": {
-        "discord": "%s, here is our discord: https://coderoria.com/discord",
-        "twitter": "%s, our twitter account: https://coderoria.com/twitter",
-        "github": "%s, all of our projects are located here: https://coderoria.com/github",
-        "credit": "%s, our overlay is based on the icon-pack BeautyLine: https://www.gnome-look.org/p/1425426/",
-        "donation": "%s, you can donate here:",
-        "language": {
-            "noLangGiven": "%s, please provide a language to switch to.",
-            "message": "%s, the language has been changed."
-        },
-        "uptime": "%s, %s is online for %s.",
-        "commands": "%s, these are all commands on this channel: %s",
-        "lurk": "%s is now lurking.",
-        "quotes": {
-            "newAdded": "Added new quote: %s",
-            "noQuotes": "There are currently no quotes :("
-        },
-        "shoutout": {
-            "noChannel": "No channel provided.",
-            "message": "Hey! Consider following %s! Their last stream was %s"
-        },
-        "counters": {
-            "noNameProvided": "No name provided.",
-            "addDuplicate": "Counter does already exist. Use !counter %s + to add.",
-            "addedNew": "New counter: %s",
-            "doesNotExist": "Counter %s does not exist.",
-            "deleted": "Counter deleted: %s",
-            "showCount": "The counter %s has a value of %d",
-            "updated": "The counter %s has been updated and now has a value of %d"
-        }
-    }
+	"commands": {
+		"commands": "%s, these are all commands on this channel: %s",
+		"counters": {
+			"addDuplicate": "Counter does already exist. Use !counter %s + to add.",
+			"addedNew": "New counter: %s",
+			"deleted": "Counter deleted: %s",
+			"doesNotExist": "Counter %s does not exist.",
+			"noNameProvided": "No name provided.",
+			"showCount": "The counter %s has a value of %d",
+			"updated": "The counter %s has been updated and now has a value of %d"
+		},
+		"credit": "%s, our overlay is based on the icon-pack BeautyLine: https://www.gnome-look.org/p/1425426/",
+		"discord": "%s, here is our discord: https://coderoria.com/discord",
+		"donation": "%s, you can donate here:",
+		"github": "%s, all of our projects are located here: https://coderoria.com/github",
+		"language": {
+			"message": "%s, the language has been changed.",
+			"noLangGiven": "%s, please provide a language to switch to."
+		},
+		"lurk": "%s is now lurking.",
+		"quotes": {
+			"newAdded": "Added new quote: %s",
+			"noQuotes": "There are currently no quotes :("
+		},
+		"shoutout": {
+			"message": "Hey! Consider following %s! Their last stream was %s",
+			"noChannel": "No channel provided."
+		},
+		"twitter": "%s, our twitter account: https://coderoria.com/twitter",
+		"uptime": "%s, %s is online for %s."
+	},
+	"filters": {
+		"caps": "writing in caps",
+		"currentPoints": " (%d total points)",
+		"emotes": "spamming emotes",
+		"links": "posting links",
+		"multiple": " (Multiple violations)",
+		"spamLetters": "using prohibited characters",
+		"warning": "This is a warning. %s, please stop %s!"
+	}
 }

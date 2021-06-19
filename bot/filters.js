@@ -1,3 +1,5 @@
+const i18n = require("../i18n");
+
 let violations = {};
 
 setInterval(() => {
@@ -14,22 +16,22 @@ function checkMessage(bot, message, userstate) {
         checkCaps: {
             function: checkCaps,
             points: 3,
-            reason: "writing in caps",
+            reason: __("filters.caps"),
         },
         checkSpamLetters: {
             function: checkSpamLetters,
             points: 10,
-            reason: "using prohibited characters",
+            reason: __("filters.spamLetters"),
         },
         checkLinks: {
             function: checkLinks,
             points: 1,
-            reason: "posting links",
+            reason: __("filters.link"),
         },
         checkEmotes: {
             function: checkEmotes,
             points: 2,
-            reason: "spaming emotes",
+            reason: __("filters.emotes"),
         },
     };
     let violated = false;
@@ -59,27 +61,16 @@ function checkMessage(bot, message, userstate) {
     let multipleActions = "";
 
     if (violations[userstate.username].multiple) {
-        multipleActions = " (Multiple violations)";
+        multipleActions = __("filters.multiple");
     }
 
     let points = violations[userstate.username].points;
-    let currentPoints =
-        " (" + violations[userstate.username].points + " total Points)";
+    let currentPoints = __("filters.currentPoints", points);
 
     if (points < 8) {
         bot.deletemessage(channel, userstate.id).catch((error) => {
             console.error(error);
         });
-        bot.say(
-            channel,
-            "This is a warning. @" +
-                userstate["display-name"] +
-                ", please stop " +
-                violations[userstate.username].reason +
-                "!" +
-                currentPoints +
-                multipleActions
-        );
     }
     if (points >= 8 && points < 20) {
         bot.timeout(
@@ -87,29 +78,20 @@ function checkMessage(bot, message, userstate) {
             userstate.username,
             points * points + 40 * points - 324
         );
-        bot.say(
-            channel,
-            "@" +
-                userstate["display-name"] +
-                ", stop " +
-                violations[userstate.username].reason +
-                "!" +
-                currentPoints +
-                multipleActions
-        );
     }
     if (points >= 20) {
         bot.ban(channel, userstate.username);
-        bot.say(
-            channel,
-            "@" +
-                userstate["display-name"] +
-                ", enough is enough! you've been " +
-                violations[userstate.username].reason +
-                " too much now!" +
-                multipleActions
-        );
     }
+    bot.say(
+        channel,
+        __(
+            "filters.warning",
+            userstate["display_name"],
+            violations[userstate.username].reason
+        ) +
+            currentPoints +
+            multipleActions
+    );
     return true;
 }
 
