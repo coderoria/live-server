@@ -27,8 +27,13 @@ router.post("/eventsub", (req, res) => {
             res.sendStatus(403);
             return;
         }
-        io.sockets.emit("follow", req.body.event.user_name, null, false);
-        console.log(req.body.event.user_name);
+        let sanitized_name =
+            req.body.event.user_name.toLowerCase() ===
+            req.body.event.user_login.toLowerCase()
+                ? req.body.event.user_name
+                : req.body.event.user_login;
+        io.sockets.emit("follow", sanitized_name, null, false);
+        console.log(sanitized_name);
         res.sendStatus(200);
         return;
     }
@@ -56,7 +61,7 @@ function createSubs() {
                                 type: "channel.follow",
                                 version: 1,
                                 condition: {
-                                    broadcaster_user_id: "101572475",
+                                    broadcaster_user_id: "213749122",
                                 },
                                 transport: {
                                     method: "webhook",
