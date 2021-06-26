@@ -179,7 +179,7 @@ function getSystemAuth(callback) {
             axios
                 .get("https://id.twitch.tv/oauth2/validate", {
                     headers: {
-                        Authorization: "Bearer " + access_token,
+                        Authorization: "Bearer " + res[0].access_token,
                     },
                 })
                 .then((coderes) => {
@@ -207,6 +207,10 @@ you can be sure that 1) the user is an admin and 2) the access_token
 in the database is valid and can be used for requests
 */
 function checkTwitchAuth(token, callback) {
+    if (token == null) {
+        callback(false);
+        return;
+    }
     pool.query(
         "SELECT * FROM `admins` WHERE `login_token`=?;",
         token,
@@ -300,6 +304,26 @@ function getUserIdByName(username, callback) {
     });
 }
 
+function getUserIdByToken(token) {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            "SELECT `user_id` FROM `admins` WHERE `login_token`=?;",
+            token,
+            (error, res) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                if (res.length == 0) {
+                    reject();
+                    return;
+                }
+                resolve(res[0].user_id);
+            }
+        );
+    });
+}
+
 module.exports = {
     router: router,
     authSystem: authSystem,
@@ -307,4 +331,5 @@ module.exports = {
     checkTwitchAuth: checkTwitchAuth,
     getSystemAuth: getSystemAuth,
     getUserIdByName: getUserIdByName,
+    getUserIdByToken: getUserIdByToken,
 };

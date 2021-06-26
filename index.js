@@ -12,6 +12,7 @@ const app = express();
 const pool = require("./server/database");
 const auth = require("./server/auth");
 const eventSub = require("./server/eventsub");
+const spotify = require("./server/spotify");
 const filters = require("./bot/filters");
 const commands = require("./bot/commands");
 
@@ -57,6 +58,15 @@ function entryPoint() {
 
     pool.query(
         "CREATE TABLE IF NOT EXISTS `counter` (`name` VARCHAR(50) NOT NULL, `count` MEDIUMINT NOT NULL DEFAULT 0, PRIMARY KEY(`name`));",
+        (error) => {
+            if (error) {
+                console.log(error);
+            }
+        }
+    );
+
+    pool.query(
+        "CREATE TABLE IF NOT EXISTS `spotify` (`id` VARCHAR(255) NOT NULL, `access_token` VARCHAR(255) NOT NULL, `refresh_token` VARCHAR(255) NOT NULL, `twitch_id` INT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`twitch_id`) REFERENCES `admins`(`user_id`));",
         (error) => {
             if (error) {
                 console.log(error);
@@ -116,7 +126,9 @@ function entryPoint() {
 
     app.use(auth.router);
     app.use(eventSub.router);
+    app.use(spotify.router);
     eventSub.setIO(io);
+    spotify.setIO(io);
 
     app.get("/", (req, res) => {
         if (req.cookies.token == undefined) {
@@ -154,12 +166,13 @@ function testEvents() {
     for (j = 0; j < 3; j++) {
         io.sockets.emit("follow", alerts[j].name, alerts[j].message, false);
     }
-    io.sockets.emit(
+    /* io.sockets.emit(
         "playback",
         "https://i.scdn.co/image/107819f5dc557d5d0a4b216781c6ec1b2f3c5ab2",
         "Rival, VAALEA, Glitchedout",
         "Intoxicated By Youth (Glitchedout Remix)"
-    );
+    ); */
+    eventSub.createSubs();
 }
 
 module.exports = {
