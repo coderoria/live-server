@@ -7,7 +7,7 @@ function showPlayBack(img, artists, title) {
     artistsElement.innerHTML = artists;
 
     let titleAnim, artistsAnim;
-    if (title.length > 27) {
+    if (title.length > 26) {
         titleAnim = titleElement.animate(
             [
                 { transform: `translateX(${titleElement.clientWidth}px)` },

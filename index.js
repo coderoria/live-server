@@ -144,6 +144,31 @@ function entryPoint() {
         });
     });
 
+    app.get("/dock", (req, res) => {
+        if (req.cookies.token == undefined) {
+            res.redirect("/auth/twitch");
+            return;
+        }
+        auth.checkTwitchAuth(req.cookies.token, (success, username) => {
+            if (!success) {
+                res.redirect("/auth/twitch");
+                return;
+            }
+            spotify
+                .getAvailableUsernames()
+                .then((usernames) => {
+                    res.render("dashboard/dock", {
+                        title: "Dock",
+                        username: username,
+                        spotify: usernames,
+                    });
+                })
+                .catch(() => {
+                    res.sendStatus(500);
+                });
+        });
+    });
+
     io.use((socket, next) => {
         let cookies = cookie.parse(socket.handshake.headers.cookie);
         if (!cookies.hasOwnProperty("token")) {

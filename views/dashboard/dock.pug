@@ -1,0 +1,14 @@
+extends parts/site
+block content 
+    script(src="/socket.io/socket.io.js") 
+    script(src="/static/js/dashboard/dock.js")
+    .container-fluid.text-light.mt-5
+        .row.justify-content-center
+            .col
+                span Spotify
+                form(action="" id="spotify-form") 
+                    each user in spotify
+                        .form-check
+                            input.form-check-input(type="radio" id="spotify."+user value=user)
+                            .form-check-label(for="spotify."+user)
+                                span= user

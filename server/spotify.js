@@ -12,23 +12,26 @@ playBackNotification();
 function setIO(socket) {
     io = socket;
 
-    io.on("spotify.user", (user, callback) => {
-        pool.query(
-            `SELECT id FROM spotify JOIN admins ON admins.user_id=spotify.twitch_id WHERE admins.username=?;`,
-            user,
-            (error, dbres) => {
-                if (error) {
-                    console.error(error);
-                    callback(false);
-                    return;
+    io.on("connection", (socket) => {
+        socket.on("spotify.user", (user, callback) => {
+            pool.query(
+                `SELECT id FROM spotify JOIN admins ON admins.user_id=spotify.twitch_id WHERE admins.username=?;`,
+                user,
+                (error, dbres) => {
+                    if (error) {
+                        console.error(error);
+                        callback(false);
+                        return;
+                    }
+                    if (dbres.length == 0) {
+                        callback(false);
+                        return;
+                    }
+                    usedId = dbres[0].id;
+                    callback(true);
                 }
-                if (dbres.length == 0) {
-                    callback(false);
-                    return;
-                }
-                usedId = dbres[0].id;
-            }
-        );
+            );
+        });
     });
 }
 
@@ -222,10 +225,10 @@ function playBackNotification() {
         setTimeout(playBackNotification, 60000);
         return;
     }
-    checkAuth(dbres[0].id).then(() => {
+    checkAuth(usedId).then(() => {
         pool.query(
             "SELECT access_token FROM spotify WHERE id=?;",
-            dbres[0].id,
+            usedId,
             (error, res) => {
                 if (error) {
                     console.error(error);
