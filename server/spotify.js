@@ -257,10 +257,10 @@ function playBackNotification() {
                         let duration = player.data.item.duration_ms;
                         let progress = player.data.progress_ms;
 
-                        if (progress < duration / 2) {
+                        if (progress < duration / 1.25) {
                             setTimeout(
                                 playBackNotification,
-                                duration / 2 - progress + 1000
+                                duration / 1.25 - progress + 1000
                             );
                             return;
                         }
