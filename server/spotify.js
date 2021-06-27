@@ -5,11 +5,31 @@ const qs = require("querystring");
 const auth = require("./auth");
 let router = express.Router();
 let io;
+let usedId;
 
 playBackNotification();
 
 function setIO(socket) {
     io = socket;
+
+    io.on("spotify.user", (user, callback) => {
+        pool.query(
+            `SELECT id FROM spotify JOIN admins ON admins.user_id=spotify.twitch_id WHERE admins.username=?;`,
+            user,
+            (error, dbres) => {
+                if (error) {
+                    console.error(error);
+                    callback(false);
+                    return;
+                }
+                if (dbres.length == 0) {
+                    callback(false);
+                    return;
+                }
+                usedId = dbres[0].id;
+            }
+        );
+    });
 }
 
 router.get("/auth/spotify", (req, res) => {
@@ -198,75 +218,91 @@ function refreshAuth(id) {
 }
 
 function playBackNotification() {
-    pool.query("SELECT id FROM spotify;", (error, dbres) => {
-        if (error) {
-            console.error(error);
-            return;
-        }
-        checkAuth(dbres[0].id).then(() => {
-            pool.query(
-                "SELECT access_token FROM spotify WHERE id=?;",
-                dbres[0].id,
-                (error, res) => {
-                    if (error) {
-                        console.error(error);
-                        return;
-                    }
-                    axios
-                        .get(
-                            "https://api.spotify.com/v1/me/player/currently-playing",
-                            {
-                                headers: {
-                                    Authorization:
-                                        "Bearer " + res[0].access_token,
-                                },
-                            }
-                        )
-                        .then((player) => {
-                            if (!player.data.is_playing) {
-                                setTimeout(playBackNotification, 60000);
-                                return;
-                            }
-                            let artists = [];
-                            for (let artist in player.data.item.artists) {
-                                artists.push(
-                                    player.data.item.artists[artist].name
-                                );
-                            }
-                            let artistLine = artists.join(", ");
-                            let titleLine = player.data.item.name;
-                            let duration = player.data.item.duration_ms;
-                            let progress = player.data.progress_ms;
+    if (usedId == null) {
+        setTimeout(playBackNotification, 60000);
+        return;
+    }
+    checkAuth(dbres[0].id).then(() => {
+        pool.query(
+            "SELECT access_token FROM spotify WHERE id=?;",
+            dbres[0].id,
+            (error, res) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                axios
+                    .get(
+                        "https://api.spotify.com/v1/me/player/currently-playing",
+                        {
+                            headers: {
+                                Authorization: "Bearer " + res[0].access_token,
+                            },
+                        }
+                    )
+                    .then((player) => {
+                        if (!player.data.is_playing) {
+                            setTimeout(playBackNotification, 60000);
+                            return;
+                        }
+                        let artists = [];
+                        for (let artist in player.data.item.artists) {
+                            artists.push(player.data.item.artists[artist].name);
+                        }
+                        let artistLine = artists.join(", ");
+                        let titleLine = player.data.item.name;
+                        let duration = player.data.item.duration_ms;
+                        let progress = player.data.progress_ms;
 
-                            if (progress < duration / 2) {
-                                setTimeout(
-                                    playBackNotification,
-                                    duration / 2 - progress
-                                );
-                                return;
-                            }
-                            io.sockets.emit(
-                                "playback",
-                                player.data.item.album.images[1].url,
-                                artistLine,
-                                titleLine
-                            );
+                        if (progress < duration / 2) {
                             setTimeout(
                                 playBackNotification,
-                                duration - progress + 5000
+                                duration / 2 - progress + 1000
                             );
-                        })
-                        .catch((error) => {
-                            console.error(error);
                             return;
-                        });
+                        }
+                        io.sockets.emit(
+                            "playback",
+                            player.data.item.album.images[1].url,
+                            artistLine,
+                            titleLine
+                        );
+                        setTimeout(
+                            playBackNotification,
+                            duration - progress + 5000
+                        );
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        return;
+                    });
+            }
+        );
+    });
+}
+
+function getAvailableUsernames() {
+    return new Promise((resolve, reject) => {
+        pool.query(
+            `SELECT username FROM admins JOIN spotify ON spotify.twitch_id=admins.user_id;`,
+            (error, res) => {
+                if (error) {
+                    console.error(error);
+                    reject();
+                    return;
                 }
-            );
-        });
+                let users = [];
+                for (let i in res) {
+                    users.push(res[i].username);
+                }
+                resolve(users);
+            }
+        );
     });
 }
 
 module.exports = {
     router: router,
     setIO: setIO,
+    getAvailableUsernames: getAvailableUsernames,
 };
