@@ -61,7 +61,7 @@ function createSubs() {
                                 type: "channel.follow",
                                 version: 1,
                                 condition: {
-                                    broadcaster_user_id: "213749122",
+                                    broadcaster_user_id: "489155160",
                                 },
                                 transport: {
                                     method: "webhook",

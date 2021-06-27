@@ -1,14 +1,11 @@
 const cors = require("cors");
 const config = require("dotenv").config();
-const io = require("socket.io")(3000, {
-    cors: {
-        origin: process.env.HOST,
-        methods: ["GET", "POST"],
-    },
-});
-const tmi = require("tmi.js");
 const express = require("express");
 const app = express();
+const server = require("http").createServer(app);
+const io = require("socket.io")(server);
+const cookie = require("cookie");
+const tmi = require("tmi.js");
 const pool = require("./server/database");
 const auth = require("./server/auth");
 const eventSub = require("./server/eventsub");
@@ -113,7 +110,7 @@ function entryPoint() {
         );
     });
 
-    app.listen(3001);
+    server.listen(3001);
     app.locals.basedir = "/views/";
     app.set("view engine", "pug");
     app.use(require("cookie-parser")());
@@ -144,6 +141,19 @@ function entryPoint() {
                 title: "Home",
                 username: username,
             });
+        });
+    });
+
+    io.use((socket, next) => {
+        let cookies = cookie.parse(socket.handshake.headers.cookie);
+        if (!cookies.hasOwnProperty("token")) {
+            return next(new Error("Unauthorized"));
+        }
+        auth.checkTwitchAuth(cookies.token, (auth) => {
+            if (!auth) {
+                return next(new Error("Unauthorized"));
+            }
+            next();
         });
     });
 
