@@ -1420,7 +1420,7 @@ var figlet =
                         break;
                     }
                     // something's wrong
-                    console.log("Invalid data:" + cNum);
+                    logger.log("Invalid data:" + cNum);
                     parseError = true;
                     break;
                 }
@@ -1466,7 +1466,7 @@ var figlet =
             }
 
             if (typeof fetch !== "function") {
-                console.error(
+                logger.error(
                     "figlet.js requires the fetch API or a fetch polyfill such as https://cdnjs.com/libraries/fetch"
                 );
                 throw new Error("fetch is required for figlet.js to work.");
@@ -1478,7 +1478,7 @@ var figlet =
                         return response.text();
                     }
 
-                    console.log("Unexpected response", response);
+                    logger.log("Unexpected response", response);
                     throw new Error("Network response was not ok.");
                 })
                 .then(function (text) {

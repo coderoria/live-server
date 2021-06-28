@@ -218,7 +218,7 @@ function executeQuotes(bot, matches, userstate) {
             newQuote,
             (error) => {
                 if (error) {
-                    console.error(error);
+                    logger.error(error);
                     return;
                 }
                 bot.say(channel, __("commands.quotes.newAdded", newQuote));
@@ -230,7 +230,7 @@ function executeQuotes(bot, matches, userstate) {
         "SELECT * FROM quotes ORDER BY RAND() LIMIT 1;",
         (error, dbres) => {
             if (error) {
-                console.error(error);
+                logger.error(error);
                 return;
             }
             if (dbres.length == 0) {
@@ -278,7 +278,7 @@ function executeCounters(bot, matches, userstate) {
                         );
                         return;
                     }
-                    console.error(error);
+                    logger.error(error);
                     return;
                 }
                 bot.say(channel, __("commands.counters.addedNew", matches[1]));
@@ -297,7 +297,7 @@ function executeCounters(bot, matches, userstate) {
             matches[1].toLowerCase(),
             (error, result) => {
                 if (error) {
-                    console.error(error);
+                    logger.error(error);
                     return;
                 }
                 if (result.affectedRows === 0) {
@@ -316,7 +316,7 @@ function executeCounters(bot, matches, userstate) {
             matches[0].toLowerCase(),
             (error, result) => {
                 if (error) {
-                    console.error(error);
+                    logger.error(error);
                     return;
                 }
 
@@ -363,7 +363,7 @@ function executeCounters(bot, matches, userstate) {
                     [points, matches[0].toLowerCase()],
                     (error) => {
                         if (error) {
-                            console.error(error);
+                            logger.error(error);
                             return;
                         }
                         bot.say(

@@ -5,6 +5,7 @@ const mysql = require("mysql");
 const crypto = require("crypto");
 const auth = require("./auth");
 const pool = require("./database");
+const logger = require("../logger")();
 
 let io;
 
@@ -33,7 +34,7 @@ router.post("/eventsub", (req, res) => {
                 ? req.body.event.user_name
                 : req.body.event.user_login;
         io.sockets.emit("follow", sanitized_name, null, false);
-        console.log(sanitized_name);
+        logger.info("Follow received: " + sanitized_name);
         res.sendStatus(200);
         return;
     }
@@ -49,7 +50,7 @@ function createSubs() {
                 process.env.CHANNEL,
                 (error, res) => {
                     if (error) {
-                        console.error(error);
+                        logger.error(error);
                         return;
                     }
                     let user_id = res[0].user_id;

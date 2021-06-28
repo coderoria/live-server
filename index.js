@@ -12,30 +12,31 @@ const eventSub = require("./server/eventsub");
 const spotify = require("./server/spotify");
 const filters = require("./bot/filters");
 const commands = require("./bot/commands");
+const logger = require("./logger")();
 
 let bot;
 
-console.log("Hosted on " + process.env.HOST);
+logger.info("Hosted on " + process.env.HOST);
 entryPoint();
 
 function entryPoint() {
     pool.query(
         "CREATE TABLE IF NOT EXISTS `admins` ( `user_id` INT NOT NULL , `username` VARCHAR(50) , `access_token` VARCHAR(255) , `refresh_token` VARCHAR(255) , `login_token` VARCHAR(255) , PRIMARY KEY (`user_id`)) ENGINE = InnoDB;",
         (error, dbres) => {
-            if (error) console.log(error);
+            if (error) logger.info(error);
             if (dbres.warningCount == 0) {
                 auth.authSystem((success) => {
                     if (!success) return;
                     auth.addUser(process.env.CHANNEL, (success) => {
                         if (!success) {
-                            console.error(
+                            logger.error(
                                 "Could not add " +
                                     process.env.CHANNEL +
                                     " as invited user."
                             );
                             return;
                         }
-                        console.log(
+                        logger.info(
                             process.env.CHANNEL + " added as invited user."
                         );
                     });
@@ -48,7 +49,7 @@ function entryPoint() {
         "CREATE TABLE IF NOT EXISTS `quotes` (`id` MEDIUMINT NOT NULL AUTO_INCREMENT, `quote` VARCHAR(255) NOT NULL, PRIMARY KEY(`id`));",
         (error) => {
             if (error) {
-                console.log(error);
+                logger.info(error);
             }
         }
     );
@@ -57,7 +58,7 @@ function entryPoint() {
         "CREATE TABLE IF NOT EXISTS `counter` (`name` VARCHAR(50) NOT NULL, `count` MEDIUMINT NOT NULL DEFAULT 0, PRIMARY KEY(`name`));",
         (error) => {
             if (error) {
-                console.log(error);
+                logger.info(error);
             }
         }
     );
@@ -66,7 +67,7 @@ function entryPoint() {
         "CREATE TABLE IF NOT EXISTS `spotify` (`id` VARCHAR(255) NOT NULL, `access_token` VARCHAR(255) NOT NULL, `refresh_token` VARCHAR(255) NOT NULL, `twitch_id` INT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`twitch_id`) REFERENCES `admins`(`user_id`));",
         (error) => {
             if (error) {
-                console.log(error);
+                logger.info(error);
             }
         }
     );
@@ -84,10 +85,10 @@ function entryPoint() {
 
     bot.connect()
         .then(() => {
-            console.log("Connected to IRC");
+            logger.info("Connected to IRC");
         })
         .catch((error) => {
-            console.error(error);
+            logger.error(error);
         });
 
     bot.on("message", (channel, userstate, message, self) => {
@@ -110,7 +111,7 @@ function entryPoint() {
         );
     });
 
-    server.listen(3001);
+    server.listen(3000);
     app.locals.basedir = "/views/";
     app.set("view engine", "pug");
     app.use(require("cookie-parser")());

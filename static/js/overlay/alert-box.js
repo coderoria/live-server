@@ -12,8 +12,8 @@ function showAlertBox(name, action, message) {
     let messageDelay = message == undefined ? 0 : message.length * 50;
     figlet(name, function (err, data) {
         if (err) {
-            console.log("Something went wrong...");
-            console.dir(err);
+            logger.log("Something went wrong...");
+            logger.dir(err);
             return;
         }
         document.querySelector(".alert-box-icon").src =

@@ -61,7 +61,7 @@ router.get("/auth/twitch", (req, res) => {
                         ],
                         (error, dbres) => {
                             if (error) {
-                                console.error(error);
+                                logger.error(error);
                                 res.sendStatus(500);
                                 return;
                             }
@@ -96,7 +96,7 @@ function addUser(name, callback) {
         "SELECT `access_token` FROM `admins` WHERE `user_id`=-1;",
         (error, dbres) => {
             if (error) {
-                console.error(error);
+                logger.error(error);
                 callback(false);
                 return;
             }
@@ -116,7 +116,7 @@ function addUser(name, callback) {
                         [user_id, name],
                         (error) => {
                             if (error) {
-                                console.error(error);
+                                logger.error(error);
                                 callback(false);
                                 return;
                             }
@@ -125,7 +125,7 @@ function addUser(name, callback) {
                     );
                 })
                 .catch((error) => {
-                    console.error(error);
+                    logger.error(error);
                     callback(false);
                 });
         }
@@ -153,7 +153,7 @@ function authSystem(callback) {
                 [-1, access_token],
                 (error, dbres) => {
                     if (error) {
-                        console.error(error);
+                        logger.error(error);
                         callback(false);
                         return;
                     }
@@ -162,8 +162,8 @@ function authSystem(callback) {
             );
         })
         .catch((error) => {
-            console.error("Could not get a System token from Twitch:");
-            console.error(error);
+            logger.error("Could not get a System token from Twitch:");
+            logger.error(error);
             callback(false);
         });
 }
@@ -216,7 +216,7 @@ function checkTwitchAuth(token, callback) {
         token,
         (error, dbres) => {
             if (error) {
-                console.error(error);
+                logger.error(error);
                 return;
             }
             if (dbres.length == 0) {
@@ -265,7 +265,7 @@ function refreshTwitchAuth(user_id, callback) {
                         [access_token, refresh_token, user_id],
                         (error) => {
                             if (error) {
-                                console.error(error);
+                                logger.error(error);
                                 callback(false);
                                 return;
                             }
@@ -298,7 +298,7 @@ function getUserIdByName(username, callback) {
                 return;
             })
             .catch((error) => {
-                console.error(error);
+                logger.error(error);
                 callback(null);
             });
     });

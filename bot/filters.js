@@ -69,7 +69,7 @@ function checkMessage(bot, message, userstate) {
 
     if (points < 8) {
         bot.deletemessage(channel, userstate.id).catch((error) => {
-            console.error(error);
+            logger.error(error);
         });
     }
     if (points >= 8 && points < 20) {

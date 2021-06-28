@@ -3,6 +3,7 @@ const express = require("express");
 const pool = require("./database");
 const qs = require("querystring");
 const auth = require("./auth");
+const logger = require("../logger")();
 let router = express.Router();
 let io;
 let usedId;
@@ -19,7 +20,7 @@ function setIO(socket) {
                 user,
                 (error, dbres) => {
                     if (error) {
-                        console.error(error);
+                        logger.error(error);
                         callback(false);
                         return;
                     }
@@ -28,6 +29,13 @@ function setIO(socket) {
                         return;
                     }
                     usedId = dbres[0].id;
+                    logger.info(
+                        "Active user changed (" +
+                            user +
+                            ", " +
+                            dbres[0].id +
+                            ")"
+                    );
                     callback(true);
                 }
             );
@@ -99,7 +107,7 @@ router.get("/auth/spotify", (req, res) => {
                                     ],
                                     (error) => {
                                         if (error) {
-                                            console.error(error);
+                                            logger.error(error);
                                             res.sendStatus(500);
                                             return;
                                         }
@@ -108,18 +116,18 @@ router.get("/auth/spotify", (req, res) => {
                                 );
                             })
                             .catch((error) => {
-                                console.error(error);
+                                logger.error(error);
                                 res.sendStatus(500);
                             });
                     })
                     .catch((error) => {
-                        console.error(error);
-                        res.sendStatus(500);
+                        logger.info("User supplied invalid OAuth code");
+                        res.sendStatus(403);
                         return;
                     });
             })
             .catch((error) => {
-                console.error(error);
+                logger.error(error);
                 res.sendStatus(500);
                 return;
             });
@@ -133,7 +141,7 @@ function checkAuth(id) {
             id,
             (error, res) => {
                 if (error) {
-                    console.error(error);
+                    logger.error(error);
                     return;
                 }
                 axios
@@ -166,7 +174,7 @@ function refreshAuth(id) {
             id,
             (error, dbres) => {
                 if (error) {
-                    console.error(error);
+                    logger.error(error);
                     reject();
                     return;
                 }
@@ -203,7 +211,7 @@ function refreshAuth(id) {
                             ],
                             (error) => {
                                 if (error) {
-                                    console.error(error);
+                                    logger.error(error);
                                     reject();
                                     return;
                                 }
@@ -212,7 +220,7 @@ function refreshAuth(id) {
                         );
                     })
                     .catch((error) => {
-                        console.error(error);
+                        logger.error(error);
                         return;
                     });
             }
@@ -231,7 +239,7 @@ function playBackNotification() {
             usedId,
             (error, res) => {
                 if (error) {
-                    console.error(error);
+                    logger.error(error);
                     return;
                 }
                 axios
@@ -246,6 +254,7 @@ function playBackNotification() {
                     .then((player) => {
                         if (!player.data.is_playing) {
                             setTimeout(playBackNotification, 60000);
+                            logger.debug("Currently no song playing.");
                             return;
                         }
                         let artists = [];
@@ -257,26 +266,48 @@ function playBackNotification() {
                         let duration = player.data.item.duration_ms;
                         let progress = player.data.progress_ms;
 
-                        if (progress < duration / 2) {
+                        if (progress < duration / 4) {
                             setTimeout(
                                 playBackNotification,
-                                duration / 2 - progress + 1000
+                                duration / 4 - progress + 1000
+                            );
+                            logger.debug(
+                                "progress < duration / 4. Rescheduling in " +
+                                    (duration / 4 - progress + 1000)
                             );
                             return;
+                        } else if (
+                            progress >= duration / 4 &&
+                            progress < duration / 1.25
+                        ) {
+                            setTimeout(
+                                playBackNotification,
+                                duration / 1.25 - progress + 1000
+                            );
+                            logger.debug(
+                                "In the middle. Rescheduling in " +
+                                    (duration / 1.25 - progress + 1000)
+                            );
+                        } else {
+                            setTimeout(
+                                playBackNotification,
+                                duration - progress + 5000
+                            );
                         }
+                        logger.info(
+                            'Emitting playback alert for song "' +
+                                titleLine +
+                                '"'
+                        );
                         io.sockets.emit(
                             "playback",
                             player.data.item.album.images[1].url,
                             artistLine,
                             titleLine
                         );
-                        setTimeout(
-                            playBackNotification,
-                            duration - progress + 5000
-                        );
                     })
                     .catch((error) => {
-                        console.error(error);
+                        logger.error(error);
                         return;
                     });
             }
@@ -290,7 +321,7 @@ function getAvailableUsernames() {
             `SELECT username FROM admins JOIN spotify ON spotify.twitch_id=admins.user_id;`,
             (error, res) => {
                 if (error) {
-                    console.error(error);
+                    logger.error(error);
                     reject();
                     return;
                 }
