@@ -3,7 +3,7 @@ const express = require("express");
 const pool = require("./database");
 const qs = require("querystring");
 const auth = require("./auth");
-const logger = require("../logger")();
+const logger = require("../logger")("Spotify");
 let router = express.Router();
 let io;
 let usedId;
@@ -112,6 +112,13 @@ router.get("/auth/spotify", (req, res) => {
                                             return;
                                         }
                                         res.send("Spotify connected");
+                                        logger.info(
+                                            "Twitch user " +
+                                                user_id +
+                                                " successfully connected Spotify (" +
+                                                idres.data.id +
+                                                ")"
+                                        );
                                     }
                                 );
                             })
@@ -121,7 +128,7 @@ router.get("/auth/spotify", (req, res) => {
                             });
                     })
                     .catch((error) => {
-                        logger.info("User supplied invalid OAuth code");
+                        logger.warn("User supplied invalid OAuth code");
                         res.sendStatus(403);
                         return;
                     });
@@ -168,6 +175,7 @@ function checkAuth(id) {
 }
 
 function refreshAuth(id) {
+    logger.debug("Refreshing access for " + id);
     return new Promise((resolve, reject) => {
         pool.query(
             "SELECT `refresh_token` FROM `spotify` WHERE `id`=?;",
@@ -215,6 +223,7 @@ function refreshAuth(id) {
                                     reject();
                                     return;
                                 }
+                                logger.debug("Renewal successful.");
                                 resolve();
                             }
                         );

@@ -37,6 +37,7 @@
 		"links": "posting links",
 		"multiple": " (Multiple violations)",
 		"spamLetters": "using prohibited characters",
-		"warning": "This is a warning. %s, please stop %s!"
+		"warning": "This is a warning. %s, please stop %s!",
+		"link": "filters.link"
 	}
 }

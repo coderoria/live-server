@@ -12,7 +12,7 @@ const eventSub = require("./server/eventsub");
 const spotify = require("./server/spotify");
 const filters = require("./bot/filters");
 const commands = require("./bot/commands");
-const logger = require("./logger")();
+const logger = require("./logger")("Index");
 
 let bot;
 
@@ -175,10 +175,11 @@ function entryPoint() {
         if (!cookies.hasOwnProperty("token")) {
             return next(new Error("Unauthorized"));
         }
-        auth.checkTwitchAuth(cookies.token, (auth) => {
+        auth.checkTwitchAuth(cookies.token, (auth, username) => {
             if (!auth) {
                 return next(new Error("Unauthorized"));
             }
+            logger.debug(`User ${username} authenticated against socket`);
             next();
         });
     });

@@ -5,8 +5,9 @@ const mysql = require("mysql");
 const crypto = require("crypto");
 const auth = require("./auth");
 const pool = require("./database");
-const logger = require("../logger")();
+const logger = require("../logger")("EventSub");
 
+let receivedIds = [];
 let io;
 
 router.get("/eventsub", (req, res) => {});
@@ -28,13 +29,23 @@ router.post("/eventsub", (req, res) => {
             res.sendStatus(403);
             return;
         }
+        if (receivedIds.length >= 50) {
+            receivedIds.shift();
+        }
+        let requestId = req.header("Twitch-Eventsub-Message-Id");
+        if (receivedIds.includes(requestId)) {
+            res.sendStatus(200);
+            logger.debug(`Notification ID ${requestId} was a duplicate`);
+            return;
+        }
+        receivedIds.push(requestId);
         let sanitized_name =
             req.body.event.user_name.toLowerCase() ===
             req.body.event.user_login.toLowerCase()
                 ? req.body.event.user_name
                 : req.body.event.user_login;
         io.sockets.emit("follow", sanitized_name, null, false);
-        logger.info("Follow received: " + sanitized_name);
+        logger.info(`Follow received: ${sanitized_name} (${requestId})`);
         res.sendStatus(200);
         return;
     }
@@ -62,7 +73,7 @@ function createSubs() {
                                 type: "channel.follow",
                                 version: 1,
                                 condition: {
-                                    broadcaster_user_id: "489155160",
+                                    broadcaster_user_id: "71190292",
                                 },
                                 transport: {
                                     method: "webhook",

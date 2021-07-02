@@ -15,9 +15,13 @@ body.bg-dark
             .collapse.navbar-collapse(id="navbar")
                 ul.navbar-nav.me-auto.mb-2.mb-lg-0 
                     li.nav-item
-                        a.nav-link.active(href="/dashboard/")
+                        a.nav-link.active(href="/")
                             i.fas.fa-home.me-1
                             span Home
+                    li.nav-item
+                        a.nav-link.active(href="/dock")
+                            i.fas.fa-sliders-h.me-1
+                            span Dock
                 - if(username)
                     span.navbar-text= username
     block content

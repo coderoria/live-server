@@ -1,3 +1,5 @@
+let running = false;
+
 function showPlayBack(img, artists, title) {
     document.querySelector(".playback-image").src = img;
     let titleElement = document.querySelector(".playback-title");
@@ -5,6 +7,11 @@ function showPlayBack(img, artists, title) {
 
     let artistsElement = document.querySelector(".playback-artists");
     artistsElement.innerHTML = artists;
+
+    if(running) {
+        return;
+    }
+    running = true;
 
     let titleAnim, artistsAnim;
     if (title.length > 26) {
@@ -19,7 +26,7 @@ function showPlayBack(img, artists, title) {
             }
         );
     }
-    if (artists.length > 30) {
+    if (artists.length > 29) {
         artistsAnim = artistsElement.animate(
             [
                 { transform: `translateX(${artistsElement.clientWidth}px)` },
@@ -40,6 +47,7 @@ function showPlayBack(img, artists, title) {
         complete: () => {
             if (titleAnim != undefined) titleAnim.cancel();
             if (artistsAnim != undefined) artistsAnim.cancel();
+            running = false;
         },
         easing: "cubicBezier(0.000, 0.000, 0.580, 1.000)",
     });

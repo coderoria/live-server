@@ -37,6 +37,7 @@
 		"links": "unerlaubte Links",
 		"multiple": " (Mehrere Verstöße)",
 		"spamLetters": "unerlaubte Symbole",
-		"warning": "%s, %s!"
+		"warning": "%s, %s!",
+		"link": "filters.link"
 	}
 }

@@ -4,6 +4,7 @@ const axios = require("axios");
 const mysql = require("mysql");
 const crypto = require("crypto");
 const pool = require("./database");
+const logger = require("../logger")("Auth");
 
 router.get("/auth/twitch", (req, res) => {
     if (req.query.code == undefined) {

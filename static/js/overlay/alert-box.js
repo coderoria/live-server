@@ -30,7 +30,7 @@ function showAlertBox(name, action, message) {
             targets: ".alert-box",
             top: "10%",
             duration: 1000,
-            endDelay: messageDelay > ALERT_DELAY ? messageDelay : ALERT_DELAY,
+            endDelay: messageDelay > ALERT_DELAY ? messageDelay : ALERT_DELAY / Math.sqrt(alert_queue.length),
             complete: next,
             direction: "alternate",
         });

@@ -1,5 +1,6 @@
 const i18n = require("../i18n");
 const pool = require("../server/database");
+const logger = require("../logger")("Commands");
 
 let commands = [
     //USER:
