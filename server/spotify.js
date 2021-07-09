@@ -14,7 +14,7 @@ function setIO(socket) {
     io = socket;
 
     io.on("connection", (socket) => {
-        socket.on("spotify.user", (user, callback) => {
+        socket.on("spotify.user", (user) => {
             pool.query(
                 `SELECT id FROM spotify JOIN admins ON admins.user_id=spotify.twitch_id WHERE admins.username=?;`,
                 user,
@@ -36,7 +36,7 @@ function setIO(socket) {
                             dbres[0].id +
                             ")"
                     );
-                    callback(true);
+                    io.sockets.emit("spotify.user", user);
                 }
             );
         });

@@ -5,12 +5,13 @@ block content
     .container-fluid.text-light.mt-5
         .row.justify-content-center
             .col
-                span 
-                    i.fab.fa-spotify 
-                    span Spotify
                 form(action="" id="spotify-form") 
-                    each user in spotify
-                        .form-check
-                            input.form-check-input(type="radio" id="spotify."+user value=user)
-                            .form-check-label(for="spotify."+user)
-                                span= user
+                    span 
+                        i.fab.fa-spotify.me-2
+                        span Spotify 
+                        .spinner-border.spinner-border-sm(style="display: none;")
+                        each user in spotify
+                            .form-check
+                                input.form-check-input(type="radio" id="spotify-user-"+user value=user)
+                                .form-check-label(for="spotify-user-"+user)
+                                    span= user
