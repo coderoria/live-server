@@ -84,8 +84,8 @@ function entryPoint() {
     });
 
     bot.connect()
-        .then(() => {
-            logger.info("Connected to IRC");
+        .then((host) => {
+            logger.info(host, "Connected to IRC");
         })
         .catch((error) => {
             logger.error(error);
@@ -179,7 +179,10 @@ function entryPoint() {
             if (!auth) {
                 return next(new Error("Unauthorized"));
             }
-            logger.debug(`User ${username} authenticated against socket`);
+            logger.debug(
+                { id: socket.id },
+                `User ${username} authenticated against socket`
+            );
             next();
         });
     });

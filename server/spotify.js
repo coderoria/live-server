@@ -30,11 +30,8 @@ function setIO(socket) {
                     }
                     usedId = dbres[0].id;
                     logger.info(
-                        "Active user changed (" +
-                            user +
-                            ", " +
-                            dbres[0].id +
-                            ")"
+                        { twitchUserName: user, spotifyId: dbres[0].id },
+                        "Active user changed"
                     );
                     io.sockets.emit("spotify.user", user);
                 }
@@ -113,29 +110,29 @@ router.get("/auth/spotify", (req, res) => {
                                         }
                                         res.send("Spotify connected");
                                         logger.info(
-                                            "Twitch user " +
-                                                user_id +
-                                                " successfully connected Spotify (" +
-                                                idres.data.id +
-                                                ")"
+                                            {
+                                                twitchUserId: user_id,
+                                                spotifyId: idres.data.id,
+                                            },
+                                            "Successfully connected spotify"
                                         );
                                     }
                                 );
                             })
                             .catch((error) => {
-                                logger.error(error);
+                                logger.error(error.response);
                                 res.sendStatus(500);
                             });
                     })
                     .catch((error) => {
-                        logger.warn("User supplied invalid OAuth code");
-                        res.sendStatus(403);
+                        logger.error(error.response);
+                        res.sendStatus(500);
                         return;
                     });
             })
             .catch((error) => {
-                logger.error(error);
-                res.sendStatus(500);
+                logger.warn(error.response, "User supplied invalid OAuth code");
+                res.sendStatus(403);
                 return;
             });
     });
@@ -304,9 +301,8 @@ function playBackNotification() {
                             );
                         }
                         logger.info(
-                            'Emitting playback alert for song "' +
-                                titleLine +
-                                '"'
+                            { title: titleLine, artists: artistLine },
+                            "Emitting playback alert"
                         );
                         io.sockets.emit(
                             "playback",

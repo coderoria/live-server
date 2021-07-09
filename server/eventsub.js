@@ -35,7 +35,10 @@ router.post("/eventsub", (req, res) => {
         let requestId = req.header("Twitch-Eventsub-Message-Id");
         if (receivedIds.includes(requestId)) {
             res.sendStatus(200);
-            logger.debug(`Notification ID ${requestId} was a duplicate`);
+            logger.debug(
+                { requestId: requestId },
+                `Notification was a duplicate`
+            );
             return;
         }
         receivedIds.push(requestId);
@@ -45,7 +48,10 @@ router.post("/eventsub", (req, res) => {
                 ? req.body.event.user_name
                 : req.body.event.user_login;
         io.sockets.emit("follow", sanitized_name, null, false);
-        logger.info(`Follow received: ${sanitized_name} (${requestId})`);
+        logger.info(
+            { username: req.body.event.user_login, requestId: requestId },
+            `Follow received`
+        );
         res.sendStatus(200);
         return;
     }
