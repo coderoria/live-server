@@ -63,10 +63,10 @@ let commands = [
         function: executePermit,
         text: ["permit"],
     },
-    /*{
+    {
         function: executeSetGame,
         text: ["setgame", "sg"],
-    },*/
+    },
     {
         function: executeSetTitle,
         text: ["settitle", "st"],
@@ -281,6 +281,37 @@ function executePermit(bot, matches, userstate) {
     filters.addPermit(matches[0].replaceAll("@", ""));
     let permitMessage = __("commands.permit.message", matches[0]);
     bot.say(channel, permitMessage);
+}
+
+function executeSetGame(bot, matches, userstate) {
+    let requiredLevel = "moderator";
+    if (!hasPermission(userstate, requiredLevel)) {
+        return;
+    }
+    if (matches.length == 0) {
+        bot.say(
+            channel,
+            __("commands.setGame.noGame", "@" + userstate["display-name"])
+        );
+        return;
+    }
+    twitch.setGame(matches.join(" "), (success, gameName) => {
+        if (!success) {
+            bot.say(
+                channel,
+                __("commands.setGame.failed", "@" + userstate["display-name"])
+            );
+            return;
+        }
+        bot.say(
+            channel,
+            __(
+                "commands.setGame.success",
+                "@" + userstate["display-name"],
+                gameName
+            )
+        );
+    });
 }
 
 function executeSetTitle(bot, matches, userstate) {

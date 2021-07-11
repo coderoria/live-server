@@ -35,7 +35,13 @@
 		},
 		"setTitle": {
 			"success": "%s, the title has been changed to \"%s\"",
-			"noTitle": "%s, please give a title to set."
+			"noTitle": "%s, please provide a title to set.",
+			"failed": "%s, title could not be set."
+		},
+		"setGame": {
+			"success": "%s, the game has been set to \"%s\"",
+			"noGame": "%s, please provide a game.",
+			"failed": "%s, game could not be set."
 		},
 		"failed": "%s sorry, the command failed to execute."
 	},

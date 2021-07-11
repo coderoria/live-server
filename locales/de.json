@@ -35,7 +35,13 @@
 		"uptime": "%s, %s ist seit %s live.",
 		"setTitle": {
 			"success": "%s, der Titel wurde geändert zu \"%s\"",
-			"noTitle": "%s, bitte gib einen Titel an."
+			"noTitle": "%s, bitte gib einen Titel an.",
+			"failed": "%s, Titel konnte nicht gesetzt werden."
+		},
+		"setGame": {
+			"success": "%s, das Spiel wurde geändrt zu \"%s\"",
+			"noGame": "%s, bitte gib ein Spiel an.",
+			"failed": "%s, Spiel konnte nicht gesetzt werden."
 		},
 		"failed": "%s tut uns leid, der Befehl konnte nicht ausgeführt werden."
 	},
