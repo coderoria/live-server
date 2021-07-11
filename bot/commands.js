@@ -3,6 +3,8 @@ const pool = require("../server/database");
 const filters = require("./filters");
 const logger = require("../logger")("Commands");
 const twitch = require("../server/twitchApi");
+const moment = require("moment");
+const { __ } = require("../i18n");
 
 let commands = [
     //USER:
@@ -194,11 +196,19 @@ function executeAccountAge(bot, matches, userstate) {
 
 function executeUptime(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    //UPTIME MISSING
-    let upTime = " ";
-    let message = __("commands.uptime", recipient, channel, null);
-    //"@" + recipient + ", CodeRoria ist seit " + upTime + " live.";
-    bot.say(channel, message);
+    twitch.getActiveStreamByName("afections", (data) => {
+        if (data == null) {
+            bot.say(
+                channel,
+                __("commands.uptime.noStream", recipient, channel)
+            );
+            return;
+        }
+        let diff = moment.duration(moment().diff(moment(data.started_at)));
+        let uptime = diff.hours() + ":" + diff.minutes() + ":" + diff.seconds();
+        let message = __("commands.uptime.message", recipient, channel, uptime);
+        bot.say(channel, message);
+    });
 }
 
 function executeCommands(bot, matches, userstate) {

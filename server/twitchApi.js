@@ -90,7 +90,35 @@ function setGame(search, callback) {
     });
 }
 
+function getActiveStreamByName(username, callback) {
+    auth.getSystemAuth((access_token) => {
+        axios
+            .get(
+                `https://api.twitch.tv/helix/streams?user_login=${username}&first=1`,
+                {
+                    headers: {
+                        Authorization: "Bearer " + access_token,
+                        "Client-Id": process.env.TWITCH_CLIENT_ID,
+                    },
+                }
+            )
+            .catch((error) => {
+                log.error(error, "Could not get active stream");
+                callback(null);
+                return;
+            })
+            .then((result) => {
+                if (result.data.data.length == 0) {
+                    callback(null);
+                    return;
+                }
+                callback(result.data.data[0]);
+            });
+    });
+}
+
 module.exports = {
     setTitle: setTitle,
     setGame: setGame,
+    getActiveStreamByName: getActiveStreamByName,
 };

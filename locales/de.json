@@ -32,7 +32,10 @@
 			"noChannel": "Kein Channel angegeben."
 		},
 		"twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
-		"uptime": "%s, %s ist seit %s live.",
+		"uptime": {
+			"message": "%s, %s ist seit %s live.",
+			"noStream": "%s, %s scheint nicht online zu sein."
+		},
 		"setTitle": {
 			"success": "%s, der Titel wurde geändert zu \"%s\"",
 			"noTitle": "%s, bitte gib einen Titel an.",

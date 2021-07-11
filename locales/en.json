@@ -28,7 +28,10 @@
 			"noChannel": "No channel provided."
 		},
 		"twitter": "%s, our twitter account: https://coderoria.com/twitter",
-		"uptime": "%s, %s is online for %s.",
+		"uptime": {
+			"message": "%s, %s is live for %s.",
+			"noStream": "%s, %s doesn't seem to be online."
+		},
 		"permit": {
 			"noNameProvided": "No name provided.",
 			"message": "%s, you can post links for the next 60s."
