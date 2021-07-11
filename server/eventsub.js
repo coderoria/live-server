@@ -60,48 +60,53 @@ router.post("/eventsub", (req, res) => {
 
 function createSubs() {
     deleteAllEventSubs();
-    logger.debug("Registering eventsubs");
-    auth.authSystem(() => {
-        auth.getSystemAuth((access_token) => {
-            pool.query(
-                "SELECT `user_id` FROM `admins` WHERE `username`=?;",
-                process.env.CHANNEL,
-                (error, res) => {
-                    if (error) {
-                        logger.error(error);
-                        return;
-                    }
-                    let user_id = res[0].user_id;
-
-                    axios
-                        .post(
-                            "https://api.twitch.tv/helix/eventsub/subscriptions",
-                            {
-                                type: "channel.follow",
-                                version: 1,
-                                condition: {
-                                    broadcaster_user_id: "71190292",
-                                },
-                                transport: {
-                                    method: "webhook",
-                                    callback: process.env.HOST + "/eventsub",
-                                    secret: process.env.TWITCH_EVENTSUB_SECRET,
-                                },
-                            },
-                            {
-                                headers: {
-                                    "Client-Id": process.env.TWITCH_CLIENT_ID,
-                                    Authorization: "Bearer " + access_token,
-                                },
-                            }
-                        )
-                        .catch((error) => {
+    setTimeout(() => {
+        logger.debug("Registering eventsubs");
+        auth.authSystem(() => {
+            auth.getSystemAuth((access_token) => {
+                pool.query(
+                    "SELECT `user_id` FROM `admins` WHERE `username`=?;",
+                    process.env.CHANNEL,
+                    (error, res) => {
+                        if (error) {
+                            logger.error(error);
                             return;
-                        });
-                }
-            );
+                        }
+                        let user_id = res[0].user_id;
+
+                        axios
+                            .post(
+                                "https://api.twitch.tv/helix/eventsub/subscriptions",
+                                {
+                                    type: "channel.follow",
+                                    version: 1,
+                                    condition: {
+                                        broadcaster_user_id: "71190292",
+                                    },
+                                    transport: {
+                                        method: "webhook",
+                                        callback:
+                                            process.env.HOST + "/eventsub",
+                                        secret: process.env
+                                            .TWITCH_EVENTSUB_SECRET,
+                                    },
+                                },
+                                {
+                                    headers: {
+                                        "Client-Id":
+                                            process.env.TWITCH_CLIENT_ID,
+                                        Authorization: "Bearer " + access_token,
+                                    },
+                                }
+                            )
+                            .catch((error) => {
+                                return;
+                            });
+                    }
+                );
+            });
         });
-    });
+    }, 3000);
 }
 
 function getEventSubs(callback) {
