@@ -6,7 +6,7 @@
 			"addedNew": "Neuer Counter: %s",
 			"deleted": "Counter gelöscht: %s",
 			"doesNotExist": "Counter %s existiert nicht.",
-			"noNameProvided": "Kein Name angegeben.",
+			"noNameProvided": "%s Kein Name angegeben.",
 			"showCount": "Der Counter %s hat den Wert %d",
 			"updated": "Der Counter %s wurde aktualisiert und hat nun den Wert %d"
 		},
@@ -23,6 +23,10 @@
 			"newAdded": "Neues Zitat hinzugefügt: %s",
 			"noQuotes": "Es gibt derzeit keine Zitate :("
 		},
+		"permit": {
+			"noNameProvided":"%s Kein Name angegeben.",
+			"message": "%s, du kannst für die nächsten 60s Links posten."
+		},
 		"shoutout": {
 			"message": "Hey! Gib %s doch einen Follow! Der letzte Stream war %s",
 			"noChannel": "Kein Channel angegeben."
@@ -32,7 +36,7 @@
 	},
 	"filters": {
 		"caps": "zu viel Caps",
-		"currentPoints": " (%d Punkte insgesamt)",
+		"currentPoints": " (%d Punkt(e) insgesamt)",
 		"emotes": "zu viele Emotes",
 		"links": "unerlaubte Links",
 		"multiple": " (Mehrere Verstöße)",

@@ -2,6 +2,7 @@ const i18n = require("../i18n");
 const logger = require("../logger")("Filters");
 
 let violations = {};
+let permits = [];
 
 setInterval(() => {
     for (let i in violations) {
@@ -27,7 +28,7 @@ function checkMessage(bot, message, userstate) {
         checkLinks: {
             function: checkLinks,
             points: 1,
-            reason: __("filters.link"),
+            reason: __("filters.links"),
         },
         checkEmotes: {
             function: checkEmotes,
@@ -87,7 +88,7 @@ function checkMessage(bot, message, userstate) {
         channel,
         __(
             "filters.warning",
-            userstate["display_name"],
+            "@" + userstate["display-name"],
             violations[userstate.username].reason
         ) +
             currentPoints +
@@ -117,6 +118,9 @@ function checkSpamLetters(message, userstate) {
 }
 
 function checkLinks(message, userstate) {
+    if (checkPermit(userstate.username)) {
+        return false;
+    }
     if (userstate.mod || userstate.subscriber) {
         return false;
     }
@@ -140,6 +144,27 @@ function checkEmotes(message, userstate) {
     return emotes > 10;
 }
 
+function addPermit(username) {
+    permits.push({
+        username: username.toLowerCase(),
+        until: new Date().getTime() + 60000,
+    });
+}
+
+function checkPermit(username) {
+    for (let i in permits) {
+        if (permits[i].username === username) {
+            if (permits[i].until <= new Date().getTime()) {
+                delete permits[i];
+                return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 module.exports = {
     checkMessage: checkMessage,
+    addPermit: addPermit,
 };

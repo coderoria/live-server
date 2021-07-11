@@ -242,6 +242,42 @@ function checkTwitchAuth(token, callback) {
     );
 }
 
+function checkTwitchAuthByName(username, callback) {
+    if (username == null) {
+        callback(false);
+        return;
+    }
+    pool.query(
+        "SELECT * FROM admins WHERE username = ?;",
+        username,
+        (error, dbres) => {
+            if (error) {
+                logger.error(error);
+                return;
+            }
+            if (dbres.length == 0) {
+                callback(false);
+                return;
+            }
+
+            axios
+                .get("https://id.twitch.tv/oauth2/validate", {
+                    headers: {
+                        Authorization: "OAuth " + dbres[0].access_token,
+                    },
+                })
+                .then((data) => {
+                    callback(true, dbres[0].username);
+                })
+                .catch((error) => {
+                    refreshTwitchAuth(dbres[0].user_id, (success) => {
+                        callback(success);
+                    });
+                });
+        }
+    );
+}
+
 function refreshTwitchAuth(user_id, callback) {
     pool.query(
         "SELECT `refresh_token` FROM `admins` WHERE `user_id`=?;",
@@ -325,12 +361,38 @@ function getUserIdByToken(token) {
     });
 }
 
+function getAccessTokenByName(username, callback) {
+    checkTwitchAuthByName(username, (success) => {
+        if (!success) {
+            callback(null);
+            return;
+        }
+        pool.query(
+            "SELECT access_token FROM admins WHERE username=?;",
+            username,
+            (error, dbres) => {
+                if (error) {
+                    logger.error(error);
+                    return;
+                }
+                if (dbres.length == 0) {
+                    callback(null);
+                    return;
+                }
+                callback(dbres[0].access_token);
+            }
+        );
+    });
+}
+
 module.exports = {
     router: router,
     authSystem: authSystem,
     addUser: addUser,
     checkTwitchAuth: checkTwitchAuth,
+    checkTwitchAuthByName: checkTwitchAuthByName,
     getSystemAuth: getSystemAuth,
     getUserIdByName: getUserIdByName,
     getUserIdByToken: getUserIdByToken,
+    getAccessTokenByName: getAccessTokenByName,
 };

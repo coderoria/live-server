@@ -1,6 +1,8 @@
 const i18n = require("../i18n");
 const pool = require("../server/database");
+const filters = require("./filters");
 const logger = require("../logger")("Commands");
+const twitch = require("../server/twitchApi");
 
 let commands = [
     //USER:
@@ -57,18 +59,18 @@ let commands = [
         function: executeShoutout,
         text: ["shoutout", "so"],
     },
-    /*     {
+    {
         function: executePermit,
         text: ["permit"],
     },
-    {
+    /*{
         function: executeSetGame,
         text: ["setgame", "sg"],
-    },
+    },*/
     {
         function: executeSetTitle,
         text: ["settitle", "st"],
-    }, */
+    },
     {
         function: executeCounters,
         text: ["counter"],
@@ -257,6 +259,48 @@ function executeShoutout(bot, matches, userstate) {
     }
 }
 
+function executePermit(bot, matches, userstate) {
+    let requiredLevel = "moderator";
+    if (!hasPermission(userstate, requiredLevel)) {
+        return;
+    }
+    if (matches.length === 0) {
+        let permitError = __("commands.permit.noNameProvided");
+        bot.say(channel, permitError);
+        return;
+    }
+    filters.addPermit(matches[0].replaceAll("@", ""));
+    let permitMessage = __("commands.permit.message", matches[0]);
+    bot.say(channel, permitMessage);
+}
+
+function executeSetTitle(bot, matches, userstate) {
+    let requiredLevel = "moderator";
+    if (!hasPermission(userstate, requiredLevel)) {
+        return;
+    }
+    if (matches.length == 0) {
+        bot.say(
+            channel,
+            __("commands.setTitle.noTitle", "@" + userstate["display-name"])
+        );
+        return;
+    }
+    twitch.setTitle(matches.join(" "), (success) => {
+        if (!success) {
+            bot.say(
+                channel,
+                __("commands.setTitle.failed", "@" + userstate["display-name"])
+            );
+            return;
+        }
+        bot.say(
+            channel,
+            __("commands.setTitle.success", "@" + userstate["display-name"])
+        );
+    });
+}
+
 function executeCounters(bot, matches, userstate) {
     let requiredLevel = "moderator";
     if (matches[0] === "add") {
@@ -382,7 +426,7 @@ function executeLanguage(bot, matches, userstate) {
     if (!hasPermission(userstate, "moderator")) {
         return;
     }
-    let recipient = userstate["display-name"];
+    let recipient = "@" + userstate["display-name"];
     if (matches.length == 0) {
         bot.say(channel, __("commands.language.noLangGiven", recipient));
         return;

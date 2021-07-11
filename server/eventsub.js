@@ -60,6 +60,7 @@ router.post("/eventsub", (req, res) => {
 
 function createSubs() {
     deleteAllEventSubs();
+    logger.debug("Registering eventsubs");
     auth.authSystem(() => {
         auth.getSystemAuth((access_token) => {
             pool.query(
@@ -138,6 +139,7 @@ function deleteEventSub(id) {
 
 function deleteAllEventSubs() {
     getEventSubs((subs) => {
+        logger.debug(subs, "Deleting eventsubs");
         subs.forEach((element) => {
             deleteEventSub(element.id);
         });

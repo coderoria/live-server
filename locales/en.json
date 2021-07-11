@@ -28,11 +28,18 @@
 			"noChannel": "No channel provided."
 		},
 		"twitter": "%s, our twitter account: https://coderoria.com/twitter",
-		"uptime": "%s, %s is online for %s."
+		"uptime": "%s, %s is online for %s.",
+		"permit": {
+			"noNameProvided": "No name provided.",
+			"message": "%s, you can post links for the next 60s."
+		},
+		"setTitle": {
+			"success": "commands.setTitle.success"
+		}
 	},
 	"filters": {
 		"caps": "writing in caps",
-		"currentPoints": " (%d total points)",
+		"currentPoints": " (%d total point(s))",
 		"emotes": "spamming emotes",
 		"links": "posting links",
 		"multiple": " (Multiple violations)",
