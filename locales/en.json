@@ -34,8 +34,10 @@
 			"message": "%s, you can post links for the next 60s."
 		},
 		"setTitle": {
-			"success": "commands.setTitle.success"
-		}
+			"success": "%s, the title has been changed to \"%s\"",
+			"noTitle": "%s, please give a title to set."
+		},
+		"failed": "%s sorry, the command failed to execute."
 	},
 	"filters": {
 		"caps": "writing in caps",

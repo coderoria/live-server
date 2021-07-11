@@ -41,6 +41,15 @@ function checkMessage(bot, message, userstate) {
         if (!checks[i].function(message, userstate)) {
             continue;
         }
+        logger.info(
+            {
+                user: userstate.username,
+                message: message,
+                function: checks[i].function.name,
+                points: checks[i].points,
+            },
+            "Filter violation"
+        );
         violated = true;
         let points = 0;
         let multiple = false;

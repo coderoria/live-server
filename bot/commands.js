@@ -94,6 +94,15 @@ function checkCommand(bot, message, userstate) {
     let command = matches.shift();
     for (let i in commands) {
         if (commands[i].text.includes(command.toLowerCase())) {
+            logger.info(
+                {
+                    userstate: userstate,
+                    message: message,
+                    function: commands[i].function.name,
+                    args: matches[0] ? matches[0].split(" ") : [],
+                },
+                "Recognized command"
+            );
             commands[i].function(
                 bot,
                 matches[0] ? matches[0].split(" ") : [],
@@ -290,13 +299,17 @@ function executeSetTitle(bot, matches, userstate) {
         if (!success) {
             bot.say(
                 channel,
-                __("commands.setTitle.failed", "@" + userstate["display-name"])
+                __("commands.failed", "@" + userstate["display-name"])
             );
             return;
         }
         bot.say(
             channel,
-            __("commands.setTitle.success", "@" + userstate["display-name"])
+            __(
+                "commands.setTitle.success",
+                "@" + userstate["display-name"],
+                matches.join(" ")
+            )
         );
     });
 }

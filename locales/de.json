@@ -32,7 +32,12 @@
 			"noChannel": "Kein Channel angegeben."
 		},
 		"twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
-		"uptime": "%s, %s ist seit %s live."
+		"uptime": "%s, %s ist seit %s live.",
+		"setTitle": {
+			"success": "%s, der Titel wurde geändert zu \"%s\"",
+			"noTitle": "%s, bitte gib einen Titel an."
+		},
+		"failed": "%s tut uns leid, der Befehl konnte nicht ausgeführt werden."
 	},
 	"filters": {
 		"caps": "zu viel Caps",
