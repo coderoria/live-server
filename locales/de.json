@@ -2,13 +2,13 @@
 	"commands": {
 		"commands": "%s, das sind alle Befehle auf dem Kanal: %s",
 		"counters": {
-			"addDuplicate": "Counter existiert bereits, nutze !counter %s + zum hochzählen.",
-			"addedNew": "Neuer Counter: %s",
-			"deleted": "Counter gelöscht: %s",
-			"doesNotExist": "Counter %s existiert nicht.",
-			"noNameProvided": "%s Kein Name angegeben.",
-			"showCount": "Der Counter %s hat den Wert %d",
-			"updated": "Der Counter %s wurde aktualisiert und hat nun den Wert %d"
+			"addDuplicate": "%s, Counter existiert bereits, nutze !counter %s + zum hochzählen.",
+			"addedNew": "%s, Neuer Counter: %s",
+			"deleted": "%s, Counter gelöscht: %s",
+			"doesNotExist": "%s, Counter %s existiert nicht.",
+			"noNameProvided": "%s, Kein Name angegeben.",
+			"showCount": "%s, Der Counter %s hat den Wert %d",
+			"updated": "%s, Der Counter %s wurde aktualisiert und hat nun den Wert %d"
 		},
 		"credit": "%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
 		"discord": "%s, hier ist unser Discord: https://coderoria.com/discord",
@@ -46,7 +46,6 @@
 		"links": "unerlaubte Links",
 		"multiple": " (Mehrere Verstöße)",
 		"spamLetters": "unerlaubte Symbole",
-		"warning": "%s, %s!",
-		"link": "filters.link"
+		"warning": "%s, %s!"
 	}
 }
