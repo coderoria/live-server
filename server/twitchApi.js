@@ -103,7 +103,7 @@ function getActiveStreamByName(username, callback) {
                 }
             )
             .catch((error) => {
-                log.error(error, "Could not get active stream");
+                logger.error(error, "Could not get active stream");
                 callback(null);
                 return;
             })
@@ -117,8 +117,43 @@ function getActiveStreamByName(username, callback) {
     });
 }
 
+function getLastPlayedName(username, callback) {
+    auth.getSystemAuth((app_access_token) => {
+        auth.getUserIdByName(username, (user_Id) => {
+            if (!user_Id) {
+                callback(user_Id);
+                return;
+            }
+            axios
+                .get(
+                    `https://api.twitch.tv/helix/channels?broadcaster_id=${user_Id}`,
+                    {
+                        headers: {
+                            Authorization: "Bearer " + app_access_token,
+                            "Client-Id": process.env.TWITCH_CLIENT_ID,
+                        },
+                    }
+                )
+                .then((result) => {
+                    if (!result.data.data[0].game_name) {
+                        callback("");
+                        return;
+                    }
+                    callback(result.data.data[0].game_name);
+                    return;
+                })
+                .catch((error) => {
+                    logger.error(error, "Could not get last Game");
+                    callback(null);
+                    return;
+                });
+        });
+    });
+}
+
 module.exports = {
     setTitle: setTitle,
     setGame: setGame,
     getActiveStreamByName: getActiveStreamByName,
+    getLastPlayedName: getLastPlayedName,
 };

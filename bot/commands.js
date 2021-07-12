@@ -4,7 +4,6 @@ const filters = require("./filters");
 const logger = require("../logger")("Commands");
 const twitch = require("../server/twitchApi");
 const moment = require("moment");
-const { __ } = require("../i18n");
 
 let commands = [
     //USER:
@@ -18,7 +17,7 @@ let commands = [
     },
     {
         function: executeGitHub,
-        text: ["git", "github"],
+        text: ["github", "git"],
     },
     {
         function: executeCredit,
@@ -46,7 +45,7 @@ let commands = [
     },
     {
         function: executeCommands,
-        text: ["befele", "commands"],
+        text: ["commands", "befehle"],
     },
     {
         function: executeLurk,
@@ -77,11 +76,11 @@ let commands = [
         function: executeCounters,
         text: ["counter"],
     },
+    //STREAMER:
     {
         function: executeLanguage,
-        text: ["lang", "language"],
+        text: ["language", "lang"],
     },
-    //STREAMER:
 ];
 
 let channel = process.env.CHANNEL;
@@ -159,11 +158,7 @@ function executeGitHub(bot, matches, userstate) {
 
 function executeCredit(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    let credit = __(
-        "commands.credit",
-        recipient
-        //%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
-    );
+    let credit = __("commands.credit", recipient);
     bot.say(channel, credit);
 }
 
@@ -196,7 +191,7 @@ function executeAccountAge(bot, matches, userstate) {
 
 function executeUptime(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    twitch.getActiveStreamByName("afections", (data) => {
+    twitch.getActiveStreamByName("bobross", (data) => {
         if (data == null) {
             bot.say(
                 channel,
@@ -205,7 +200,13 @@ function executeUptime(bot, matches, userstate) {
             return;
         }
         let diff = moment.duration(moment().diff(moment(data.started_at)));
-        let uptime = diff.hours() + ":" + diff.minutes() + ":" + diff.seconds();
+        let uptime =
+            diff.hours() +
+            "h" +
+            diff.minutes() +
+            "min" +
+            diff.seconds() +
+            "sec";
         let message = __("commands.uptime.message", recipient, channel, uptime);
         bot.say(channel, message);
     });
@@ -214,12 +215,11 @@ function executeUptime(bot, matches, userstate) {
 function executeCommands(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
     let command = "";
+    let commandStrings = [];
     for (let i in commands) {
-        for (let j in commands[i].text) {
-            command += commands[i].text[j];
-            command += ", ";
-        }
+        commandStrings.push(commands[i].text[0]);
     }
+    command = commandStrings.join(", ");
     let message = __("commands.commands", recipient, command);
     bot.say(channel, message);
 }
@@ -273,8 +273,22 @@ function executeShoutout(bot, matches, userstate) {
             bot.say(channel, __("commands.shoutout.noChannel"));
             return;
         }
-        let shoutout = __("commands.shoutout.message", matches[0], null); //GAME MISSING
-        bot.say(channel, shoutout);
+        twitch.getLastPlayedName(matches[0], (lastGameName) => {
+            if (lastGameName === "") {
+                bot.say(channel, __("commands.shoutout.noGame", matches[0]));
+                return;
+            }
+            if (lastGameName === null) {
+                bot.say(channel, __("commands.shoutout.noUser"));
+                return;
+            }
+            let shoutout = __(
+                "commands.shoutout.message",
+                matches[0],
+                lastGameName
+            );
+            bot.say(channel, shoutout);
+        });
     }
 }
 
@@ -528,8 +542,10 @@ function executeCounters(bot, matches, userstate) {
     }
 }
 
+//---------------------- Streamer ----------------------
+
 function executeLanguage(bot, matches, userstate) {
-    if (!hasPermission(userstate, "moderator")) {
+    if (!hasPermission(userstate, "broadcaster")) {
         return;
     }
     let recipient = "@" + userstate["display-name"];
@@ -540,8 +556,6 @@ function executeLanguage(bot, matches, userstate) {
     i18n.setLocale(matches[0]);
     bot.say(channel, __("commands.language.message", recipient));
 }
-
-//---------------------- Streamer ----------------------
 
 module.exports = {
     checkCommand: checkCommand,

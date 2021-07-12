@@ -25,7 +25,9 @@
 		},
 		"shoutout": {
 			"message": "Hey! Consider following %s! Their last stream was %s",
-			"noChannel": "No channel provided."
+			"noChannel": "No channel provided.",
+			"noGame": "Hey! Consider following %s! That channel is amazing",
+			"noUser": "This user does not exist."
 		},
 		"twitter": "%s, our twitter account: https://coderoria.com/twitter",
 		"uptime": {

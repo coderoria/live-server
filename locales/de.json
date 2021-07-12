@@ -29,7 +29,9 @@
 		},
 		"shoutout": {
 			"message": "Hey! Gib %s doch einen Follow! Der letzte Stream war %s",
-			"noChannel": "Kein Channel angegeben."
+			"noChannel": "Kein Channel angegeben.",
+			"noGame": "Hey! Gib %s doch einen Follow! Der Kanal ist super",
+			"noUser": "Dieser Nutzer existiert nicht"
 		},
 		"twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
 		"uptime": {
