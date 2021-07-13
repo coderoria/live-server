@@ -62,7 +62,7 @@ router.get("/auth/twitch", (req, res) => {
                         ],
                         (error, dbres) => {
                             if (error) {
-                                logger.error(error);
+                                logger.error({ error: error });
                                 res.sendStatus(500);
                                 return;
                             }
@@ -97,7 +97,7 @@ function addUser(name, callback) {
         "SELECT `access_token` FROM `admins` WHERE `user_id`=-1;",
         (error, dbres) => {
             if (error) {
-                logger.error(error);
+                logger.error({ error: error });
                 callback(false);
                 return;
             }
@@ -117,7 +117,7 @@ function addUser(name, callback) {
                         [user_id, name],
                         (error) => {
                             if (error) {
-                                logger.error(error);
+                                logger.error({ error: error });
                                 callback(false);
                                 return;
                             }
@@ -126,7 +126,7 @@ function addUser(name, callback) {
                     );
                 })
                 .catch((error) => {
-                    logger.error(error);
+                    logger.error({ error: error });
                     callback(false);
                 });
         }
@@ -154,7 +154,7 @@ function authSystem(callback) {
                 [-1, access_token],
                 (error, dbres) => {
                     if (error) {
-                        logger.error(error);
+                        logger.error({ error: error });
                         callback(false);
                         return;
                     }
@@ -164,7 +164,7 @@ function authSystem(callback) {
         })
         .catch((error) => {
             logger.error("Could not get a System token from Twitch:");
-            logger.error(error);
+            logger.error({ error: error });
             callback(false);
         });
 }
@@ -217,7 +217,7 @@ function checkTwitchAuth(token, callback) {
         token,
         (error, dbres) => {
             if (error) {
-                logger.error(error);
+                logger.error({ error: error });
                 return;
             }
             if (dbres.length == 0) {
@@ -252,7 +252,7 @@ function checkTwitchAuthByName(username, callback) {
         username,
         (error, dbres) => {
             if (error) {
-                logger.error(error);
+                logger.error({ error: error });
                 return;
             }
             if (dbres.length == 0) {
@@ -302,7 +302,7 @@ function refreshTwitchAuth(user_id, callback) {
                         [access_token, refresh_token, user_id],
                         (error) => {
                             if (error) {
-                                logger.error(error);
+                                logger.error({ error: error });
                                 callback(false);
                                 return;
                             }
@@ -335,7 +335,7 @@ function getUserIdByName(username, callback) {
                 return;
             })
             .catch((error) => {
-                logger.error(error);
+                logger.error({ error: error });
                 callback(null);
             });
     });
@@ -372,7 +372,7 @@ function getAccessTokenByName(username, callback) {
             username,
             (error, dbres) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     return;
                 }
                 if (dbres.length == 0) {

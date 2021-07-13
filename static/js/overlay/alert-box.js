@@ -1,15 +1,17 @@
 let alert_queue = [];
 const ALERT_DELAY = 2000;
+const socket = io();
 
-function addAlert(name, action, message) {
-    alert_queue.push({ name: name, action: action, message: message });
+function addAlert(name, action, details = {}) {
+    alert_queue.push({ name: name, action: action, details: details });
     if (alert_queue.length == 1) {
-        showAlertBox(name, action, message);
+        showAlertBox(name, action, details);
     }
 }
 
-function showAlertBox(name, action, message) {
-    let messageDelay = message == undefined ? 0 : message.length * 50;
+function showAlertBox(name, action, details) {
+    let messageDelay =
+        details.message == undefined ? 0 : details.message.length * 50;
     figlet(name, function (err, data) {
         if (err) {
             logger.log("Something went wrong...");
@@ -19,7 +21,7 @@ function showAlertBox(name, action, message) {
         document.querySelector(".alert-box-icon").src =
             "/static/img/" + action + ".svg";
         document.querySelector(".alert-box-message").innerHTML =
-            message != undefined ? message : "";
+            details.message != undefined ? details.message : "";
         let alertBoxUser = document.querySelector(".alert-box-user");
         alertBoxUser.innerHTML = data;
 
@@ -30,7 +32,10 @@ function showAlertBox(name, action, message) {
             targets: ".alert-box",
             top: "10%",
             duration: 1000,
-            endDelay: messageDelay > ALERT_DELAY ? messageDelay : ALERT_DELAY / Math.sqrt(alert_queue.length),
+            endDelay:
+                messageDelay > ALERT_DELAY
+                    ? messageDelay
+                    : ALERT_DELAY / Math.sqrt(alert_queue.length),
             complete: next,
             direction: "alternate",
         });
@@ -42,5 +47,25 @@ function next() {
     if (alert_queue.length == 0) return;
 
     let alert = alert_queue[0];
-    showAlertBox(alert.name, alert.action, alert.message);
+    showAlertBox(alert.name, alert.action, alert.details.message);
+}
+
+socket.on("channel.follow", (event) => {
+    addAlert(chooseSanitized(event.user_name, event.user_login), "follow");
+});
+
+socket.on("channel.subscribe", (event) => {
+    addAlert(chooseSanitized(event.user_name, event.user_login), "sub");
+});
+
+socket.on("channel.subscription.message", (event) => {
+    addAlert(chooseSanitized(event.user_name, event.user_login), "sub", {
+        message: event.message.text,
+        cumulative_months: event.cumulative_months,
+        duration_months: event.duration_months,
+    });
+});
+
+function chooseSanitized(displayName, userName) {
+    return displayName.toLowerCase() === userName ? displayName : userName;
 }

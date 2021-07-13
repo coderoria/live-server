@@ -1,21 +1,31 @@
 const socket = io();
 
-socket.on("follow", (name, message, self) => {
+socket.on("channel.follow", (event) => {
     let alertBox = document.querySelector(".alert-box");
     if (alertBox == undefined) return;
-    window[alertBox.dataset.function](name, "follow", message);
+    window[alertBox.dataset.function](
+        chooseSanitized(event.user_name, event.user_login),
+        "follow"
+    );
 });
 
-socket.on("sub", (name, message, self) => {
+socket.on("channel.subscribe", (event) => {
     let alertBox = document.querySelector(".alert-box");
     if (alertBox == undefined) return;
-    window[alertBox.dataset.function](name, "sub", message);
+    window[alertBox.dataset.function](
+        chooseSanitized(event.user_name, event.user_login),
+        "sub"
+    );
 });
 
-socket.on("cheer", (name, message) => {
+socket.on("channel.subscription.message", (event) => {
     let alertBox = document.querySelector(".alert-box");
     if (alertBox == undefined) return;
-    window[alertBox.dataset.function](name, "bit", message);
+    window[alertBox.dataset.function](
+        chooseSanitized(event.user_name, event.user_login),
+        "sub",
+        event.message
+    );
 });
 
 socket.on("playback", (img, artists, title) => {
@@ -23,3 +33,7 @@ socket.on("playback", (img, artists, title) => {
     if (playBackBox == undefined) return;
     window[playBackBox.dataset.function](img, artists, title);
 });
+
+function chooseSanitized(displayName, userName) {
+    return displayName.toLowerCase() === userName ? displayName : userName;
+}

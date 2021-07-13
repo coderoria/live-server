@@ -8,6 +8,21 @@ const pool = require("./database");
 const logger = require("../logger")("EventSub");
 
 let receivedIds = [];
+let wantedSubs = [
+    "channel.follow",
+    "channel.subscribe",
+    "channel.subscription.gift",
+    "channel.subscription.message",
+    "channel.cheer",
+    "channel.raid",
+    "channel.poll.begin",
+    "channel.poll.end",
+    "channel.prediction.begin",
+    "channel.prediction.lock",
+    "channel.prediction.end",
+    "stream.online",
+    "stream.offline",
+];
 let io;
 
 router.get("/eventsub", (req, res) => {});
@@ -42,15 +57,15 @@ router.post("/eventsub", (req, res) => {
             return;
         }
         receivedIds.push(requestId);
-        let sanitized_name =
-            req.body.event.user_name.toLowerCase() ===
-            req.body.event.user_login.toLowerCase()
-                ? req.body.event.user_name
-                : req.body.event.user_login;
-        io.sockets.emit("follow", sanitized_name, null, false);
+
+        io.sockets.emit(req.body.subscription.type, req.body.event);
         logger.info(
-            { username: req.body.event.user_login, requestId: requestId },
-            `Follow received`
+            {
+                type: req.body.subscription.type,
+                requestId: requestId,
+                event: req.body.event,
+            },
+            `Event received`
         );
         res.sendStatus(200);
         return;
@@ -61,49 +76,40 @@ router.post("/eventsub", (req, res) => {
 function createSubs() {
     deleteAllEventSubs();
     setTimeout(() => {
-        logger.debug("Registering eventsubs");
-        auth.authSystem(() => {
-            auth.getSystemAuth((access_token) => {
-                pool.query(
-                    "SELECT `user_id` FROM `admins` WHERE `username`=?;",
-                    process.env.CHANNEL,
-                    (error, res) => {
-                        if (error) {
-                            logger.error(error);
-                            return;
-                        }
-                        let user_id = res[0].user_id;
-
-                        axios
-                            .post(
-                                "https://api.twitch.tv/helix/eventsub/subscriptions",
-                                {
-                                    type: "channel.follow",
-                                    version: 1,
-                                    condition: {
-                                        broadcaster_user_id: "71190292",
-                                    },
-                                    transport: {
-                                        method: "webhook",
-                                        callback:
-                                            process.env.HOST + "/eventsub",
-                                        secret: process.env
-                                            .TWITCH_EVENTSUB_SECRET,
-                                    },
+        auth.getSystemAuth((access_token) => {
+            auth.getUserIdByName(process.env.CHANNEL, (user_id) => {
+                wantedSubs.forEach((type) => {
+                    logger.debug({ type: type }, "Registering EventSub");
+                    axios
+                        .post(
+                            "https://api.twitch.tv/helix/eventsub/subscriptions",
+                            {
+                                type: type,
+                                version: 1,
+                                condition: {
+                                    broadcaster_user_id: user_id,
                                 },
-                                {
-                                    headers: {
-                                        "Client-Id":
-                                            process.env.TWITCH_CLIENT_ID,
-                                        Authorization: "Bearer " + access_token,
-                                    },
-                                }
-                            )
-                            .catch((error) => {
-                                return;
-                            });
-                    }
-                );
+                                transport: {
+                                    method: "webhook",
+                                    callback: process.env.HOST + "/eventsub",
+                                    secret: process.env.TWITCH_EVENTSUB_SECRET,
+                                },
+                            },
+                            {
+                                headers: {
+                                    "Client-Id": process.env.TWITCH_CLIENT_ID,
+                                    Authorization: "Bearer " + access_token,
+                                },
+                            }
+                        )
+                        .catch((error) => {
+                            logger.error(
+                                { error: error, type: type },
+                                "Failed to register EventSub!"
+                            );
+                            return;
+                        });
+                });
             });
         });
     }, 3000);

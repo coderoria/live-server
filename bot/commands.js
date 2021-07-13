@@ -55,6 +55,11 @@ let commands = [
         function: executeQuotes,
         text: ["quote"],
     },
+    // SUBSCRIBER:
+    {
+        function: executeClip,
+        text: ["clip"],
+    },
     // MOD:
     {
         function: executeShoutout,
@@ -240,7 +245,7 @@ function executeQuotes(bot, matches, userstate) {
             newQuote,
             (error) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     return;
                 }
                 bot.say(channel, __("commands.quotes.newAdded", newQuote));
@@ -252,7 +257,7 @@ function executeQuotes(bot, matches, userstate) {
         "SELECT * FROM quotes ORDER BY RAND() LIMIT 1;",
         (error, dbres) => {
             if (error) {
-                logger.error(error);
+                logger.error({ error: error });
                 return;
             }
             if (dbres.length == 0) {
@@ -262,6 +267,25 @@ function executeQuotes(bot, matches, userstate) {
             bot.say(channel, dbres[0].quote);
         }
     );
+}
+//--------------------- Subcribers ---------------------
+
+function executeClip(bot, matches, userstate) {
+    let requiredLevel = "subscriber";
+    if (!hasPermission(userstate, requiredLevel)) {
+        return;
+    }
+    twitch.createClip(process.env.CHANNEL, (clip_url) => {
+        if (clip_url === null) {
+            bot.say(channel, __("commands.clip.notCreated"));
+            return;
+        }
+        if (clip_url === "") {
+            bot.say(channel, __("commands.clip.notFound"));
+            return;
+        }
+        bot.say(channel, __("commands.clip.success", clip_url));
+    });
 }
 
 //------------------------ MOD -------------------------
@@ -399,7 +423,7 @@ function executeCounters(bot, matches, userstate) {
                         );
                         return;
                     }
-                    logger.error(error);
+                    logger.error({ error: error });
                     return;
                 }
                 bot.say(
@@ -431,7 +455,7 @@ function executeCounters(bot, matches, userstate) {
             matches[1].toLowerCase(),
             (error, result) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     return;
                 }
                 if (result.affectedRows === 0) {
@@ -471,7 +495,7 @@ function executeCounters(bot, matches, userstate) {
             matches[0].toLowerCase(),
             (error, result) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     return;
                 }
 
@@ -523,7 +547,7 @@ function executeCounters(bot, matches, userstate) {
                     [points, matches[0].toLowerCase()],
                     (error) => {
                         if (error) {
-                            logger.error(error);
+                            logger.error({ error: error });
                             return;
                         }
                         bot.say(

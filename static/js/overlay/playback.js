@@ -1,4 +1,5 @@
 let running = false;
+const socket = io();
 
 function showPlayBack(img, artists, title) {
     document.querySelector(".playback-image").src = img;
@@ -8,7 +9,7 @@ function showPlayBack(img, artists, title) {
     let artistsElement = document.querySelector(".playback-artists");
     artistsElement.innerHTML = artists;
 
-    if(running) {
+    if (running) {
         return;
     }
     running = true;
@@ -52,3 +53,7 @@ function showPlayBack(img, artists, title) {
         easing: "cubicBezier(0.000, 0.000, 0.580, 1.000)",
     });
 }
+
+socket.on("playback", (img, artists, title) => {
+    showPlayBack(img, artists, title);
+});

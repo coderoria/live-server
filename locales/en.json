@@ -48,7 +48,10 @@
 			"noGame": "%s, please provide a game.",
 			"failed": "%s, game could not be set."
 		},
-		"failed": "%s sorry, the command failed to execute."
+		"failed": "%s sorry, the command failed to execute.",
+		"clip": {
+			"notCreated": "commands.clip.notCreated"
+		}
 	},
 	"filters": {
 		"caps": "writing in caps",

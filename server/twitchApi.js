@@ -22,7 +22,10 @@ function setTitle(title, callback) {
                     }
                 )
                 .catch((error) => {
-                    logger.error(error, "Changing title was not successful");
+                    logger.error(
+                        { error: error },
+                        "Changing title was not successful"
+                    );
                     callback(false);
                     return;
                 })
@@ -48,7 +51,10 @@ function setGame(search, callback) {
                 }
             )
             .catch((error) => {
-                logger.error(error, "Searching for Category failed.");
+                logger.error(
+                    { error: error },
+                    "Searching for Category failed."
+                );
                 callback(false);
                 return;
             })
@@ -103,7 +109,7 @@ function getActiveStreamByName(username, callback) {
                 }
             )
             .catch((error) => {
-                logger.error(error, "Could not get active stream");
+                logger.error({ error: error }, "Could not get active stream");
                 callback(null);
                 return;
             })
@@ -143,11 +149,65 @@ function getLastPlayedName(username, callback) {
                     return;
                 })
                 .catch((error) => {
-                    logger.error(error, "Could not get last Game");
+                    logger.error({ error: error }, "Could not get last Game");
                     callback(null);
                     return;
                 });
         });
+    });
+}
+
+function createClip(username, callback) {
+    auth.getAccessTokenByName(username, (access_token) => {
+        auth.getUserIdByName(username, (user_id) => {
+            axios
+                .post(
+                    `https://api.twitch.tv/helix/clips?broadcaster_id=${user_id}`,
+                    {
+                        headers: {
+                            Authorization: "Bearer " + access_token,
+                            "Client-Id": process.env.TWITCH_CLIENT_ID,
+                        },
+                    }
+                )
+                .then((result) => {
+                    setTimeout(() => {
+                        getCreatedClip(result.data.data[0].id, (clip_link) => {
+                            callback(clip_link);
+                        });
+                    }, 15000);
+                })
+                .catch((error) => {
+                    logger.error({ error: error }, "Could not create clip");
+                    callback(null);
+                    return;
+                });
+        });
+    });
+}
+
+function getCreatedClip(clip_id, callback) {
+    auth.getSystemAuth((app_access_token) => {
+        axios
+            .get(`https://api.twitch.tv/helix/clips?id=${clip_id}`, {
+                headers: {
+                    Authorization: "Bearer " + app_access_token,
+                    "Client-Id": process.env.TWITCH_CLIENT_ID,
+                },
+            })
+            .then((result) => {
+                if (result.data.data.length == 0) {
+                    callback("");
+                    return;
+                }
+                callback(result.data.data.url);
+                return;
+            })
+            .catch((error) => {
+                logger.error({ error: error }, "Could not get clip");
+                callback(null);
+                return;
+            });
     });
 }
 
@@ -156,4 +216,5 @@ module.exports = {
     setGame: setGame,
     getActiveStreamByName: getActiveStreamByName,
     getLastPlayedName: getLastPlayedName,
+    createClip: createClip,
 };

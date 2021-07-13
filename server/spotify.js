@@ -20,7 +20,7 @@ function setIO(socket) {
                 user,
                 (error, dbres) => {
                     if (error) {
-                        logger.error(error);
+                        logger.error({ error: error });
                         callback(false);
                         return;
                     }
@@ -104,7 +104,7 @@ router.get("/auth/spotify", (req, res) => {
                                     ],
                                     (error) => {
                                         if (error) {
-                                            logger.error(error);
+                                            logger.error({ error: error });
                                             res.sendStatus(500);
                                             return;
                                         }
@@ -120,12 +120,12 @@ router.get("/auth/spotify", (req, res) => {
                                 );
                             })
                             .catch((error) => {
-                                logger.error(error.response);
+                                logger.error({ error: error }.response);
                                 res.sendStatus(500);
                             });
                     })
                     .catch((error) => {
-                        logger.error(error.response);
+                        logger.error({ error: error }.response);
                         res.sendStatus(500);
                         return;
                     });
@@ -145,7 +145,7 @@ function checkAuth(id) {
             id,
             (error, res) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     return;
                 }
                 axios
@@ -179,7 +179,7 @@ function refreshAuth(id) {
             id,
             (error, dbres) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     reject();
                     return;
                 }
@@ -216,7 +216,7 @@ function refreshAuth(id) {
                             ],
                             (error) => {
                                 if (error) {
-                                    logger.error(error);
+                                    logger.error({ error: error });
                                     reject();
                                     return;
                                 }
@@ -226,7 +226,7 @@ function refreshAuth(id) {
                         );
                     })
                     .catch((error) => {
-                        logger.error(error);
+                        logger.error({ error: error });
                         return;
                     });
             }
@@ -245,7 +245,7 @@ function playBackNotification() {
             usedId,
             (error, res) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     return;
                 }
                 axios
@@ -312,7 +312,7 @@ function playBackNotification() {
                         );
                     })
                     .catch((error) => {
-                        logger.error(error);
+                        logger.error({ error: error });
                         return;
                     });
             }
@@ -326,7 +326,7 @@ function getAvailableUsernames() {
             `SELECT username FROM admins JOIN spotify ON spotify.twitch_id=admins.user_id;`,
             (error, res) => {
                 if (error) {
-                    logger.error(error);
+                    logger.error({ error: error });
                     reject();
                     return;
                 }

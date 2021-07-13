@@ -88,7 +88,7 @@ function entryPoint() {
             logger.info(host, "Connected to IRC");
         })
         .catch((error) => {
-            logger.error(error);
+            logger.error({ error: error });
         });
 
     bot.on("message", (channel, userstate, message, self) => {
