@@ -163,6 +163,7 @@ function createClip(username, callback) {
             axios
                 .post(
                     `https://api.twitch.tv/helix/clips?broadcaster_id=${user_id}`,
+                    null,
                     {
                         headers: {
                             Authorization: "Bearer " + access_token,
@@ -200,7 +201,7 @@ function getCreatedClip(clip_id, callback) {
                     callback("");
                     return;
                 }
-                callback(result.data.data.url);
+                callback(result.data.data[0].url);
                 return;
             })
             .catch((error) => {

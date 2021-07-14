@@ -2,7 +2,11 @@ extends parts/site
 block content 
     script(src="/socket.io/socket.io.js") 
     script(src="/static/js/dashboard/dock.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js")
     .container-fluid.text-light.mt-5
+        .row.justify-content-center.h-50.overflow-hidden
+            .col
+                .list-group(id="events")
         .row.justify-content-center
             .col
                 form(action="" id="spotify-form") 

@@ -191,7 +191,7 @@ function entryPoint() {
 }
 
 function testEvents() {
-    let alerts = [
+    /* let alerts = [
         {
             name: "BURDEL",
             message: "This is a moderately long message PogChamp",
@@ -205,7 +205,7 @@ function testEvents() {
     ];
     for (j = 0; j < 3; j++) {
         io.sockets.emit("follow", alerts[j].name, alerts[j].message, false);
-    }
+    } */
     /* io.sockets.emit(
         "playback",
         "https://i.scdn.co/image/107819f5dc557d5d0a4b216781c6ec1b2f3c5ab2",

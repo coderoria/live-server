@@ -131,6 +131,9 @@ function hasPermission(userstate, requiredLevel) {
     if (!ranks.includes(requiredLevel)) {
         return false;
     }
+    if (userstate.badges == null) {
+        return false;
+    }
     for (let i in ranks) {
         if (userstate.badges.hasOwnProperty(ranks[i])) {
             return true;
@@ -196,7 +199,7 @@ function executeAccountAge(bot, matches, userstate) {
 
 function executeUptime(bot, matches, userstate) {
     let recipient = findRecipient(matches, userstate);
-    twitch.getActiveStreamByName("bobross", (data) => {
+    twitch.getActiveStreamByName(process.env.CHANNEL, (data) => {
         if (data == null) {
             bot.say(
                 channel,
@@ -276,7 +279,7 @@ function executeClip(bot, matches, userstate) {
         return;
     }
     twitch.createClip(process.env.CHANNEL, (clip_url) => {
-        if (clip_url === null) {
+        if (clip_url == null) {
             bot.say(channel, __("commands.clip.notCreated"));
             return;
         }

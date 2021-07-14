@@ -313,6 +313,7 @@ function playBackNotification() {
                     })
                     .catch((error) => {
                         logger.error({ error: error });
+                        setTimeout(playBackNotification, 60000);
                         return;
                     });
             }

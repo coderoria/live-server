@@ -24,7 +24,7 @@
 			"noQuotes": "Es gibt derzeit keine Zitate :("
 		},
 		"permit": {
-			"noNameProvided":"%s Kein Name angegeben.",
+			"noNameProvided": "%s Kein Name angegeben.",
 			"message": "%s, du kannst für die nächsten 60s Links posten."
 		},
 		"shoutout": {
@@ -48,7 +48,12 @@
 			"noGame": "%s, bitte gib ein Spiel an.",
 			"failed": "%s, Spiel konnte nicht gesetzt werden."
 		},
-		"failed": "%s tut uns leid, der Befehl konnte nicht ausgeführt werden."
+		"failed": "%s tut uns leid, der Befehl konnte nicht ausgeführt werden.",
+		"clip": {
+			"notCreated": "Beim Erstellen des Clips ist ein fehler aufgetreten :(",
+			"success": "Clip erstellt: %s",
+			"notFound": "Unser Clip ist verloren gegangen :("
+		}
 	},
 	"filters": {
 		"caps": "zu viel Caps",

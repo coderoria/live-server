@@ -50,7 +50,9 @@
 		},
 		"failed": "%s sorry, the command failed to execute.",
 		"clip": {
-			"notCreated": "commands.clip.notCreated"
+			"notCreated": "There was an error creating the clip.",
+			"success": "Clip created: %s",
+			"notFound": "Our clip has gone missing :("
 		}
 	},
 	"filters": {
