@@ -80,21 +80,25 @@ function createSubs() {
             auth.getUserIdByName(process.env.CHANNEL, (user_id) => {
                 wantedSubs.forEach((type) => {
                     logger.debug({ type: type }, "Registering EventSub");
+                    let data = {
+                        type: type,
+                        version: 1,
+                        condition: {},
+                        transport: {
+                            method: "webhook",
+                            callback: process.env.HOST + "/eventsub",
+                            secret: process.env.TWITCH_EVENTSUB_SECRET,
+                        },
+                    };
+                    if (type === "channel.raid") {
+                        data.condition.to_broadcaster_user_id = user_id;
+                    } else {
+                        data.condition.broadcaster_user_id = user_id;
+                    }
                     axios
                         .post(
                             "https://api.twitch.tv/helix/eventsub/subscriptions",
-                            {
-                                type: type,
-                                version: 1,
-                                condition: {
-                                    broadcaster_user_id: user_id,
-                                },
-                                transport: {
-                                    method: "webhook",
-                                    callback: process.env.HOST + "/eventsub",
-                                    secret: process.env.TWITCH_EVENTSUB_SECRET,
-                                },
-                            },
+                            data,
                             {
                                 headers: {
                                     "Client-Id": process.env.TWITCH_CLIENT_ID,
