@@ -300,22 +300,28 @@ function executeShoutout(bot, matches, userstate) {
             bot.say(channel, __("commands.shoutout.noChannel"));
             return;
         }
-        twitch.getLastPlayedName(matches[0], (lastGameName) => {
-            if (lastGameName === "") {
-                bot.say(channel, __("commands.shoutout.noGame", matches[0]));
-                return;
+        twitch.getLastPlayedName(
+            matches[0].replace("@", ""),
+            (lastGameName) => {
+                if (lastGameName === "") {
+                    bot.say(
+                        channel,
+                        __("commands.shoutout.noGame", matches[0])
+                    );
+                    return;
+                }
+                if (lastGameName === null) {
+                    bot.say(channel, __("commands.shoutout.noUser"));
+                    return;
+                }
+                let shoutout = __(
+                    "commands.shoutout.message",
+                    matches[0],
+                    lastGameName
+                );
+                bot.say(channel, shoutout);
             }
-            if (lastGameName === null) {
-                bot.say(channel, __("commands.shoutout.noUser"));
-                return;
-            }
-            let shoutout = __(
-                "commands.shoutout.message",
-                matches[0],
-                lastGameName
-            );
-            bot.say(channel, shoutout);
-        });
+        );
     }
 }
 
