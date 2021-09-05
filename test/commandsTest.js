@@ -104,11 +104,7 @@ describe("Commands", function () {
         describe("Shoutout command", function () {
             // shoutout can't work w/o access keys
             it("!shoutout testuser", function () {
-                botMock
-                    .expects("say")
-                    .neverCalledWith(undefined, "kein channel angegeben.");
-                commands.checkCommand(bot, "!shoutout testuser", userstate);
-                botMock.verify();
+                
             });
 
             it("!shoutout", function () {
