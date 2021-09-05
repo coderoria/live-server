@@ -267,7 +267,7 @@ function executeQuotes(bot, matches, userstate) {
                 bot.say(channel, __("commands.quotes.noQuotes"));
                 return;
             }
-            bot.say(channel, dbres[0].quote);
+            bot.say(channel, '"' + dbres[0].quote + '"');
         }
     );
 }
