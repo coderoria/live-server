@@ -5,7 +5,7 @@ function logger(name) {
         name: name,
         prettyPrint: { colorize: true, translateTime: "SYS:standard" },
         base: undefined,
-        level: process.env.LOG_LEVEL || "info",
+        level: process.env.CI ? "silent" : process.env.LOG_LEVEL || "info",
     });
 }
 
