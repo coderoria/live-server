@@ -103,9 +103,7 @@ describe("Commands", function () {
 
         describe("Shoutout command", function () {
             // shoutout can't work w/o access keys
-            it("!shoutout testuser", function () {
-                
-            });
+            it("!shoutout testuser", function () {});
 
             it("!shoutout", function () {
                 botMock
