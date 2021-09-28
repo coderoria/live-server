@@ -188,28 +188,17 @@ io.use((socket, next) => {
 if (process.argv.includes("--test")) setTimeout(testEvents, 3000);
 
 function testEvents() {
-    /* let alerts = [
-        {
-            name: "BURDEL",
-            message: "This is a moderately long message PogChamp",
-        },
-        { name: "Strike", message: "StrikLuv" },
-        {
-            name: "VeryLongTwitchUsernameLOL",
-            message:
-                "This is a veray long message testing the wrapping of the alert box even with a long name. Like my username. Lol.",
-        },
-    ];
-    for (j = 0; j < 3; j++) {
-        io.sockets.emit("follow", alerts[j].name, alerts[j].message, false);
-    } */
+    io.sockets.emit("channel.follow", {
+        user_name: "wwwwwwwwwwwwwwwwwwx",
+        user_login: "wwwwwwwwwwwwwwwwwwx",
+    });
     /* io.sockets.emit(
         "playback",
         "https://i.scdn.co/image/107819f5dc557d5d0a4b216781c6ec1b2f3c5ab2",
         "Rival, VAALEA, Glitchedout",
         "Intoxicated By Youth (Glitchedout Remix)"
     ); */
-    eventSub.createSubs();
+    //eventSub.createSubs();
 }
 
 module.exports = {

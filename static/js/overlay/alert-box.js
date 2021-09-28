@@ -3,6 +3,7 @@ const ALERT_DELAY = 2000;
 const socket = io();
 
 function addAlert(name, action, details = {}) {
+    name = name.replace(/(.)(\1{5,})(\1)/gm, "$1...$3");
     alert_queue.push({ name: name, action: action, details: details });
     if (alert_queue.length == 1) {
         showAlertBox(name, action, details);
