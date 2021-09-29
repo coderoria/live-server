@@ -5,15 +5,19 @@ body {
 
 .playback-box {
     position: absolute;
-    bottom: -110px;
-    display: flex;
+    bottom: -120px;
     background-color: #1f1f2d;
     border-radius: 0px 10px 0px 0px;
     box-shadow: 0px 0px 6px -1px black;
     max-width: 390px;
-    height: 100px;
+    height: 105px;
     left: 50%;
     transform: translateX(-50%);
+    overflow: hidden;
+}
+
+.playback-info-wrapper {
+    display: flex;
 }
 
 .playback-image {
@@ -37,4 +41,15 @@ body {
 .playback-artists {
     text-align: center;
     white-space: nowrap;
+}
+
+.duration {
+    background: linear-gradient(
+        90deg,
+        rgba(222, 54, 129, 1) 0%,
+        rgba(249, 110, 115, 1) 100%
+    );
+    width: 100%;
+    height: 5px;
+    align-self: flex-end;
 }

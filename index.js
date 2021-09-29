@@ -198,7 +198,7 @@ function testEvents() {
         "Rival, VAALEA, Glitchedout",
         "Intoxicated By Youth (Glitchedout Remix)"
     ); */
-    //eventSub.createSubs();
+    eventSub.createSubs();
 }
 
 module.exports = {
