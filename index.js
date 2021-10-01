@@ -185,6 +185,13 @@ io.use((socket, next) => {
     });
 });
 
+io.use((socket, next) => {
+    socket.on("error", (error) => {
+        logger.warn(error, "Window reporting error");
+    });
+    next();
+});
+
 if (process.argv.includes("--test")) setTimeout(testEvents, 3000);
 
 function testEvents() {
