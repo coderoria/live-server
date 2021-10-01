@@ -48,7 +48,10 @@ function showPlayBack(img, artists, title) {
 
         let durationElement = document.querySelector(".duration");
         durationElement.animate(
-            [{ transform: `translateX(-${durationElement.clientWidth}px)` }],
+            [
+                { transform: `translateX(0px)` },
+                { transform: `translateX(-${durationElement.clientWidth}px)` },
+            ],
             {
                 duration: 15000,
             }
