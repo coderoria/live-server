@@ -24,6 +24,8 @@
     },
     "homepage": "https://github.com/coderoria/live-server#readme",
     "dependencies": {
+        "@sentry/node": "^6.13.2",
+        "@sentry/tracing": "^6.13.2",
         "axios": "^0.21.1",
         "cookie": "^0.4.0",
         "cookie-parser": "^1.4.5",

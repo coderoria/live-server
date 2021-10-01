@@ -13,15 +13,25 @@ const spotify = require("./server/spotify");
 const filters = require("./bot/filters");
 const commands = require("./bot/commands");
 const logger = require("./logger")("Index");
+const Sentry = require("@sentry/node");
+const Tracing = require("@sentry/tracing");
 
 let bot;
 
 logger.info("Hosted on " + process.env.HOST);
 
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    enabled: process.env.SENTRY_DSN ? true : false,
+});
+
 pool.query(
     "CREATE TABLE IF NOT EXISTS `admins` ( `user_id` INT NOT NULL , `username` VARCHAR(50) , `access_token` VARCHAR(255) , `refresh_token` VARCHAR(255) , `login_token` VARCHAR(255) , PRIMARY KEY (`user_id`)) ENGINE = InnoDB;",
     (error, dbres) => {
-        if (error) logger.info(error);
+        if (error) {
+            Sentry.captureMessage(error);
+            logger.error(error);
+        }
         if (dbres.warningCount == 0) {
             auth.authSystem((success) => {
                 if (!success) return;
