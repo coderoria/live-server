@@ -5,6 +5,7 @@ const mysql = require("mysql");
 const crypto = require("crypto");
 const auth = require("./auth");
 const pool = require("./database");
+const Sentry = require("@sentry/node");
 const logger = require("../logger")("EventSub");
 
 let receivedIds = [];
@@ -107,6 +108,7 @@ function createSubs() {
                             }
                         )
                         .catch((error) => {
+                            Sentry.captureException(error);
                             logger.error(
                                 { error: error, type: type },
                                 "Failed to register EventSub!"

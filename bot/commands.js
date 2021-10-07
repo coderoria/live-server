@@ -4,6 +4,7 @@ const filters = require("./filters");
 const logger = require("../logger")("Commands");
 const twitch = require("../server/twitchApi");
 const moment = require("moment");
+const Sentry = require("@sentry/node");
 
 let commands = [
     //USER:
@@ -248,6 +249,7 @@ function executeQuotes(bot, matches, userstate) {
             newQuote,
             (error) => {
                 if (error) {
+                    Sentry.captureException(error);
                     logger.error({ error: error });
                     return;
                 }
@@ -260,6 +262,7 @@ function executeQuotes(bot, matches, userstate) {
         "SELECT * FROM quotes ORDER BY RAND() LIMIT 1;",
         (error, dbres) => {
             if (error) {
+                Sentry.captureException(error);
                 logger.error({ error: error });
                 return;
             }
@@ -464,6 +467,7 @@ function executeCounters(bot, matches, userstate) {
             matches[1].toLowerCase(),
             (error, result) => {
                 if (error) {
+                    Sentry.captureException(error);
                     logger.error({ error: error });
                     return;
                 }
@@ -504,6 +508,7 @@ function executeCounters(bot, matches, userstate) {
             matches[0].toLowerCase(),
             (error, result) => {
                 if (error) {
+                    Sentry.captureException(error);
                     logger.error({ error: error });
                     return;
                 }
@@ -556,6 +561,7 @@ function executeCounters(bot, matches, userstate) {
                     [points, matches[0].toLowerCase()],
                     (error) => {
                         if (error) {
+                            Sentry.captureException(error);
                             logger.error({ error: error });
                             return;
                         }

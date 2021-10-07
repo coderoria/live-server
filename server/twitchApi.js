@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 const logger = require("../logger")("TwitchApi");
 const auth = require("./auth");
+const Sentry = require("@sentry/node");
 
 function setTitle(title, callback) {
     auth.getAccessTokenByName(process.env.CHANNEL, (access_token) => {
@@ -26,6 +27,7 @@ function setTitle(title, callback) {
                         { error: error },
                         "Changing title was not successful"
                     );
+                    Sentry.captureException(error);
                     callback(false);
                     return;
                 })
@@ -55,6 +57,7 @@ function setGame(search, callback) {
                     { error: error },
                     "Searching for Category failed."
                 );
+                Sentry.captureException(error);
                 callback(false);
                 return;
             })
@@ -85,6 +88,7 @@ function setGame(search, callback) {
                                 error,
                                 "Changing Category was not successful"
                             );
+                            Sentry.captureException(error);
                             callback(false);
                             return;
                         })
@@ -109,6 +113,7 @@ function getActiveStreamByName(username, callback) {
                 }
             )
             .catch((error) => {
+                Sentry.captureException(error);
                 logger.error({ error: error }, "Could not get active stream");
                 callback(null);
                 return;
@@ -149,6 +154,7 @@ function getLastPlayedName(username, callback) {
                     return;
                 })
                 .catch((error) => {
+                    Sentry.captureException(error);
                     logger.error({ error: error }, "Could not get last Game");
                     callback(null);
                     return;
@@ -179,6 +185,12 @@ function createClip(username, callback) {
                     }, 15000);
                 })
                 .catch((error) => {
+                    if (error.response.status === 404) {
+                        logger.warn(error, "Tried creating clip while offline");
+                        callback(null);
+                        return;
+                    }
+                    Sentry.captureException(error);
                     logger.error({ error: error }, "Could not create clip");
                     callback(null);
                     return;
@@ -205,6 +217,7 @@ function getCreatedClip(clip_id, callback) {
                 return;
             })
             .catch((error) => {
+                Sentry.captureException(error);
                 logger.error({ error: error }, "Could not get clip");
                 callback(null);
                 return;

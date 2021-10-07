@@ -23,14 +23,19 @@ logger.info("Hosted on " + process.env.HOST);
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
     enabled: process.env.SENTRY_DSN ? true : false,
+    release: "live-server@" + process.env.npm_package_version,
+    tracesSampleRate: 1,
+    debug: process.env.LOG_LEVEL === "debug",
+    integrations: [new Tracing.Integrations.Mysql()],
 });
 
 pool.query(
     "CREATE TABLE IF NOT EXISTS `admins` ( `user_id` INT NOT NULL , `username` VARCHAR(50) , `access_token` VARCHAR(255) , `refresh_token` VARCHAR(255) , `login_token` VARCHAR(255) , PRIMARY KEY (`user_id`)) ENGINE = InnoDB;",
     (error, dbres) => {
         if (error) {
-            Sentry.captureMessage(error);
+            Sentry.captureException(error);
             logger.error(error);
+            return;
         }
         if (dbres.warningCount == 0) {
             auth.authSystem((success) => {
@@ -57,6 +62,7 @@ pool.query(
     "CREATE TABLE IF NOT EXISTS `quotes` (`id` MEDIUMINT NOT NULL AUTO_INCREMENT, `quote` VARCHAR(255) NOT NULL, PRIMARY KEY(`id`));",
     (error) => {
         if (error) {
+            Sentry.captureException(error);
             logger.info(error);
         }
     }
@@ -66,6 +72,7 @@ pool.query(
     "CREATE TABLE IF NOT EXISTS `counter` (`name` VARCHAR(50) NOT NULL, `count` MEDIUMINT NOT NULL DEFAULT 0, PRIMARY KEY(`name`));",
     (error) => {
         if (error) {
+            Sentry.captureException(error);
             logger.info(error);
         }
     }
@@ -75,6 +82,7 @@ pool.query(
     "CREATE TABLE IF NOT EXISTS `spotify` (`id` VARCHAR(255) NOT NULL, `access_token` VARCHAR(255) NOT NULL, `refresh_token` VARCHAR(255) NOT NULL, `twitch_id` INT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`twitch_id`) REFERENCES `admins`(`user_id`));",
     (error) => {
         if (error) {
+            Sentry.captureException(error);
             logger.info(error);
         }
     }
@@ -96,6 +104,7 @@ bot.connect()
         logger.info(host, "Connected to IRC");
     })
     .catch((error) => {
+        Sentry.captureException(error);
         logger.error({ error: error });
     });
 
@@ -172,7 +181,8 @@ app.get("/dock", (req, res) => {
                     spotify: usernames,
                 });
             })
-            .catch(() => {
+            .catch((error) => {
+                Sentry.captureException(error);
                 res.sendStatus(500);
             });
     });
@@ -197,6 +207,7 @@ io.use((socket, next) => {
 
 io.use((socket, next) => {
     socket.on("error", (error) => {
+        Sentry.captureEvent(error);
         logger.warn(error, "Window reporting error");
     });
     next();

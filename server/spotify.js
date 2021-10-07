@@ -4,6 +4,7 @@ const pool = require("./database");
 const qs = require("querystring");
 const auth = require("./auth");
 const logger = require("../logger")("Spotify");
+const Sentry = require("@sentry/node");
 let router = express.Router();
 let io;
 let usedId;
@@ -20,6 +21,7 @@ function setIO(socket) {
                 user,
                 (error, dbres) => {
                     if (error) {
+                        Sentry.captureException(error);
                         logger.error({ error: error });
                         callback(false);
                         return;
@@ -104,6 +106,7 @@ router.get("/auth/spotify", (req, res) => {
                                     ],
                                     (error) => {
                                         if (error) {
+                                            Sentry.captureException(error);
                                             logger.error({ error: error });
                                             res.sendStatus(500);
                                             return;
@@ -120,11 +123,13 @@ router.get("/auth/spotify", (req, res) => {
                                 );
                             })
                             .catch((error) => {
+                                Sentry.captureException(error);
                                 logger.error({ error: error }.response);
                                 res.sendStatus(500);
                             });
                     })
                     .catch((error) => {
+                        Sentry.captureException(error);
                         logger.error({ error: error }.response);
                         res.sendStatus(500);
                         return;
@@ -145,6 +150,7 @@ function checkAuth(id) {
             id,
             (error, res) => {
                 if (error) {
+                    Sentry.captureException(error);
                     logger.error({ error: error });
                     return;
                 }
@@ -179,6 +185,7 @@ function refreshAuth(id) {
             id,
             (error, dbres) => {
                 if (error) {
+                    Sentry.captureException(error);
                     logger.error({ error: error });
                     reject();
                     return;
@@ -226,6 +233,7 @@ function refreshAuth(id) {
                         );
                     })
                     .catch((error) => {
+                        Sentry.captureException(error);
                         logger.error({ error: error });
                         return;
                     });
@@ -328,7 +336,7 @@ function getAvailableUsernames() {
             (error, res) => {
                 if (error) {
                     logger.error({ error: error });
-                    reject();
+                    reject(error);
                     return;
                 }
                 let users = [];
