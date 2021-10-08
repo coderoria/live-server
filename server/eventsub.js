@@ -75,50 +75,59 @@ router.post("/eventsub", (req, res) => {
 });
 
 function createSubs() {
-    deleteAllEventSubs();
-    setTimeout(() => {
-        auth.getSystemAuth((access_token) => {
-            auth.getUserIdByName(process.env.CHANNEL, (user_id) => {
-                wantedSubs.forEach((type) => {
-                    logger.debug({ type: type }, "Registering EventSub");
-                    let data = {
-                        type: type,
-                        version: 1,
-                        condition: {},
-                        transport: {
-                            method: "webhook",
-                            callback: process.env.HOST + "/eventsub",
-                            secret: process.env.TWITCH_EVENTSUB_SECRET,
-                        },
-                    };
-                    if (type === "channel.raid") {
-                        data.condition.to_broadcaster_user_id = user_id;
-                    } else {
-                        data.condition.broadcaster_user_id = user_id;
-                    }
-                    axios
-                        .post(
-                            "https://api.twitch.tv/helix/eventsub/subscriptions",
-                            data,
-                            {
-                                headers: {
-                                    "Client-Id": process.env.TWITCH_CLIENT_ID,
-                                    Authorization: "Bearer " + access_token,
-                                },
-                            }
-                        )
-                        .catch((error) => {
-                            Sentry.captureException(error);
-                            logger.error(
-                                { error: error, type: type },
-                                "Failed to register EventSub!"
-                            );
-                            return;
-                        });
+    deleteAllEventSubs()
+        .then(() => {
+            auth.getSystemAuth((access_token) => {
+                auth.getUserIdByName(process.env.CHANNEL, (user_id) => {
+                    wantedSubs.forEach((type) => {
+                        let data = {
+                            type: type,
+                            version: 1,
+                            condition: {},
+                            transport: {
+                                method: "webhook",
+                                callback: process.env.HOST + "/eventsub",
+                                secret: process.env.TWITCH_EVENTSUB_SECRET,
+                            },
+                        };
+                        if (type === "channel.raid") {
+                            data.condition.to_broadcaster_user_id = user_id;
+                        } else {
+                            data.condition.broadcaster_user_id = user_id;
+                        }
+                        axios
+                            .post(
+                                "https://api.twitch.tv/helix/eventsub/subscriptions",
+                                data,
+                                {
+                                    headers: {
+                                        "Client-Id":
+                                            process.env.TWITCH_CLIENT_ID,
+                                        Authorization: "Bearer " + access_token,
+                                    },
+                                }
+                            )
+                            .then(() => {
+                                logger.debug(
+                                    { type: type },
+                                    "Registered EventSub"
+                                );
+                            })
+                            .catch((error) => {
+                                Sentry.captureException(error);
+                                logger.error(
+                                    { error: error, type: type },
+                                    "Failed to register EventSub!"
+                                );
+                                return;
+                            });
+                    });
                 });
             });
+        })
+        .catch(() => {
+            logger.error("Could not create EventSubs!");
         });
-    }, 3000);
 }
 
 function getEventSubs(callback) {
@@ -139,26 +148,46 @@ function getEventSubs(callback) {
 }
 
 function deleteEventSub(id) {
-    auth.authSystem(() => {
-        auth.getSystemAuth((access_token) => {
-            axios.delete(
-                `https://api.twitch.tv/helix/eventsub/subscriptions?id=${id}`,
-                {
-                    headers: {
-                        "Client-Id": process.env.TWITCH_CLIENT_ID,
-                        Authorization: "Bearer " + access_token,
-                    },
-                }
-            );
+    return new Promise((resolve, reject) => {
+        auth.authSystem(() => {
+            auth.getSystemAuth((access_token) => {
+                axios
+                    .delete(
+                        `https://api.twitch.tv/helix/eventsub/subscriptions?id=${id}`,
+                        {
+                            headers: {
+                                "Client-Id": process.env.TWITCH_CLIENT_ID,
+                                Authorization: "Bearer " + access_token,
+                            },
+                        }
+                    )
+                    .then(() => {
+                        logger.debug({ id: id }, "Deleted EventSub");
+                        resolve();
+                    })
+                    .catch(() => {
+                        reject();
+                    });
+            });
         });
     });
 }
 
 function deleteAllEventSubs() {
-    getEventSubs((subs) => {
-        logger.debug(subs, "Deleting eventsubs");
-        subs.forEach((element) => {
-            deleteEventSub(element.id);
+    return new Promise((resolve, reject) => {
+        getEventSubs((subs) => {
+            logger.debug(subs, "Deleting eventsubs");
+            Promise.all(
+                subs.map((element) => {
+                    return deleteEventSub(element.id);
+                })
+            )
+                .then(() => {
+                    resolve();
+                })
+                .catch(() => {
+                    reject();
+                });
         });
     });
 }
