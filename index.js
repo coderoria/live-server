@@ -116,18 +116,6 @@ bot.on("message", (channel, userstate, message, self) => {
     }
 });
 
-bot.on("subscription", (channel, username, method, message, userstate) => {
-    io.sockets.emit("sub", username, message);
-});
-
-bot.on("cheer", (channel, userstate, message) => {
-    io.sockets.emit(
-        "cheer",
-        userstate.username,
-        userstate.bits + "x " + message
-    );
-});
-
 server.listen(3000);
 app.locals.basedir = "/views/";
 app.set("view engine", "pug");
