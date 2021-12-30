@@ -165,11 +165,13 @@ app.get("/dock", (req, res) => {
         }
         spotify
             .getAvailableUsernames()
-            .then((usernames) => {
+            .then(async (usernames) => {
+                let pretzelUsers = await Pretzel.getAllUsers();
                 res.render("dashboard/dock", {
                     title: "Dock",
                     username: username,
                     spotify: usernames,
+                    pretzel: pretzelUsers,
                 });
             })
             .catch((error) => {
