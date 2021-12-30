@@ -15,6 +15,7 @@ const commands = require("./bot/commands");
 const logger = require("./logger")("Index");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
+const { Pretzel } = require("./server/pretzel");
 
 let bot;
 
@@ -126,6 +127,8 @@ app.use("/static", express.static("static"));
 app.get("/overlay/:overlay", (req, res) => {
     res.render("overlays/parts/" + req.params.overlay);
 });
+
+pretzel = new Pretzel(io);
 
 app.use(auth.router);
 app.use(eventSub.router);
