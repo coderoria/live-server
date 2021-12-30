@@ -59,6 +59,8 @@ class Pretzel {
     }
 }
 
+let called = [];
+
 function playBackNotification() {
     if (!Pretzel.activeUser) {
         setTimeout(playBackNotification, 1000);
@@ -77,6 +79,19 @@ function playBackNotification() {
             let artistLine = matches[2];
 
             logger.info({ data: res.data }, "Successfully queried Pretzel");
+
+            if (called.length >= 3) {
+                called.shift();
+            }
+            called.push(titleLine);
+            if (
+                called.indexOf(titleLine) != called.lastIndexOf(titleLine) &&
+                called.lastIndexOf(titleLine) != 1
+            ) {
+                setTimeout(playBackNotification, 60000);
+                return;
+            }
+
             logger.info(
                 { title: titleLine, artists: artistLine },
                 "Emitting playback alert"
