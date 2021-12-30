@@ -1,5 +1,8 @@
 var io = io();
 
+/**
+ * Spotify form
+ */
 $(document).ready(() => {
     $("#spotify-form input").on("click", (event) => {
         event.preventDefault();
@@ -16,6 +19,27 @@ io.on("spotify.user", (user) => {
     $("#spotify-form input").prop("checked", false);
     radio.prop("checked", true);
     $("#spotify-form .spinner-border").hide();
+});
+
+/**
+ * Pretzel form
+ */
+$(document).ready(() => {
+    $("#pretzel-form input").on("click", (event) => {
+        event.preventDefault();
+        console.log(event);
+        let user = event.target.value;
+        $("#pretzel-form .spinner-border").show();
+
+        io.emit("pretzel.user", user);
+    });
+});
+
+io.on("pretzel.user", (user) => {
+    let radio = $("#pretzel-user-" + user);
+    $("#pretzel-form input").prop("checked", false);
+    radio.prop("checked", true);
+    $("#pretzel-form .spinner-border").hide();
 });
 
 io.on("channel.follow", (event) => {

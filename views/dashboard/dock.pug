@@ -19,3 +19,14 @@ block content
                                 input.form-check-input(type="radio" id="spotify-user-"+user value=user)
                                 .form-check-label(for="spotify-user-"+user)
                                     span= user
+            .col
+                form(action="" id="pretzel-form") 
+                    span 
+                        i.fab.fa-pretzel.me-2
+                        span Pretzel 
+                        .spinner-border.spinner-border-sm(style="display: none;")
+                        each user in pretzel
+                            .form-check
+                                input.form-check-input(type="radio" id="pretzel-user-"+user value=user)
+                                .form-check-label(for="pretzel-user-"+user)
+                                    span= user
