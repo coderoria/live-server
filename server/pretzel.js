@@ -102,11 +102,12 @@ function playBackNotification() {
                 artistLine,
                 titleLine
             );
+            setTimeout(playBackNotification, 60000);
         })
         .catch((error) => {
             logger.error({ error: error });
+            setTimeout(playBackNotification, 60000);
         });
-    setTimeout(playBackNotification, 60000);
 }
 
 module.exports = { Pretzel };
