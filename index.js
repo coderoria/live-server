@@ -15,6 +15,7 @@ const commands = require("./bot/commands");
 const logger = require("./logger")("Index");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
+const { Pretzel } = require("./server/pretzel");
 
 let bot;
 
@@ -127,6 +128,8 @@ app.get("/overlay/:overlay", (req, res) => {
     res.render("overlays/parts/" + req.params.overlay);
 });
 
+pretzel = new Pretzel(io);
+
 app.use(auth.router);
 app.use(eventSub.router);
 app.use(spotify.router);
@@ -162,11 +165,13 @@ app.get("/dock", (req, res) => {
         }
         spotify
             .getAvailableUsernames()
-            .then((usernames) => {
+            .then(async (usernames) => {
+                let pretzelUsers = await Pretzel.getAllUsers();
                 res.render("dashboard/dock", {
                     title: "Dock",
                     username: username,
                     spotify: usernames,
+                    pretzel: pretzelUsers,
                 });
             })
             .catch((error) => {
