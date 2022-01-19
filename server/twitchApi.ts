@@ -1,15 +1,17 @@
+import getLogger from "../logger";
+
 const { default: axios } = require("axios");
-const logger = require("../logger")("TwitchApi");
+const logger = getLogger("TwitchAPI");
 const auth = require("./auth");
 const Sentry = require("@sentry/node");
 
-function setTitle(title, callback) {
-    auth.getAccessTokenByName(process.env.CHANNEL, (access_token) => {
+export function setTitle(title: string, callback: Function) {
+    auth.getAccessTokenByName(process.env.CHANNEL, (access_token: string) => {
         if (access_token == null) {
             callback(false);
             return;
         }
-        auth.getUserIdByName(process.env.CHANNEL, (userId) => {
+        auth.getUserIdByName(process.env.CHANNEL, (userId: number) => {
             axios
                 .patch(
                     `https://api.twitch.tv/helix/channels?broadcaster_id=${userId}`,
@@ -22,7 +24,7 @@ function setTitle(title, callback) {
                         },
                     }
                 )
-                .catch((error) => {
+                .catch((error: object) => {
                     logger.error(
                         { error: error },
                         "Changing title was not successful"
@@ -31,15 +33,15 @@ function setTitle(title, callback) {
                     callback(false);
                     return;
                 })
-                .then((res) => {
+                .then((res: object) => {
                     callback(true);
                 });
         });
     });
 }
 
-function setGame(search, callback) {
-    auth.getAccessTokenByName(process.env.CHANNEL, (access_token) => {
+export function setGame(search: string, callback: Function) {
+    auth.getAccessTokenByName(process.env.CHANNEL, (access_token: string) => {
         axios
             .get(
                 `https://api.twitch.tv/helix/search/categories?query=${encodeURIComponent(
@@ -52,7 +54,7 @@ function setGame(search, callback) {
                     },
                 }
             )
-            .catch((error) => {
+            .catch((error: object) => {
                 logger.error(
                     { error: error },
                     "Searching for Category failed."
@@ -61,47 +63,56 @@ function setGame(search, callback) {
                 callback(false);
                 return;
             })
-            .then((searchResult) => {
-                logger.debug(searchResult.data.data, "Found list of games");
-                if (searchResult.data.data.length == 0) {
-                    callback(false);
-                    return;
-                }
-                let gameId = searchResult.data.data[0].id;
-                let gameName = searchResult.data.data[0].name;
+            .then(
+                (searchResult: {
+                    data: { data: Array<{ id: number; name: string }> };
+                }) => {
+                    logger.debug(searchResult.data.data, "Found list of games");
+                    if (searchResult.data.data.length == 0) {
+                        callback(false);
+                        return;
+                    }
+                    let gameId = searchResult.data.data[0].id;
+                    let gameName = searchResult.data.data[0].name;
 
-                auth.getUserIdByName(process.env.CHANNEL, (userId) => {
-                    axios
-                        .patch(
-                            `https://api.twitch.tv/helix/channels?broadcaster_id=${userId}`,
-                            { game_id: gameId },
-                            {
-                                headers: {
-                                    Authorization: "Bearer " + access_token,
-                                    "Client-Id": process.env.TWITCH_CLIENT_ID,
-                                    "Content-Type": "application/json",
-                                },
-                            }
-                        )
-                        .catch((error) => {
-                            logger.error(
-                                error,
-                                "Changing Category was not successful"
-                            );
-                            Sentry.captureException(error);
-                            callback(false);
-                            return;
-                        })
-                        .then((res) => {
-                            callback(true, gameName);
-                        });
-                });
-            });
+                    auth.getUserIdByName(
+                        process.env.CHANNEL,
+                        (userId: number) => {
+                            axios
+                                .patch(
+                                    `https://api.twitch.tv/helix/channels?broadcaster_id=${userId}`,
+                                    { game_id: gameId },
+                                    {
+                                        headers: {
+                                            Authorization:
+                                                "Bearer " + access_token,
+                                            "Client-Id":
+                                                process.env.TWITCH_CLIENT_ID,
+                                            "Content-Type": "application/json",
+                                        },
+                                    }
+                                )
+                                .catch((error: object) => {
+                                    logger.error(
+                                        error,
+                                        "Changing Category was not successful"
+                                    );
+                                    Sentry.captureException(error);
+                                    callback(false);
+                                    return;
+                                })
+                                .then((res: object) => {
+                                    callback(true, gameName);
+                                });
+                        }
+                    );
+                }
+            );
     });
 }
 
-function getActiveStreamByName(username, callback) {
-    auth.getSystemAuth((access_token) => {
+export function getActiveStreamByName(username: string, callback: Function) {
+    auth.getSystemAuth((access_token: string) => {
         axios
             .get(
                 `https://api.twitch.tv/helix/streams?user_login=${username}&first=1`,
@@ -112,13 +123,13 @@ function getActiveStreamByName(username, callback) {
                     },
                 }
             )
-            .catch((error) => {
+            .catch((error: object) => {
                 Sentry.captureException(error);
                 logger.error({ error: error }, "Could not get active stream");
                 callback(null);
                 return;
             })
-            .then((result) => {
+            .then((result: { data: { data: Array<any> } }) => {
                 if (result.data.data.length == 0) {
                     callback(null);
                     return;
@@ -128,9 +139,9 @@ function getActiveStreamByName(username, callback) {
     });
 }
 
-function getLastPlayedName(username, callback) {
-    auth.getSystemAuth((app_access_token) => {
-        auth.getUserIdByName(username, (user_Id) => {
+export function getLastPlayedName(username: string, callback: Function) {
+    auth.getSystemAuth((app_access_token: string) => {
+        auth.getUserIdByName(username, (user_Id: number) => {
             if (!user_Id) {
                 callback(user_Id);
                 return;
@@ -145,15 +156,19 @@ function getLastPlayedName(username, callback) {
                         },
                     }
                 )
-                .then((result) => {
-                    if (!result.data.data[0].game_name) {
-                        callback("");
+                .then(
+                    (result: {
+                        data: { data: Array<{ game_name: string }> };
+                    }) => {
+                        if (!result.data.data[0].game_name) {
+                            callback("");
+                            return;
+                        }
+                        callback(result.data.data[0].game_name);
                         return;
                     }
-                    callback(result.data.data[0].game_name);
-                    return;
-                })
-                .catch((error) => {
+                )
+                .catch((error: object) => {
                     Sentry.captureException(error);
                     logger.error({ error: error }, "Could not get last Game");
                     callback(null);
@@ -163,9 +178,9 @@ function getLastPlayedName(username, callback) {
     });
 }
 
-function createClip(username, callback) {
-    auth.getAccessTokenByName(username, (access_token) => {
-        auth.getUserIdByName(username, (user_id) => {
+export function createClip(username: string, callback: Function) {
+    auth.getAccessTokenByName(username, (access_token: string) => {
+        auth.getUserIdByName(username, (user_id: number) => {
             axios
                 .post(
                     `https://api.twitch.tv/helix/clips?broadcaster_id=${user_id}`,
@@ -177,14 +192,17 @@ function createClip(username, callback) {
                         },
                     }
                 )
-                .then((result) => {
+                .then((result: { data: { data: Array<{ id: number }> } }) => {
                     setTimeout(() => {
-                        getCreatedClip(result.data.data[0].id, (clip_link) => {
-                            callback(clip_link);
-                        });
+                        getCreatedClip(
+                            result.data.data[0].id,
+                            (clip_link: string) => {
+                                callback(clip_link);
+                            }
+                        );
                     }, 15000);
                 })
-                .catch((error) => {
+                .catch((error: { response: { status: number } }) => {
                     if (error.response.status === 404) {
                         logger.warn(error, "Tried creating clip while offline");
                         callback(null);
@@ -199,8 +217,8 @@ function createClip(username, callback) {
     });
 }
 
-function getCreatedClip(clip_id, callback) {
-    auth.getSystemAuth((app_access_token) => {
+function getCreatedClip(clip_id: number, callback: Function) {
+    auth.getSystemAuth((app_access_token: string) => {
         axios
             .get(`https://api.twitch.tv/helix/clips?id=${clip_id}`, {
                 headers: {
@@ -208,7 +226,7 @@ function getCreatedClip(clip_id, callback) {
                     "Client-Id": process.env.TWITCH_CLIENT_ID,
                 },
             })
-            .then((result) => {
+            .then((result: { data: { data: Array<{ url: string }> } }) => {
                 if (result.data.data.length == 0) {
                     callback("");
                     return;
@@ -216,7 +234,7 @@ function getCreatedClip(clip_id, callback) {
                 callback(result.data.data[0].url);
                 return;
             })
-            .catch((error) => {
+            .catch((error: object) => {
                 Sentry.captureException(error);
                 logger.error({ error: error }, "Could not get clip");
                 callback(null);
@@ -224,11 +242,3 @@ function getCreatedClip(clip_id, callback) {
             });
     });
 }
-
-module.exports = {
-    setTitle: setTitle,
-    setGame: setGame,
-    getActiveStreamByName: getActiveStreamByName,
-    getLastPlayedName: getLastPlayedName,
-    createClip: createClip,
-};

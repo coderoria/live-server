@@ -1,6 +1,6 @@
 const pino = require("pino");
 
-function logger(name) {
+export default function getLogger(name: string) {
     return pino({
         name: name,
         prettyPrint: { colorize: true, translateTime: "SYS:standard" },
@@ -8,5 +8,3 @@ function logger(name) {
         level: process.env.CI ? "silent" : process.env.LOG_LEVEL || "info",
     });
 }
-
-module.exports = logger;

@@ -1,17 +1,36 @@
+import { Request, Response } from "express";
+import { Server } from "socket.io";
+
 const { default: axios } = require("axios");
 const express = require("express");
-const pool = require("./database");
+import { pool } from "./database";
 const qs = require("querystring");
-const auth = require("./auth");
-const logger = require("../logger")("Spotify");
+import * as auth from "./auth";
+import getLogger from "../logger";
+const logger = getLogger("Spotify");
 const Sentry = require("@sentry/node");
 let router = express.Router();
-let io;
-let usedId;
+let io: Server;
+let usedId: number;
+
+interface currentlyPlaying {
+    data: {
+        is_playing: boolean;
+        item: {
+            artists: Array<{ name: string }>;
+            name: string;
+            duration_ms: number;
+            album: {
+                images: Array<{ url: string }>;
+            };
+        };
+        progress_ms: number;
+    };
+}
 
 playBackNotification();
 
-function setIO(socket) {
+function setIO(socket: Server) {
     io = socket;
 
     io.on("connection", (socket) => {
@@ -23,11 +42,9 @@ function setIO(socket) {
                     if (error) {
                         Sentry.captureException(error);
                         logger.error({ error: error });
-                        callback(false);
                         return;
                     }
                     if (dbres.length == 0) {
-                        callback(false);
                         return;
                     }
                     usedId = dbres[0].id;
@@ -42,8 +59,8 @@ function setIO(socket) {
     });
 }
 
-router.get("/auth/spotify", (req, res) => {
-    auth.checkTwitchAuth(req.cookies.token, (success) => {
+router.get("/auth/spotify", (req: Request, res: Response) => {
+    auth.checkTwitchAuth(req.cookies.token, (success: boolean) => {
         if (!success) {
             res.redirect("/auth/twitch");
             return;
@@ -75,67 +92,72 @@ router.get("/auth/spotify", (req, res) => {
                         "Content-Type": "application/x-www-form-urlencoded",
                         Authorization:
                             "Basic " +
-                            btoa(
+                            Buffer.from(
                                 process.env.SPOTIFY_CLIENT_ID +
                                     ":" +
-                                    process.env.SPOTIFY_CLIENT_SECRET
+                                    process.env.SPOTIFY_CLIENT_SECRET,
+                                "base64"
                             ),
                     },
                 }
             )
-            .then((coderes) => {
-                let access_token = coderes.data.access_token;
-                let refresh_token = coderes.data.refresh_token;
+            .then(
+                (coderes: {
+                    data: { access_token: string; refresh_token: string };
+                }) => {
+                    let access_token = coderes.data.access_token;
+                    let refresh_token = coderes.data.refresh_token;
 
-                axios
-                    .get("https://api.spotify.com/v1/me", {
-                        headers: {
-                            Authorization: "Bearer " + access_token,
-                        },
-                    })
-                    .then((idres) => {
-                        auth.getUserIdByToken(req.cookies.token)
-                            .then((user_id) => {
-                                pool.query(
-                                    "REPLACE INTO `spotify` VALUES(?,?,?,?);",
-                                    [
-                                        idres.data.id,
-                                        access_token,
-                                        refresh_token,
-                                        user_id,
-                                    ],
-                                    (error) => {
-                                        if (error) {
-                                            Sentry.captureException(error);
-                                            logger.error({ error: error });
-                                            res.sendStatus(500);
-                                            return;
+                    axios
+                        .get("https://api.spotify.com/v1/me", {
+                            headers: {
+                                Authorization: "Bearer " + access_token,
+                            },
+                        })
+                        .then((idres: { data: { id: number } }) => {
+                            auth.getUserIdByToken(req.cookies.token)
+                                .then((user_id: number) => {
+                                    pool.query(
+                                        "REPLACE INTO `spotify` VALUES(?,?,?,?);",
+                                        [
+                                            idres.data.id,
+                                            access_token,
+                                            refresh_token,
+                                            user_id,
+                                        ],
+                                        (error) => {
+                                            if (error) {
+                                                Sentry.captureException(error);
+                                                logger.error({ error: error });
+                                                res.sendStatus(500);
+                                                return;
+                                            }
+                                            res.send("Spotify connected");
+                                            logger.info(
+                                                {
+                                                    twitchUserId: user_id,
+                                                    spotifyId: idres.data.id,
+                                                },
+                                                "Successfully connected spotify"
+                                            );
                                         }
-                                        res.send("Spotify connected");
-                                        logger.info(
-                                            {
-                                                twitchUserId: user_id,
-                                                spotifyId: idres.data.id,
-                                            },
-                                            "Successfully connected spotify"
-                                        );
-                                    }
-                                );
-                            })
-                            .catch((error) => {
-                                Sentry.captureException(error);
-                                logger.error({ error: error }.response);
-                                res.sendStatus(500);
-                            });
-                    })
-                    .catch((error) => {
-                        Sentry.captureException(error);
-                        logger.error({ error: error }.response);
-                        res.sendStatus(500);
-                        return;
-                    });
-            })
-            .catch((error) => {
+                                    );
+                                })
+                                .catch((error: { response: string }) => {
+                                    Sentry.captureException(error);
+                                    logger.error({ error: error.response });
+                                    res.sendStatus(500);
+                                });
+                        })
+                        .catch((error: { response: string }) => {
+                            Sentry.captureException(error);
+                            logger.error({ error: error.response });
+                            res.sendStatus(500);
+                            return;
+                        });
+                }
+            )
+            .catch((error: { response: string }) => {
                 logger.warn(error.response, "User supplied invalid OAuth code");
                 res.sendStatus(403);
                 return;
@@ -143,8 +165,8 @@ router.get("/auth/spotify", (req, res) => {
     });
 });
 
-function checkAuth(id) {
-    return new Promise((resolve, reject) => {
+function checkAuth(id: number) {
+    return new Promise<void>((resolve, reject) => {
         pool.query(
             "SELECT access_token FROM spotify WHERE id=?;",
             id,
@@ -160,10 +182,10 @@ function checkAuth(id) {
                             Authorization: "Bearer " + res[0].access_token,
                         },
                     })
-                    .then((data) => {
+                    .then((data: object) => {
                         resolve();
                     })
-                    .catch((error) => {
+                    .catch((error: object) => {
                         refreshAuth(id)
                             .then(() => {
                                 resolve();
@@ -177,9 +199,9 @@ function checkAuth(id) {
     });
 }
 
-function refreshAuth(id) {
+function refreshAuth(id: number) {
     logger.debug("Refreshing access for " + id);
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         pool.query(
             "SELECT `refresh_token` FROM `spotify` WHERE `id`=?;",
             id,
@@ -211,28 +233,35 @@ function refreshAuth(id) {
                             },
                         }
                     )
-                    .then((res) => {
-                        pool.query(
-                            "UPDATE `spotify` SET `access_token`=?, `refresh_token`=? WHERE `id`=?;",
-                            [
-                                res.data.access_token,
-                                res.data.refresh_token != null
-                                    ? res.data.refresh_token
-                                    : dbres[0].refresh_token,
-                                id,
-                            ],
-                            (error) => {
-                                if (error) {
-                                    logger.error({ error: error });
-                                    reject();
-                                    return;
+                    .then(
+                        (res: {
+                            data: {
+                                access_token: string;
+                                refresh_token: string;
+                            };
+                        }) => {
+                            pool.query(
+                                "UPDATE `spotify` SET `access_token`=?, `refresh_token`=? WHERE `id`=?;",
+                                [
+                                    res.data.access_token,
+                                    res.data.refresh_token != null
+                                        ? res.data.refresh_token
+                                        : dbres[0].refresh_token,
+                                    id,
+                                ],
+                                (error) => {
+                                    if (error) {
+                                        logger.error({ error: error });
+                                        reject();
+                                        return;
+                                    }
+                                    logger.debug("Renewal successful.");
+                                    resolve();
                                 }
-                                logger.debug("Renewal successful.");
-                                resolve();
-                            }
-                        );
-                    })
-                    .catch((error) => {
+                            );
+                        }
+                    )
+                    .catch((error: object) => {
                         Sentry.captureException(error);
                         logger.error({ error: error });
                         return;
@@ -265,7 +294,7 @@ function playBackNotification() {
                             },
                         }
                     )
-                    .then((player) => {
+                    .then((player: currentlyPlaying) => {
                         if (!player.data.is_playing) {
                             setTimeout(playBackNotification, 60000);
                             logger.debug("Currently no song playing.");
@@ -319,7 +348,7 @@ function playBackNotification() {
                             titleLine
                         );
                     })
-                    .catch((error) => {
+                    .catch((error: object) => {
                         logger.error({ error: error });
                         setTimeout(playBackNotification, 60000);
                         return;

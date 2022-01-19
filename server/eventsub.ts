@@ -2,13 +2,16 @@ let express = require("express");
 let router = express.Router();
 const axios = require("axios");
 const mysql = require("mysql");
-const crypto = require("crypto");
+import crypto from "crypto";
+import { Request, Response } from "express";
+import { Server } from "socket.io";
+import getLogger from "../logger";
 const auth = require("./auth");
 const pool = require("./database");
 const Sentry = require("@sentry/node");
-const logger = require("../logger")("EventSub");
+const logger = getLogger("EventSub");
 
-let receivedIds = [];
+let receivedIds: string[] = [];
 let wantedSubs = [
     "channel.follow",
     "channel.subscribe",
@@ -24,11 +27,11 @@ let wantedSubs = [
     "stream.online",
     "stream.offline",
 ];
-let io;
+let io: Server;
 
-router.get("/eventsub", (req, res) => {});
+router.get("/eventsub", (req: Request, res: Response) => {});
 
-router.post("/eventsub", (req, res) => {
+router.post("/eventsub", (req: Request, res: Response) => {
     if (
         req.header("Twitch-Eventsub-Message-Type") ===
         "webhook_callback_verification"
@@ -48,7 +51,9 @@ router.post("/eventsub", (req, res) => {
         if (receivedIds.length >= 50) {
             receivedIds.shift();
         }
-        let requestId = req.header("Twitch-Eventsub-Message-Id");
+        let requestId: string = req.header(
+            "Twitch-Eventsub-Message-Id"
+        ) as string;
         if (receivedIds.includes(requestId)) {
             res.sendStatus(200);
             logger.debug(
@@ -77,10 +82,10 @@ router.post("/eventsub", (req, res) => {
 function createSubs() {
     deleteAllEventSubs()
         .then(() => {
-            auth.getSystemAuth((access_token) => {
-                auth.getUserIdByName(process.env.CHANNEL, (user_id) => {
+            auth.getSystemAuth((access_token: string) => {
+                auth.getUserIdByName(process.env.CHANNEL, (user_id: number) => {
                     wantedSubs.forEach((type) => {
-                        let data = {
+                        let data: any = {
                             type: type,
                             version: 1,
                             condition: {},
@@ -113,7 +118,7 @@ function createSubs() {
                                     "Registered EventSub"
                                 );
                             })
-                            .catch((error) => {
+                            .catch((error: object) => {
                                 Sentry.captureException(error);
                                 logger.error(
                                     { error: error, type: type },
@@ -130,9 +135,9 @@ function createSubs() {
         });
 }
 
-function getEventSubs(callback) {
+function getEventSubs(callback: Function) {
     auth.authSystem(() => {
-        auth.getSystemAuth((access_token) => {
+        auth.getSystemAuth((access_token: string) => {
             axios
                 .get("https://api.twitch.tv/helix/eventsub/subscriptions", {
                     headers: {
@@ -140,17 +145,17 @@ function getEventSubs(callback) {
                         Authorization: "Bearer " + access_token,
                     },
                 })
-                .then((res) => {
+                .then((res: { data: { data: string } }) => {
                     callback(res.data.data);
                 });
         });
     });
 }
 
-function deleteEventSub(id) {
-    return new Promise((resolve, reject) => {
+function deleteEventSub(id: number) {
+    return new Promise<void>((resolve, reject) => {
         auth.authSystem(() => {
-            auth.getSystemAuth((access_token) => {
+            auth.getSystemAuth((access_token: string) => {
                 axios
                     .delete(
                         `https://api.twitch.tv/helix/eventsub/subscriptions?id=${id}`,
@@ -174,8 +179,8 @@ function deleteEventSub(id) {
 }
 
 function deleteAllEventSubs() {
-    return new Promise((resolve, reject) => {
-        getEventSubs((subs) => {
+    return new Promise<void>((resolve, reject) => {
+        getEventSubs((subs: Array<any>) => {
             logger.debug(subs, "Deleting eventsubs");
             Promise.all(
                 subs.map((element) => {
@@ -192,17 +197,26 @@ function deleteAllEventSubs() {
     });
 }
 
-function setIO(socket) {
+function setIO(socket: Server) {
     io = socket;
 }
 
-function checkSignature(req) {
-    let hmac = crypto.createHmac("sha256", process.env.TWITCH_EVENTSUB_SECRET);
-    hmac.update(
-        req.header("Twitch-Eventsub-Message-Id") +
-            req.header("Twitch-Eventsub-Message-Timestamp") +
-            JSON.stringify(req.body)
+function checkSignature(req: Request) {
+    let hmac = crypto.createHmac(
+        "sha256",
+        process.env.TWITCH_EVENTSUB_SECRET as string
     );
+    let messageId: string | undefined = req.header(
+        "Twitch-Eventsub-Message-Id"
+    );
+    let messageTime: string | undefined = req.header(
+        "Twitch-Eventsub-Message-Timestamp"
+    );
+
+    if (messageId == undefined || messageTime == undefined) {
+        return false;
+    }
+    hmac.update(messageId + messageTime + JSON.stringify(req.body));
 
     let signature = hmac.digest("hex");
     let expected_header = "sha256=" + signature;

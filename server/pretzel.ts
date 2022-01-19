@@ -1,16 +1,18 @@
-const pool = require("./database");
+import { Server, Socket } from "socket.io";
+import getLogger from "../logger";
+import { pool } from "./database";
 const Sentry = require("@sentry/node");
-const logger = require("../logger")("Pretzel");
+const logger = getLogger("Pretzel");
 const { default: axios } = require("axios");
 
-class Pretzel {
-    static activeUser;
-    static io;
+export default class Pretzel {
+    static activeUser: number;
+    static io: Server;
 
-    constructor(io) {
+    constructor(io: Server) {
         Pretzel.io = io;
-        io.on("connection", (socket) => {
-            socket.on("pretzel.user", (user) => {
+        io.on("connection", (socket: Socket) => {
+            socket.on("pretzel.user", (user: string) => {
                 pool.query(
                     "SELECT user_id FROM admins WHERE username=?;",
                     user,
@@ -59,7 +61,7 @@ class Pretzel {
     }
 }
 
-let called = [];
+let called: string[] = [];
 
 function playBackNotification() {
     if (!Pretzel.activeUser) {
@@ -68,13 +70,17 @@ function playBackNotification() {
     }
     axios
         .get("https://api.pretzel.tv/playing/twitch/" + Pretzel.activeUser)
-        .then((res) => {
+        .then((res: { data: string }) => {
             if (res.data.includes("undefined")) {
                 logger.debug("Currently no song playing.");
                 return;
             }
 
             let matches = res.data.match(/Now Playing: (.*) by (.*) ->/);
+            if (matches == undefined) {
+                setTimeout(playBackNotification, 30000);
+                return;
+            }
             let titleLine = matches[1];
             let artistLine = matches[2];
 
@@ -104,10 +110,8 @@ function playBackNotification() {
             );
             setTimeout(playBackNotification, 60000);
         })
-        .catch((error) => {
+        .catch((error: object) => {
             logger.error({ error: error });
             setTimeout(playBackNotification, 60000);
         });
 }
-
-module.exports = { Pretzel };

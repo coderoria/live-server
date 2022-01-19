@@ -1,13 +1,16 @@
 let express = require("express");
-let router = express.Router();
+export let router = express.Router();
 const axios = require("axios");
 const mysql = require("mysql");
-const crypto = require("crypto");
-const pool = require("./database");
+import * as crypto from "crypto";
+import { Request, Response } from "express";
+import { MysqlError } from "mysql";
+import { pool } from "./database";
 const Sentry = require("@sentry/node");
-const logger = require("../logger")("Auth");
+import getLogger from "../logger";
+const logger = getLogger("Auth");
 
-router.get("/auth/twitch", (req, res) => {
+router.get("/auth/twitch", (req: Request, res: Response) => {
     if (req.query.code == undefined) {
         let url = `https://id.twitch.tv/oauth2/authorize`;
         url += `?client_id=${process.env.TWITCH_CLIENT_ID}`;
@@ -33,60 +36,75 @@ router.get("/auth/twitch", (req, res) => {
                 `&grant_type=authorization_code` +
                 `&redirect_uri=${encodeURI(process.env.HOST + "/auth/twitch")}`
         )
-        .then((coderes) => {
-            let data = coderes.data;
-            let access_token = data.access_token;
-            let refresh_token = data.refresh_token;
+        .then(
+            (coderes: {
+                data: { access_token: string; refresh_token: string };
+            }) => {
+                let data = coderes.data;
+                let access_token = data.access_token;
+                let refresh_token = data.refresh_token;
 
-            //get username of user and validate
-            axios
-                .get("https://id.twitch.tv/oauth2/validate", {
-                    headers: {
-                        Authorization: "OAuth " + access_token,
-                    },
-                })
-                .then((coderes) => {
-                    let data = coderes.data;
-                    let username = data.login;
-                    let user_id = data.user_id;
-                    let login_token = crypto.randomBytes(32).toString("hex");
+                //get username of user and validate
+                axios
+                    .get("https://id.twitch.tv/oauth2/validate", {
+                        headers: {
+                            Authorization: "OAuth " + access_token,
+                        },
+                    })
+                    .then(
+                        (coderes: {
+                            data: { login: string; user_id: number };
+                        }) => {
+                            let data = coderes.data;
+                            let username = data.login;
+                            let user_id = data.user_id;
+                            let login_token = crypto
+                                .randomBytes(32)
+                                .toString("hex");
 
-                    pool.query(
-                        "UPDATE `admins` SET `username`=?, " +
-                            "`access_token`=?, `refresh_token`=?, `login_token`=? WHERE `user_id`=?;",
-                        [
-                            username,
-                            access_token,
-                            refresh_token,
-                            login_token,
-                            user_id,
-                        ],
-                        (error, dbres) => {
-                            if (error) {
-                                Sentry.captureException(error);
-                                logger.error({ error: error });
-                                res.sendStatus(500);
-                                return;
-                            }
-                            if (dbres.affectedRows == 0) {
-                                res.status(401);
-                                res.send(
-                                    "You're not invited for registration."
-                                );
-                                return;
-                            }
-                            res.cookie("token", login_token, {
-                                expires: new Date(Date.now() + 604800000), //7 days
-                            });
-                            res.redirect("/");
+                            pool.query(
+                                "UPDATE `admins` SET `username`=?, " +
+                                    "`access_token`=?, `refresh_token`=?, `login_token`=? WHERE `user_id`=?;",
+                                [
+                                    username,
+                                    access_token,
+                                    refresh_token,
+                                    login_token,
+                                    user_id,
+                                ],
+                                (
+                                    error: MysqlError | null,
+                                    dbres: { affectedRows: number }
+                                ) => {
+                                    if (error) {
+                                        Sentry.captureException(error);
+                                        logger.error({ error: error });
+                                        res.sendStatus(500);
+                                        return;
+                                    }
+                                    if (dbres.affectedRows == 0) {
+                                        res.status(401);
+                                        res.send(
+                                            "You're not invited for registration."
+                                        );
+                                        return;
+                                    }
+                                    res.cookie("token", login_token, {
+                                        expires: new Date(
+                                            Date.now() + 604800000
+                                        ), //7 days
+                                    });
+                                    res.redirect("/");
+                                }
+                            );
                         }
-                    );
-                })
-                .catch((error) => {
-                    res.sendStatus(400);
-                });
-        })
-        .catch((error) => {
+                    )
+                    .catch((error: { data: string }) => {
+                        res.sendStatus(400);
+                    });
+            }
+        )
+        .catch((error: { data: string }) => {
             res.sendStatus(400);
         });
 });
@@ -94,10 +112,10 @@ router.get("/auth/twitch", (req, res) => {
 /*
 Adds a user to the admins table.
 */
-function addUser(name, callback) {
+export function addUser(name: string, callback: Function) {
     pool.query(
         "SELECT `access_token` FROM `admins` WHERE `user_id`=-1;",
-        (error, dbres) => {
+        (error: string, dbres: [{ access_token: string }]) => {
             if (error) {
                 Sentry.captureException(error);
                 logger.error({ error: error });
@@ -113,12 +131,12 @@ function addUser(name, callback) {
                         "Client-Id": process.env.TWITCH_CLIENT_ID,
                     },
                 })
-                .then((res) => {
+                .then((res: { data: { data: [{ id: number }] } }) => {
                     let user_id = res.data.data[0].id;
                     pool.query(
                         "INSERT INTO `admins` (`user_id`, `username`) VALUES (?,?);",
                         [user_id, name],
-                        (error) => {
+                        (error: MysqlError | null) => {
                             if (error) {
                                 Sentry.captureException(error);
                                 logger.error({ error: error });
@@ -129,7 +147,7 @@ function addUser(name, callback) {
                         }
                     );
                 })
-                .catch((error) => {
+                .catch((error: { data: string }) => {
                     logger.error({ error: error });
                     callback(false);
                 });
@@ -142,7 +160,7 @@ Adds the System to the admins table. user_id will be -1
 and we authenticate with twitch to get an app token via
 OAuth Client Credentials Flow
 */
-function authSystem(callback) {
+export function authSystem(callback: Function) {
     axios
         .post(
             `https://id.twitch.tv/oauth2/token` +
@@ -150,13 +168,13 @@ function authSystem(callback) {
                 `&client_secret=${process.env.TWITCH_CLIENT_SECRET}` +
                 `&grant_type=client_credentials`
         )
-        .then((res) => {
+        .then((res: { data: { access_token: string } }) => {
             let access_token = res.data.access_token;
 
             pool.query(
                 "REPLACE INTO `admins` (`user_id`, `access_token`) VALUES(?,?);",
                 [-1, access_token],
-                (error, dbres) => {
+                (error: MysqlError | null, dbres: []) => {
                     if (error) {
                         Sentry.captureException(error);
                         logger.error({ error: error });
@@ -167,7 +185,7 @@ function authSystem(callback) {
                 }
             );
         })
-        .catch((error) => {
+        .catch((error: { data: string }) => {
             Sentry.captureException(error);
             logger.error("Could not get a System token from Twitch:");
             logger.error({ error: error });
@@ -175,10 +193,10 @@ function authSystem(callback) {
         });
 }
 
-function getSystemAuth(callback) {
+export function getSystemAuth(callback: Function) {
     pool.query(
         "SELECT `access_token` FROM `admins` WHERE `user_id`='-1';",
-        (error, res) => {
+        (error: string, res: [{ access_token: string }]) => {
             if (error) {
                 Sentry.captureException(error);
                 callback(null);
@@ -190,12 +208,12 @@ function getSystemAuth(callback) {
                         Authorization: "Bearer " + res[0].access_token,
                     },
                 })
-                .then((coderes) => {
+                .then((coderes: {}) => {
                     callback(res[0].access_token);
                     return;
                 })
-                .catch((error) => {
-                    authSystem((success) => {
+                .catch((error: { data: string }) => {
+                    authSystem((success: boolean) => {
                         if (success) {
                             getSystemAuth(callback);
                             return;
@@ -214,7 +232,7 @@ If this function calls your callback with true,
 you can be sure that 1) the user is an admin and 2) the access_token
 in the database is valid and can be used for requests
 */
-function checkTwitchAuth(token, callback) {
+export function checkTwitchAuth(token: string, callback: Function) {
     if (token == null) {
         callback(false);
         return;
@@ -222,7 +240,14 @@ function checkTwitchAuth(token, callback) {
     pool.query(
         "SELECT * FROM `admins` WHERE `login_token`=?;",
         token,
-        (error, dbres) => {
+        (
+            error: MysqlError | null,
+            dbres: Array<{
+                access_token: string;
+                username: string;
+                user_id: number;
+            }>
+        ) => {
             if (error) {
                 Sentry.captureException(error);
                 logger.error({ error: error });
@@ -238,11 +263,11 @@ function checkTwitchAuth(token, callback) {
                         Authorization: "OAuth " + dbres[0].access_token,
                     },
                 })
-                .then((data) => {
+                .then((data: {}) => {
                     callback(true, dbres[0].username);
                 })
-                .catch((error) => {
-                    refreshTwitchAuth(dbres[0].user_id, (success) => {
+                .catch((error: {}) => {
+                    refreshTwitchAuth(dbres[0].user_id, (success: boolean) => {
                         callback(success);
                     });
                 });
@@ -250,7 +275,7 @@ function checkTwitchAuth(token, callback) {
     );
 }
 
-function checkTwitchAuthByName(username, callback) {
+export function checkTwitchAuthByName(username: string, callback: Function) {
     if (username == null) {
         callback(false);
         return;
@@ -258,7 +283,14 @@ function checkTwitchAuthByName(username, callback) {
     pool.query(
         "SELECT * FROM admins WHERE username = ?;",
         username,
-        (error, dbres) => {
+        (
+            error: MysqlError | null,
+            dbres: Array<{
+                access_token: string;
+                username: string;
+                user_id: number;
+            }>
+        ) => {
             if (error) {
                 Sentry.captureException(error);
                 logger.error({ error: error });
@@ -275,11 +307,11 @@ function checkTwitchAuthByName(username, callback) {
                         Authorization: "OAuth " + dbres[0].access_token,
                     },
                 })
-                .then((data) => {
+                .then((data: Object) => {
                     callback(true, dbres[0].username);
                 })
-                .catch((error) => {
-                    refreshTwitchAuth(dbres[0].user_id, (success) => {
+                .catch((error: Object) => {
+                    refreshTwitchAuth(dbres[0].user_id, (success: Boolean) => {
                         callback(success);
                     });
                 });
@@ -287,11 +319,11 @@ function checkTwitchAuthByName(username, callback) {
     );
 }
 
-function refreshTwitchAuth(user_id, callback) {
+export function refreshTwitchAuth(user_id: number, callback: Function) {
     pool.query(
         "SELECT `refresh_token` FROM `admins` WHERE `user_id`=?;",
         user_id,
-        (error, dbres) => {
+        (error: MysqlError | null, dbres: Array<{ refresh_token: string }>) => {
             if (error) {
                 Sentry.captureException(error);
                 logger.error(error);
@@ -307,33 +339,37 @@ function refreshTwitchAuth(user_id, callback) {
                         `&client_id=${process.env.TWITCH_CLIENT_ID}` +
                         `&client_secret=${process.env.TWITCH_CLIENT_SECRET}`
                 )
-                .then((data) => {
-                    let access_token = data.data.access_token;
-                    let refresh_token = data.data.refresh_token;
+                .then(
+                    (data: {
+                        data: { access_token: string; refresh_token: string };
+                    }) => {
+                        let access_token = data.data.access_token;
+                        let refresh_token = data.data.refresh_token;
 
-                    pool.query(
-                        "UPDATE `admins` SET `access_token`=?, `refresh_token`=? WHERE `user_id`=?;",
-                        [access_token, refresh_token, user_id],
-                        (error) => {
-                            if (error) {
-                                Sentry.captureException(error);
-                                logger.error({ error: error });
-                                callback(false);
-                                return;
+                        pool.query(
+                            "UPDATE `admins` SET `access_token`=?, `refresh_token`=? WHERE `user_id`=?;",
+                            [access_token, refresh_token, user_id],
+                            (error: MysqlError | null) => {
+                                if (error) {
+                                    Sentry.captureException(error);
+                                    logger.error({ error: error });
+                                    callback(false);
+                                    return;
+                                }
+                                callback(true);
                             }
-                            callback(true);
-                        }
-                    );
-                })
-                .catch((error) => {
+                        );
+                    }
+                )
+                .catch((error: object) => {
                     callback(false);
                 });
         }
     );
 }
 
-function getUserIdByName(username, callback) {
-    getSystemAuth((token) => {
+export function getUserIdByName(username: string, callback: Function) {
+    getSystemAuth((token: string) => {
         if (token == null) {
             callback(null);
             return;
@@ -345,23 +381,23 @@ function getUserIdByName(username, callback) {
                     "Client-Id": process.env.TWITCH_CLIENT_ID,
                 },
             })
-            .then((res) => {
+            .then((res: { data: { data: Array<{ id: number }> } }) => {
                 callback(res.data.data[0].id);
                 return;
             })
-            .catch((error) => {
+            .catch((error: object) => {
                 logger.warn({ error: error });
                 callback(null);
             });
     });
 }
 
-function getUserIdByToken(token) {
-    return new Promise((resolve, reject) => {
+export function getUserIdByToken(token: string) {
+    return new Promise<number>((resolve, reject) => {
         pool.query(
             "SELECT `user_id` FROM `admins` WHERE `login_token`=?;",
             token,
-            (error, res) => {
+            (error: MysqlError | null, res: Array<{ user_id: number }>) => {
                 if (error) {
                     reject(error);
                     return;
@@ -376,8 +412,8 @@ function getUserIdByToken(token) {
     });
 }
 
-function getAccessTokenByName(username, callback) {
-    checkTwitchAuthByName(username, (success) => {
+export function getAccessTokenByName(username: string, callback: Function) {
+    checkTwitchAuthByName(username, (success: boolean) => {
         if (!success) {
             callback(null);
             return;
@@ -385,7 +421,10 @@ function getAccessTokenByName(username, callback) {
         pool.query(
             "SELECT access_token FROM admins WHERE username=?;",
             username,
-            (error, dbres) => {
+            (
+                error: MysqlError | null,
+                dbres: Array<{ access_token: string }>
+            ) => {
                 if (error) {
                     logger.error({ error: error });
                     return;
@@ -399,15 +438,3 @@ function getAccessTokenByName(username, callback) {
         );
     });
 }
-
-module.exports = {
-    router: router,
-    authSystem: authSystem,
-    addUser: addUser,
-    checkTwitchAuth: checkTwitchAuth,
-    checkTwitchAuthByName: checkTwitchAuthByName,
-    getSystemAuth: getSystemAuth,
-    getUserIdByName: getUserIdByName,
-    getUserIdByToken: getUserIdByToken,
-    getAccessTokenByName: getAccessTokenByName,
-};

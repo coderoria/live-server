@@ -1,8 +1,10 @@
-const i18n = require("../i18n");
-const logger = require("../logger")("Filters");
+import __ from "../i18n";
+import { Client, Userstate } from "tmi.js";
+import getLogger from "../logger";
+const logger = getLogger("Filters");
 
-let violations = {};
-let permits = [];
+let violations: any = {};
+let permits: { username: string; until: number }[] = [];
 
 setInterval(() => {
     for (let i in violations) {
@@ -13,7 +15,7 @@ setInterval(() => {
     }
 }, 300000);
 
-function checkMessage(bot, message, userstate) {
+function checkMessage(bot: Client, message: string, userstate: Userstate) {
     let checks = {
         checkCaps: {
             function: checkCaps,
@@ -37,7 +39,8 @@ function checkMessage(bot, message, userstate) {
         },
     };
     let violated = false;
-    for (let i in checks) {
+    let i: keyof typeof checks;
+    for (i in checks) {
         if (!checks[i].function(message, userstate)) {
             continue;
         }
@@ -68,7 +71,7 @@ function checkMessage(bot, message, userstate) {
     if (!violations.hasOwnProperty(userstate.username) || !violated) {
         return false;
     }
-    let channel = process.env.CHANNEL;
+    let channel: string = process.env.CHANNEL as string;
     let multipleActions = "";
 
     if (violations[userstate.username].multiple) {
@@ -79,7 +82,7 @@ function checkMessage(bot, message, userstate) {
     let currentPoints = __("filters.currentPoints", points);
 
     if (points < 8) {
-        bot.deletemessage(channel, userstate.id).catch((error) => {
+        bot.deletemessage(channel, userstate.id as string).catch((error) => {
             logger.error({ error: error });
         });
     }
@@ -106,7 +109,7 @@ function checkMessage(bot, message, userstate) {
     return true;
 }
 
-function checkCaps(message, userstate) {
+function checkCaps(message: string, userstate: Userstate) {
     if (userstate.mod) {
         return false;
     }
@@ -118,7 +121,7 @@ function checkCaps(message, userstate) {
     );
 }
 
-function checkSpamLetters(message, userstate) {
+function checkSpamLetters(message: string, userstate: Userstate) {
     if (userstate.mod) {
         return false;
     }
@@ -126,7 +129,7 @@ function checkSpamLetters(message, userstate) {
     return re.test(encodeURIComponent(message));
 }
 
-function checkLinks(message, userstate) {
+function checkLinks(message: string, userstate: Userstate) {
     if (checkPermit(userstate.username)) {
         return false;
     }
@@ -142,7 +145,7 @@ function checkLinks(message, userstate) {
     return matches[1] != "clips.twitch.tv";
 }
 
-function checkEmotes(message, userstate) {
+function checkEmotes(message: string, userstate: Userstate) {
     if (userstate.mod) {
         return false;
     }
@@ -153,14 +156,14 @@ function checkEmotes(message, userstate) {
     return emotes > 10;
 }
 
-function addPermit(username) {
+function addPermit(username: string) {
     permits.push({
         username: username.toLowerCase(),
         until: new Date().getTime() + 60000,
     });
 }
 
-function checkPermit(username) {
+function checkPermit(username: string) {
     for (let i in permits) {
         if (permits[i].username === username) {
             if (permits[i].until <= new Date().getTime()) {

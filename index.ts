@@ -1,23 +1,26 @@
-const cors = require("cors");
-const config = require("dotenv").config();
-const express = require("express");
+import cors from "cors";
+import * as dotenv from "dotenv";
+dotenv.config();
+import express from "express";
+import { Socket } from "socket.io";
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 const cookie = require("cookie");
-const tmi = require("tmi.js");
-const pool = require("./server/database");
+import * as tmi from "tmi.js";
+import getLogger from "./logger";
+import { pool } from "./server/database";
 const auth = require("./server/auth");
 const eventSub = require("./server/eventsub");
 const spotify = require("./server/spotify");
 const filters = require("./bot/filters");
 const commands = require("./bot/commands");
-const logger = require("./logger")("Index");
+const logger = getLogger("Index");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
-const { Pretzel } = require("./server/pretzel");
+import Pretzel from "./server/pretzel";
 
-let bot;
+let bot: tmi.Client;
 
 logger.info("Hosted on " + process.env.HOST);
 
@@ -39,9 +42,9 @@ pool.query(
             return;
         }
         if (dbres.warningCount == 0) {
-            auth.authSystem((success) => {
+            auth.authSystem((success: boolean) => {
                 if (!success) return;
-                auth.addUser(process.env.CHANNEL, (success) => {
+                auth.addUser(process.env.CHANNEL, (success: boolean) => {
                     if (!success) {
                         logger.error(
                             "Could not add " +
@@ -90,7 +93,7 @@ pool.query(
 );
 
 bot = tmi.client({
-    channels: [process.env.CHANNEL],
+    channels: [process.env.CHANNEL as string],
     connection: {
         reconnect: true,
     },
@@ -128,7 +131,7 @@ app.get("/overlay/:overlay", (req, res) => {
     res.render("overlays/parts/" + req.params.overlay);
 });
 
-pretzel = new Pretzel(io);
+new Pretzel(io);
 
 app.use(auth.router);
 app.use(eventSub.router);
@@ -141,16 +144,19 @@ app.get("/", (req, res) => {
         res.redirect("/auth/twitch");
         return;
     }
-    auth.checkTwitchAuth(req.cookies.token, (success, username) => {
-        if (!success) {
-            res.redirect("/auth/twitch");
-            return;
+    auth.checkTwitchAuth(
+        req.cookies.token,
+        (success: boolean, username: string) => {
+            if (!success) {
+                res.redirect("/auth/twitch");
+                return;
+            }
+            res.render("dashboard/home", {
+                title: "Home",
+                username: username,
+            });
         }
-        res.render("dashboard/home", {
-            title: "Home",
-            username: username,
-        });
-    });
+    );
 });
 
 app.get("/dock", (req, res) => {
@@ -158,35 +164,38 @@ app.get("/dock", (req, res) => {
         res.redirect("/auth/twitch");
         return;
     }
-    auth.checkTwitchAuth(req.cookies.token, (success, username) => {
-        if (!success) {
-            res.redirect("/auth/twitch");
-            return;
-        }
-        spotify
-            .getAvailableUsernames()
-            .then(async (usernames) => {
-                let pretzelUsers = await Pretzel.getAllUsers();
-                res.render("dashboard/dock", {
-                    title: "Dock",
-                    username: username,
-                    spotify: usernames,
-                    pretzel: pretzelUsers,
+    auth.checkTwitchAuth(
+        req.cookies.token,
+        (success: boolean, username: string) => {
+            if (!success) {
+                res.redirect("/auth/twitch");
+                return;
+            }
+            spotify
+                .getAvailableUsernames()
+                .then(async (usernames: string) => {
+                    let pretzelUsers = await Pretzel.getAllUsers();
+                    res.render("dashboard/dock", {
+                        title: "Dock",
+                        username: username,
+                        spotify: usernames,
+                        pretzel: pretzelUsers,
+                    });
+                })
+                .catch((error: object) => {
+                    Sentry.captureException(error);
+                    res.sendStatus(500);
                 });
-            })
-            .catch((error) => {
-                Sentry.captureException(error);
-                res.sendStatus(500);
-            });
-    });
+        }
+    );
 });
 
-io.use((socket, next) => {
+io.use((socket: Socket, next: Function) => {
     let cookies = cookie.parse(socket.handshake.headers.cookie);
     if (!cookies.hasOwnProperty("token")) {
         return next(new Error("Unauthorized"));
     }
-    auth.checkTwitchAuth(cookies.token, (auth, username) => {
+    auth.checkTwitchAuth(cookies.token, (auth: boolean, username: string) => {
         if (!auth) {
             return next(new Error("Unauthorized"));
         }
@@ -198,7 +207,7 @@ io.use((socket, next) => {
     });
 });
 
-io.use((socket, next) => {
+io.use((socket: Socket, next: Function) => {
     socket.on("error", (error) => {
         Sentry.captureEvent(error);
         logger.warn(error, "Window reporting error");

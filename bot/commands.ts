@@ -1,10 +1,21 @@
-const i18n = require("../i18n");
-const pool = require("../server/database");
+import { MysqlError } from "mysql";
+import { Client, Userstate } from "tmi.js";
+
+import __ from "../i18n";
+import getLogger from "../logger";
+import { pool } from "../server/database";
 const filters = require("./filters");
-const logger = require("../logger")("Commands");
+const logger = getLogger("Commands");
 const twitch = require("../server/twitchApi");
 const moment = require("moment");
 const Sentry = require("@sentry/node");
+
+enum Level {
+    broadcaster,
+    moderator,
+    vip,
+    subscriber,
+}
 
 let commands = [
     //USER:
@@ -89,9 +100,9 @@ let commands = [
     },
 ];
 
-let channel = process.env.CHANNEL;
+let channel: string = process.env.CHANNEL as string;
 
-function checkCommand(bot, message, userstate) {
+function checkCommand(bot: Client, message: string, userstate: Userstate) {
     const re = /^!(\S*)\s?(.*)?$/m;
     const matches = re.exec(message);
     if (matches == null) {
@@ -99,6 +110,9 @@ function checkCommand(bot, message, userstate) {
     }
     matches.shift();
     let command = matches.shift();
+    if (command == undefined) {
+        return;
+    }
     for (let i in commands) {
         if (commands[i].text.includes(command.toLowerCase())) {
             logger.info(
@@ -119,7 +133,7 @@ function checkCommand(bot, message, userstate) {
     }
 }
 
-function findRecipient(matches, userstate) {
+function findRecipient(matches: string[], userstate: Userstate) {
     let recipient = "@" + userstate["display-name"];
     if (matches.length > 0) {
         recipient = matches[0];
@@ -127,19 +141,18 @@ function findRecipient(matches, userstate) {
     return recipient;
 }
 
-function hasPermission(userstate, requiredLevel) {
-    let ranks = ["broadcaster", "moderator", "vip", "subscriber"];
-    if (!ranks.includes(requiredLevel)) {
-        return false;
-    }
+function hasPermission(userstate: Userstate, requiredLevel: Level) {
     if (userstate.badges == null) {
         return false;
     }
-    for (let i in ranks) {
-        if (userstate.badges.hasOwnProperty(ranks[i])) {
+    for (let i in Level) {
+        if (!isNaN(Number(i))) {
+            continue;
+        }
+        if (userstate.badges.hasOwnProperty(i.toString())) {
             return true;
         }
-        if (ranks[i] === requiredLevel) {
+        if (i == requiredLevel.toString()) {
             return false;
         }
     }
@@ -147,81 +160,101 @@ function hasPermission(userstate, requiredLevel) {
 
 //------------------------ USER ------------------------
 
-function executeDiscord(bot, matches, userstate) {
+function executeDiscord(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
     let discord = __("commands.discord", recipient);
     bot.say(channel, discord);
 }
 
-function executeTwitter(bot, matches, userstate) {
+function executeTwitter(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
     let twitter = __("commands.twitter", recipient);
     bot.say(channel, twitter);
 }
 
-function executeGitHub(bot, matches, userstate) {
+function executeGitHub(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
     let gitHub = __("commands.github", recipient);
     bot.say(channel, gitHub);
 }
 
-function executeCredit(bot, matches, userstate) {
+function executeCredit(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
     let credit = __("commands.credit", recipient);
     bot.say(channel, credit);
 }
 
-function executeDonation(bot, matches, userstate) {
+function executeDonation(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
     let donation = __("commands.donation", recipient); //LINK MISSING
     bot.say(channel, donation);
 }
 
-function executeWatchtime(bot, matches, userstate) {
+function executeWatchtime(
+    bot: Client,
+    matches: string[],
+    userstate: Userstate
+) {
     findRecipient(matches, userstate);
     //WATCHTIME MISSING
     let watchtime = " ";
     bot.say(channel, watchtime);
 }
 
-function executeFollowage(bot, matches, userstate) {
+function executeFollowage(
+    bot: Client,
+    matches: string[],
+    userstate: Userstate
+) {
     let recipient = findRecipient(matches, userstate);
 
     let followage = " ";
     bot.say(channel, followage);
 }
 
-function executeAccountAge(bot, matches, userstate) {
+function executeAccountAge(
+    bot: Client,
+    matches: string[],
+    userstate: Userstate
+) {
     let recipient = findRecipient(matches, userstate);
 
     let accountage = " ";
     bot.say(channel, accountage);
 }
 
-function executeUptime(bot, matches, userstate) {
+function executeUptime(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    twitch.getActiveStreamByName(process.env.CHANNEL, (data) => {
-        if (data == null) {
-            bot.say(
+    twitch.getActiveStreamByName(
+        process.env.CHANNEL,
+        (data: { started_at: string }) => {
+            if (data == null) {
+                bot.say(
+                    channel,
+                    __("commands.uptime.noStream", recipient, channel)
+                );
+                return;
+            }
+            let diff = moment.duration(moment().diff(moment(data.started_at)));
+            let uptime =
+                diff.hours() +
+                "h" +
+                diff.minutes() +
+                "min" +
+                diff.seconds() +
+                "sec";
+            let message = __(
+                "commands.uptime.message",
+                recipient,
                 channel,
-                __("commands.uptime.noStream", recipient, channel)
+                uptime
             );
-            return;
+            bot.say(channel, message);
         }
-        let diff = moment.duration(moment().diff(moment(data.started_at)));
-        let uptime =
-            diff.hours() +
-            "h" +
-            diff.minutes() +
-            "min" +
-            diff.seconds() +
-            "sec";
-        let message = __("commands.uptime.message", recipient, channel, uptime);
-        bot.say(channel, message);
-    });
+    );
 }
 
-function executeCommands(bot, matches, userstate) {
+function executeCommands(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
     let command = "";
     let commandStrings = [];
@@ -233,21 +266,23 @@ function executeCommands(bot, matches, userstate) {
     bot.say(channel, message);
 }
 
-function executeLurk(bot, matches, userstate) {
+function executeLurk(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = userstate.username;
     let lurk = __("commands.lurk", recipient);
     bot.say(channel, lurk);
 }
 
-function executeQuotes(bot, matches, userstate) {
-    let requiredLevel = "moderator";
+function executeQuotes(bot: Client, matches: string[], userstate: Userstate) {
     let newQuote = "";
-    if (matches.shift() === "add" && hasPermission(userstate, requiredLevel)) {
+    if (
+        matches.shift() === "add" &&
+        hasPermission(userstate, Level.moderator)
+    ) {
         newQuote = matches.join(" ");
         pool.query(
             "INSERT INTO quotes (quote) VALUES (?);",
             newQuote,
-            (error) => {
+            (error: MysqlError | null) => {
                 if (error) {
                     Sentry.captureException(error);
                     logger.error({ error: error });
@@ -260,7 +295,7 @@ function executeQuotes(bot, matches, userstate) {
     }
     pool.query(
         "SELECT * FROM quotes ORDER BY RAND() LIMIT 1;",
-        (error, dbres) => {
+        (error: MysqlError, dbres: Array<{ quote: string }>) => {
             if (error) {
                 Sentry.captureException(error);
                 logger.error({ error: error });
@@ -276,12 +311,11 @@ function executeQuotes(bot, matches, userstate) {
 }
 //--------------------- Subcribers ---------------------
 
-function executeClip(bot, matches, userstate) {
-    let requiredLevel = "subscriber";
-    if (!hasPermission(userstate, requiredLevel)) {
+function executeClip(bot: Client, matches: string[], userstate: Userstate) {
+    if (!hasPermission(userstate, Level.subscriber)) {
         return;
     }
-    twitch.createClip(process.env.CHANNEL, (clip_url) => {
+    twitch.createClip(process.env.CHANNEL, (clip_url: string) => {
         if (clip_url == null) {
             bot.say(channel, __("commands.clip.notCreated"));
             return;
@@ -296,16 +330,15 @@ function executeClip(bot, matches, userstate) {
 
 //------------------------ MOD -------------------------
 
-function executeShoutout(bot, matches, userstate) {
-    let requiredLevel = "moderator";
-    if (hasPermission(userstate, requiredLevel)) {
-        if (!matches.length > 0) {
+function executeShoutout(bot: Client, matches: string[], userstate: Userstate) {
+    if (hasPermission(userstate, Level.moderator)) {
+        if (!(matches.length > 0)) {
             bot.say(channel, __("commands.shoutout.noChannel"));
             return;
         }
         twitch.getLastPlayedName(
             matches[0].replace("@", ""),
-            (lastGameName) => {
+            (lastGameName: string) => {
                 if (lastGameName === "") {
                     bot.say(
                         channel,
@@ -328,9 +361,8 @@ function executeShoutout(bot, matches, userstate) {
     }
 }
 
-function executePermit(bot, matches, userstate) {
-    let requiredLevel = "moderator";
-    if (!hasPermission(userstate, requiredLevel)) {
+function executePermit(bot: Client, matches: string[], userstate: Userstate) {
+    if (!hasPermission(userstate, Level.moderator)) {
         return;
     }
     if (matches.length === 0) {
@@ -343,9 +375,8 @@ function executePermit(bot, matches, userstate) {
     bot.say(channel, permitMessage);
 }
 
-function executeSetGame(bot, matches, userstate) {
-    let requiredLevel = "moderator";
-    if (!hasPermission(userstate, requiredLevel)) {
+function executeSetGame(bot: Client, matches: string[], userstate: Userstate) {
+    if (!hasPermission(userstate, Level.moderator)) {
         return;
     }
     if (matches.length == 0) {
@@ -355,7 +386,7 @@ function executeSetGame(bot, matches, userstate) {
         );
         return;
     }
-    twitch.setGame(matches.join(" "), (success, gameName) => {
+    twitch.setGame(matches.join(" "), (success: boolean, gameName: string) => {
         if (!success) {
             bot.say(
                 channel,
@@ -374,9 +405,8 @@ function executeSetGame(bot, matches, userstate) {
     });
 }
 
-function executeSetTitle(bot, matches, userstate) {
-    let requiredLevel = "moderator";
-    if (!hasPermission(userstate, requiredLevel)) {
+function executeSetTitle(bot: Client, matches: string[], userstate: Userstate) {
+    if (!hasPermission(userstate, Level.moderator)) {
         return;
     }
     if (matches.length == 0) {
@@ -386,7 +416,7 @@ function executeSetTitle(bot, matches, userstate) {
         );
         return;
     }
-    twitch.setTitle(matches.join(" "), (success) => {
+    twitch.setTitle(matches.join(" "), (success: Boolean) => {
         if (!success) {
             bot.say(
                 channel,
@@ -405,24 +435,25 @@ function executeSetTitle(bot, matches, userstate) {
     });
 }
 
-function executeCounters(bot, matches, userstate) {
-    let requiredLevel = "moderator";
+function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
     if (matches[0] === "add") {
-        if (!hasPermission(userstate, requiredLevel)) {
+        if (!hasPermission(userstate, Level.moderator)) {
             return;
         }
         if (matches[1] == null) {
             bot.say(
                 channel,
-                __("commands.counters.noNameProvided"),
-                "@" + userstate["display-name"]
+                __(
+                    "commands.counters.noNameProvided",
+                    "@" + userstate["display-name"]
+                )
             );
             return;
         }
         pool.query(
             "INSERT INTO counter (name) VALUES (?);",
             matches[1].toLowerCase(),
-            (error) => {
+            (error: MysqlError | null) => {
                 if (error) {
                     if (error.code === "ER_DUP_KEY") {
                         bot.say(
@@ -449,7 +480,7 @@ function executeCounters(bot, matches, userstate) {
             }
         );
     } else if (matches[0] === "delete") {
-        if (!hasPermission(userstate, requiredLevel)) {
+        if (!hasPermission(userstate, Level.moderator)) {
             return;
         }
         if (matches[1] == null) {
@@ -465,7 +496,7 @@ function executeCounters(bot, matches, userstate) {
         pool.query(
             "DELETE FROM counter WHERE name = ?;",
             matches[1].toLowerCase(),
-            (error, result) => {
+            (error: MysqlError | null, result: { affectedRows: number }) => {
                 if (error) {
                     Sentry.captureException(error);
                     logger.error({ error: error });
@@ -506,7 +537,7 @@ function executeCounters(bot, matches, userstate) {
         pool.query(
             "SELECT * FROM counter WHERE name = ?;",
             matches[0].toLowerCase(),
-            (error, result) => {
+            (error: MysqlError | null, result: Array<{ count: number }>) => {
                 if (error) {
                     Sentry.captureException(error);
                     logger.error({ error: error });
@@ -531,17 +562,20 @@ function executeCounters(bot, matches, userstate) {
                             "commands.counters.showCount",
                             "@" + userstate["display-name"],
                             matches[0],
-                            result[0].count
+                            result[0].count.toString()
                         )
                     );
                     return;
                 }
-                if (!hasPermission(userstate, requiredLevel)) {
+                if (!hasPermission(userstate, Level.moderator)) {
                     return;
                 }
                 let points = result[0].count;
                 const re = /([+-])(\d*)/;
                 let groups = re.exec(matches[1]);
+                if (groups == null || groups.length < 2) {
+                    return;
+                }
                 if (groups[1] == "+") {
                     if (groups[2].length > 0) {
                         points += parseInt(groups[2]);
@@ -559,7 +593,7 @@ function executeCounters(bot, matches, userstate) {
                 pool.query(
                     "UPDATE counter SET count = ? WHERE name = ?;",
                     [points, matches[0].toLowerCase()],
-                    (error) => {
+                    (error: MysqlError | null) => {
                         if (error) {
                             Sentry.captureException(error);
                             logger.error({ error: error });
@@ -571,7 +605,7 @@ function executeCounters(bot, matches, userstate) {
                                 "commands.counters.updated",
                                 "@" + userstate["display-name"],
                                 matches[0],
-                                points
+                                points.toString()
                             )
                         );
                     }
@@ -583,8 +617,8 @@ function executeCounters(bot, matches, userstate) {
 
 //---------------------- Streamer ----------------------
 
-function executeLanguage(bot, matches, userstate) {
-    if (!hasPermission(userstate, "broadcaster")) {
+function executeLanguage(bot: Client, matches: string[], userstate: Userstate) {
+    if (!hasPermission(userstate, Level.broadcaster)) {
         return;
     }
     let recipient = "@" + userstate["display-name"];

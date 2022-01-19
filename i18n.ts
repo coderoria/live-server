@@ -1,4 +1,4 @@
-const i18n = require("i18n");
+import * as i18n from "i18n";
 
 i18n.configure({
     locales: ["de", "en"],
@@ -8,4 +8,4 @@ i18n.configure({
     autoReload: true,
 });
 
-module.exports = i18n;
+export default i18n.__;
