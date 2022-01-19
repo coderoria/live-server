@@ -1,14 +1,14 @@
 import { MysqlError } from "mysql";
 import { Client, Userstate } from "tmi.js";
-
 import __ from "../i18n";
 import getLogger from "../logger";
 import { pool } from "../server/database";
-const filters = require("./filters");
+import * as twitch from "../server/twitchApi";
+import * as filters from "../bot/filters";
+import moment from "moment";
+import Sentry from "@sentry/node";
+
 const logger = getLogger("Commands");
-const twitch = require("../server/twitchApi");
-const moment = require("moment");
-const Sentry = require("@sentry/node");
 
 enum Level {
     broadcaster,
@@ -226,7 +226,7 @@ function executeAccountAge(
 function executeUptime(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
     twitch.getActiveStreamByName(
-        process.env.CHANNEL,
+        process.env.CHANNEL as string,
         (data: { started_at: string }) => {
             if (data == null) {
                 bot.say(
@@ -315,7 +315,7 @@ function executeClip(bot: Client, matches: string[], userstate: Userstate) {
     if (!hasPermission(userstate, Level.subscriber)) {
         return;
     }
-    twitch.createClip(process.env.CHANNEL, (clip_url: string) => {
+    twitch.createClip(process.env.CHANNEL as string, (clip_url: string) => {
         if (clip_url == null) {
             bot.say(channel, __("commands.clip.notCreated"));
             return;
