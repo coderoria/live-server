@@ -6,19 +6,19 @@ import { Socket } from "socket.io";
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
-const cookie = require("cookie");
+import cookie from "cookie";
 import "./i18n";
 import * as tmi from "tmi.js";
 import getLogger from "./logger";
 import { pool } from "./server/database";
-const auth = require("./server/auth");
-const eventSub = require("./server/eventsub");
-const spotify = require("./server/spotify");
-const filters = require("./bot/filters");
-const commands = require("./bot/commands");
+import * as auth from "./server/auth";
+import * as eventSub from "./server/eventsub";
+import * as spotify from "./server/spotify";
+import * as filters from "./bot/filters";
+import * as commands from "./bot/commands";
+import Sentry from "@sentry/node";
+import Tracing from "@sentry/tracing";
 const logger = getLogger("Index");
-const Sentry = require("@sentry/node");
-const Tracing = require("@sentry/tracing");
 import Pretzel from "./server/pretzel";
 
 let bot: tmi.Client;
@@ -45,19 +45,22 @@ pool.query(
         if (dbres.warningCount == 0) {
             auth.authSystem((success: boolean) => {
                 if (!success) return;
-                auth.addUser(process.env.CHANNEL, (success: boolean) => {
-                    if (!success) {
-                        logger.error(
-                            "Could not add " +
-                                process.env.CHANNEL +
-                                " as invited user."
+                auth.addUser(
+                    process.env.CHANNEL as string,
+                    (success: boolean) => {
+                        if (!success) {
+                            logger.error(
+                                "Could not add " +
+                                    process.env.CHANNEL +
+                                    " as invited user."
+                            );
+                            return;
+                        }
+                        logger.info(
+                            process.env.CHANNEL + " added as invited user."
                         );
-                        return;
                     }
-                    logger.info(
-                        process.env.CHANNEL + " added as invited user."
-                    );
-                });
+                );
             });
         }
     }
@@ -174,7 +177,7 @@ app.get("/dock", (req, res) => {
             }
             spotify
                 .getAvailableUsernames()
-                .then(async (usernames: string) => {
+                .then(async (usernames: string[]) => {
                     let pretzelUsers = await Pretzel.getAllUsers();
                     res.render("dashboard/dock", {
                         title: "Dock",
@@ -192,7 +195,7 @@ app.get("/dock", (req, res) => {
 });
 
 io.use((socket: Socket, next: Function) => {
-    let cookies = cookie.parse(socket.handshake.headers.cookie);
+    let cookies = cookie.parse(socket.handshake.headers.cookie as string);
     if (!cookies.hasOwnProperty("token")) {
         return next(new Error("Unauthorized"));
     }

@@ -1,5 +1,5 @@
 let express = require("express");
-let router = express.Router();
+export let router = express.Router();
 const axios = require("axios");
 const mysql = require("mysql");
 import crypto from "crypto";
@@ -79,7 +79,7 @@ router.post("/eventsub", (req: Request, res: Response) => {
     res.sendStatus(400);
 });
 
-function createSubs() {
+export function createSubs() {
     deleteAllEventSubs()
         .then(() => {
             auth.getSystemAuth((access_token: string) => {
@@ -197,7 +197,7 @@ function deleteAllEventSubs() {
     });
 }
 
-function setIO(socket: Server) {
+export function setIO(socket: Server) {
     io = socket;
 }
 
@@ -223,10 +223,3 @@ function checkSignature(req: Request) {
 
     return expected_header === req.header("Twitch-Eventsub-Message-Signature");
 }
-
-module.exports = {
-    router: router,
-    createSubs: createSubs,
-    setIO: setIO,
-    deleteAllEventSubs: deleteAllEventSubs,
-};

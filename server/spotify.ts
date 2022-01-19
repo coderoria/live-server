@@ -9,7 +9,7 @@ import * as auth from "./auth";
 import getLogger from "../logger";
 const logger = getLogger("Spotify");
 const Sentry = require("@sentry/node");
-let router = express.Router();
+export let router = express.Router();
 let io: Server;
 let usedId: number;
 
@@ -30,7 +30,7 @@ interface currentlyPlaying {
 
 playBackNotification();
 
-function setIO(socket: Server) {
+export function setIO(socket: Server) {
     io = socket;
 
     io.on("connection", (socket) => {
@@ -358,8 +358,8 @@ function playBackNotification() {
     });
 }
 
-function getAvailableUsernames() {
-    return new Promise((resolve, reject) => {
+export function getAvailableUsernames() {
+    return new Promise<Array<string>>((resolve, reject) => {
         pool.query(
             `SELECT username FROM admins JOIN spotify ON spotify.twitch_id=admins.user_id;`,
             (error, res) => {
@@ -377,9 +377,3 @@ function getAvailableUsernames() {
         );
     });
 }
-
-module.exports = {
-    router: router,
-    setIO: setIO,
-    getAvailableUsernames: getAvailableUsernames,
-};

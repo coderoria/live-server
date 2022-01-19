@@ -102,7 +102,11 @@ let commands = [
 
 let channel: string = process.env.CHANNEL as string;
 
-function checkCommand(bot: Client, message: string, userstate: Userstate) {
+export function checkCommand(
+    bot: Client,
+    message: string,
+    userstate: Userstate
+) {
     const re = /^!(\S*)\s?(.*)?$/m;
     const matches = re.exec(message);
     if (matches == null) {
