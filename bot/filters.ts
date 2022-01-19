@@ -15,7 +15,11 @@ setInterval(() => {
     }
 }, 300000);
 
-function checkMessage(bot: Client, message: string, userstate: Userstate) {
+export function checkMessage(
+    bot: Client,
+    message: string,
+    userstate: Userstate
+) {
     let checks = {
         checkCaps: {
             function: checkCaps,
@@ -156,7 +160,7 @@ function checkEmotes(message: string, userstate: Userstate) {
     return emotes > 10;
 }
 
-function addPermit(username: string) {
+export function addPermit(username: string) {
     permits.push({
         username: username.toLowerCase(),
         until: new Date().getTime() + 60000,
@@ -175,8 +179,3 @@ function checkPermit(username: string) {
     }
     return false;
 }
-
-module.exports = {
-    checkMessage: checkMessage,
-    addPermit: addPermit,
-};
