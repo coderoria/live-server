@@ -1,72 +1,81 @@
 import getLogger from "../logger";
 
-const { default: axios } = require("axios");
+import { AxiosResponse, default as axios } from "axios";
 const logger = getLogger("TwitchAPI");
-const auth = require("./auth");
-const Sentry = require("@sentry/node");
+import * as auth from "./auth";
+import Sentry from "@sentry/node";
 
 export function setTitle(title: string, callback: Function) {
-    auth.getAccessTokenByName(process.env.CHANNEL, (access_token: string) => {
-        if (access_token == null) {
-            callback(false);
-            return;
+    auth.getAccessTokenByName(
+        process.env.CHANNEL as string,
+        (access_token: string) => {
+            if (access_token == null) {
+                callback(false);
+                return;
+            }
+            auth.getUserIdByName(
+                process.env.CHANNEL as string,
+                (userId: number) => {
+                    axios
+                        .patch(
+                            `https://api.twitch.tv/helix/channels?broadcaster_id=${userId}`,
+                            { title: title },
+                            {
+                                headers: {
+                                    Authorization: "Bearer " + access_token,
+                                    "Client-Id": process.env.TWITCH_CLIENT_ID,
+                                    "Content-Type": "application/json",
+                                },
+                            }
+                        )
+                        .catch((error: object) => {
+                            logger.error(
+                                { error: error },
+                                "Changing title was not successful"
+                            );
+                            Sentry.captureException(error);
+                            callback(false);
+                            return;
+                        })
+                        .then((res: void | AxiosResponse) => {
+                            callback(true);
+                        });
+                }
+            );
         }
-        auth.getUserIdByName(process.env.CHANNEL, (userId: number) => {
+    );
+}
+
+export function setGame(search: string, callback: Function) {
+    auth.getAccessTokenByName(
+        process.env.CHANNEL as string,
+        (access_token: string) => {
             axios
-                .patch(
-                    `https://api.twitch.tv/helix/channels?broadcaster_id=${userId}`,
-                    { title: title },
+                .get(
+                    `https://api.twitch.tv/helix/search/categories?query=${encodeURIComponent(
+                        search
+                    )}&first=1`,
                     {
                         headers: {
                             Authorization: "Bearer " + access_token,
                             "Client-Id": process.env.TWITCH_CLIENT_ID,
-                            "Content-Type": "application/json",
                         },
                     }
                 )
                 .catch((error: object) => {
                     logger.error(
                         { error: error },
-                        "Changing title was not successful"
+                        "Searching for Category failed."
                     );
                     Sentry.captureException(error);
                     callback(false);
                     return;
                 })
-                .then((res: object) => {
-                    callback(true);
-                });
-        });
-    });
-}
-
-export function setGame(search: string, callback: Function) {
-    auth.getAccessTokenByName(process.env.CHANNEL, (access_token: string) => {
-        axios
-            .get(
-                `https://api.twitch.tv/helix/search/categories?query=${encodeURIComponent(
-                    search
-                )}&first=1`,
-                {
-                    headers: {
-                        Authorization: "Bearer " + access_token,
-                        "Client-Id": process.env.TWITCH_CLIENT_ID,
-                    },
-                }
-            )
-            .catch((error: object) => {
-                logger.error(
-                    { error: error },
-                    "Searching for Category failed."
-                );
-                Sentry.captureException(error);
-                callback(false);
-                return;
-            })
-            .then(
-                (searchResult: {
-                    data: { data: Array<{ id: number; name: string }> };
-                }) => {
+                .then((searchResult: void | AxiosResponse) => {
+                    if (!searchResult) {
+                        callback(false);
+                        return;
+                    }
                     logger.debug(searchResult.data.data, "Found list of games");
                     if (searchResult.data.data.length == 0) {
                         callback(false);
@@ -76,7 +85,7 @@ export function setGame(search: string, callback: Function) {
                     let gameName = searchResult.data.data[0].name;
 
                     auth.getUserIdByName(
-                        process.env.CHANNEL,
+                        process.env.CHANNEL as string,
                         (userId: number) => {
                             axios
                                 .patch(
@@ -101,14 +110,14 @@ export function setGame(search: string, callback: Function) {
                                     callback(false);
                                     return;
                                 })
-                                .then((res: object) => {
+                                .then((res: void | AxiosResponse) => {
                                     callback(true, gameName);
                                 });
                         }
                     );
-                }
-            );
-    });
+                });
+        }
+    );
 }
 
 export function getActiveStreamByName(username: string, callback: Function) {
@@ -129,8 +138,8 @@ export function getActiveStreamByName(username: string, callback: Function) {
                 callback(null);
                 return;
             })
-            .then((result: { data: { data: Array<any> } }) => {
-                if (result.data.data.length == 0) {
+            .then((result: void | AxiosResponse) => {
+                if (!result || result.data.data.length == 0) {
                     callback(null);
                     return;
                 }
