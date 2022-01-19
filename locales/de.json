@@ -1,67 +1,67 @@
 {
-	"commands": {
-		"commands": "%s, das sind alle Befehle auf dem Kanal: %s",
-		"counters": {
-			"addDuplicate": "%s, Counter existiert bereits, nutze !counter %s + zum hochzählen.",
-			"addedNew": "%s, Neuer Counter: %s",
-			"deleted": "%s, Counter gelöscht: %s",
-			"doesNotExist": "%s, Counter %s existiert nicht.",
-			"noNameProvided": "%s, Kein Name angegeben.",
-			"showCount": "%s, Der Counter %s hat den Wert %d",
-			"updated": "%s, Der Counter %s wurde aktualisiert und hat nun den Wert %d"
-		},
-		"credit": "%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
-		"discord": "%s, hier ist unser Discord: https://coderoria.com/discord",
-		"donation": "%s, hier kannst du spenden:",
-		"github": "%s, alle Projekte von uns sind hier zu finden: https://coderoria.com/github",
-		"language": {
-			"message": "%s, die Sprache wurde gewechselt.",
-			"noLangGiven": "%s, bitte gebe eine Sprache an, auf die gewechselt werden soll."
-		},
-		"lurk": "%s ist jetzt im Lurk.",
-		"quotes": {
-			"newAdded": "Neues Zitat hinzugefügt: %s",
-			"noQuotes": "Es gibt derzeit keine Zitate :("
-		},
-		"permit": {
-			"noNameProvided": "%s Kein Name angegeben.",
-			"message": "%s, du kannst für die nächsten 60s Links posten."
-		},
-		"shoutout": {
-			"message": "Hey! Gib {{name}} doch einen Follow! Der letzte Stream war {{game}}: www.twitch.tv/{{name}}",
-			"noChannel": "Kein Channel angegeben.",
-			"noGame": "Hey! Gib %s doch einen Follow! Der Kanal ist super",
-			"noUser": "Dieser Nutzer existiert nicht"
-		},
-		"twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
-		"uptime": {
-			"message": "%s, %s ist seit %s live.",
-			"noStream": "%s, %s scheint nicht online zu sein."
-		},
-		"setTitle": {
-			"success": "%s, der Titel wurde geändert zu \"%s\"",
-			"noTitle": "%s, bitte gib einen Titel an.",
-			"failed": "%s, Titel konnte nicht gesetzt werden."
-		},
-		"setGame": {
-			"success": "%s, das Spiel wurde geändrt zu \"%s\"",
-			"noGame": "%s, bitte gib ein Spiel an.",
-			"failed": "%s, Spiel konnte nicht gesetzt werden."
-		},
-		"failed": "%s tut uns leid, der Befehl konnte nicht ausgeführt werden.",
-		"clip": {
-			"notCreated": "Beim Erstellen des Clips ist ein fehler aufgetreten :(",
-			"success": "Clip erstellt: %s",
-			"notFound": "Unser Clip ist verloren gegangen :("
-		}
-	},
-	"filters": {
-		"caps": "zu viel Caps",
-		"currentPoints": " (%d Punkt(e) insgesamt)",
-		"emotes": "zu viele Emotes",
-		"links": "unerlaubte Links",
-		"multiple": " (Mehrere Verstöße)",
-		"spamLetters": "unerlaubte Symbole",
-		"warning": "%s, %s!"
-	}
+    "commands": {
+        "commands": "%s, das sind alle Befehle auf dem Kanal: %s",
+        "counters": {
+            "addDuplicate": "%s, Counter existiert bereits, nutze !counter %s + zum hochzählen.",
+            "addedNew": "%s, Neuer Counter: %s",
+            "deleted": "%s, Counter gelöscht: %s",
+            "doesNotExist": "%s, Counter %s existiert nicht.",
+            "noNameProvided": "%s, Kein Name angegeben.",
+            "showCount": "%s, Der Counter %s hat den Wert %d",
+            "updated": "%s, Der Counter %s wurde aktualisiert und hat nun den Wert %d"
+        },
+        "credit": "%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
+        "discord": "%s, hier ist unser Discord: https://coderoria.com/discord",
+        "donation": "%s, aktuell haben wir keine Spenden, aber danke für den Gedanken <3",
+        "github": "%s, alle Projekte von uns sind hier zu finden: https://coderoria.com/github",
+        "language": {
+            "message": "%s, die Sprache wurde gewechselt.",
+            "noLangGiven": "%s, bitte gebe eine Sprache an, auf die gewechselt werden soll."
+        },
+        "lurk": "%s ist jetzt im Lurk.",
+        "quotes": {
+            "newAdded": "Neues Zitat hinzugefügt: %s",
+            "noQuotes": "Es gibt derzeit keine Zitate :("
+        },
+        "permit": {
+            "noNameProvided": "%s Kein Name angegeben.",
+            "message": "%s, du kannst für die nächsten 60s Links posten."
+        },
+        "shoutout": {
+            "message": "Hey! Gib {{name}} doch einen Follow! Der letzte Stream war {{game}}: www.twitch.tv/{{name}}",
+            "noChannel": "Kein Channel angegeben.",
+            "noGame": "Hey! Gib %s doch einen Follow! Der Kanal ist super",
+            "noUser": "Dieser Nutzer existiert nicht"
+        },
+        "twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
+        "uptime": {
+            "message": "%s, %s ist seit %s live.",
+            "noStream": "%s, %s scheint nicht online zu sein."
+        },
+        "setTitle": {
+            "success": "%s, der Titel wurde geändert zu \"%s\"",
+            "noTitle": "%s, bitte gib einen Titel an.",
+            "failed": "%s, Titel konnte nicht gesetzt werden."
+        },
+        "setGame": {
+            "success": "%s, das Spiel wurde geändrt zu \"%s\"",
+            "noGame": "%s, bitte gib ein Spiel an.",
+            "failed": "%s, Spiel konnte nicht gesetzt werden."
+        },
+        "failed": "%s tut uns leid, der Befehl konnte nicht ausgeführt werden.",
+        "clip": {
+            "notCreated": "Beim Erstellen des Clips ist ein fehler aufgetreten :(",
+            "success": "Clip erstellt: %s",
+            "notFound": "Unser Clip ist verloren gegangen :("
+        }
+    },
+    "filters": {
+        "caps": "zu viel Caps",
+        "currentPoints": " (%d Punkt(e) insgesamt)",
+        "emotes": "zu viele Emotes",
+        "links": "unerlaubte Links",
+        "multiple": " (Mehrere Verstöße)",
+        "spamLetters": "unerlaubte Symbole",
+        "warning": "%s, %s!"
+    }
 }
