@@ -28,7 +28,7 @@
 			"message": "%s, du kannst für die nächsten 60s Links posten."
 		},
 		"shoutout": {
-			"message": "Hey! Gib %s doch einen Follow! Der letzte Stream war %s",
+			"message": "Hey! Gib {{name}} doch einen Follow! Der letzte Stream war {{game}}: www.twitch.tv/{{name}}",
 			"noChannel": "Kein Channel angegeben.",
 			"noGame": "Hey! Gib %s doch einen Follow! Der Kanal ist super",
 			"noUser": "Dieser Nutzer existiert nicht"

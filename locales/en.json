@@ -24,7 +24,7 @@
 			"noQuotes": "There are currently no quotes :("
 		},
 		"shoutout": {
-			"message": "Hey! Consider following %s! Their last stream was %s",
+			"message": "Hey! Consider following {{name}}! Their last stream was {{game}}: www.twitch.tv/{{name}} ",
 			"noChannel": "No channel provided.",
 			"noGame": "Hey! Consider following %s! That channel is amazing",
 			"noUser": "This user does not exist."

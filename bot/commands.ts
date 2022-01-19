@@ -350,11 +350,10 @@ function executeShoutout(bot: Client, matches: string[], userstate: Userstate) {
                     bot.say(channel, __("commands.shoutout.noUser"));
                     return;
                 }
-                let shoutout = __(
-                    "commands.shoutout.message",
-                    matches[0],
-                    lastGameName
-                );
+                let shoutout = __("commands.shoutout.message", {
+                    name: matches[0].replace("@", ""),
+                    game: lastGameName,
+                });
                 bot.say(channel, shoutout);
             }
         );
