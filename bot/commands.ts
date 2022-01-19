@@ -1,12 +1,12 @@
 import { MysqlError } from "mysql";
 import { Client, Userstate } from "tmi.js";
-import __ from "../i18n";
 import getLogger from "../logger";
 import { pool } from "../server/database";
 import * as twitch from "../server/twitchApi";
 import * as filters from "../bot/filters";
 import moment from "moment";
 import Sentry from "@sentry/node";
+import * as i18n from "i18n";
 
 const logger = getLogger("Commands");
 
@@ -162,31 +162,31 @@ function hasPermission(userstate: Userstate, requiredLevel: Level) {
 
 function executeDiscord(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let discord = __("commands.discord", recipient);
+    let discord = i18n.__("commands.discord", recipient);
     bot.say(channel, discord);
 }
 
 function executeTwitter(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let twitter = __("commands.twitter", recipient);
+    let twitter = i18n.__("commands.twitter", recipient);
     bot.say(channel, twitter);
 }
 
 function executeGitHub(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let gitHub = __("commands.github", recipient);
+    let gitHub = i18n.__("commands.github", recipient);
     bot.say(channel, gitHub);
 }
 
 function executeCredit(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let credit = __("commands.credit", recipient);
+    let credit = i18n.__("commands.credit", recipient);
     bot.say(channel, credit);
 }
 
 function executeDonation(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let donation = __("commands.donation", recipient); //LINK MISSING
+    let donation = i18n.__("commands.donation", recipient); //LINK MISSING
     bot.say(channel, donation);
 }
 
@@ -231,7 +231,7 @@ function executeUptime(bot: Client, matches: string[], userstate: Userstate) {
             if (data == null) {
                 bot.say(
                     channel,
-                    __("commands.uptime.noStream", recipient, channel)
+                    i18n.__("commands.uptime.noStream", recipient, channel)
                 );
                 return;
             }
@@ -243,7 +243,7 @@ function executeUptime(bot: Client, matches: string[], userstate: Userstate) {
                 "min" +
                 diff.seconds() +
                 "sec";
-            let message = __(
+            let message = i18n.__(
                 "commands.uptime.message",
                 recipient,
                 channel,
@@ -262,13 +262,13 @@ function executeCommands(bot: Client, matches: string[], userstate: Userstate) {
         commandStrings.push(commands[i].text[0]);
     }
     command = commandStrings.join(", ");
-    let message = __("commands.commands", recipient, command);
+    let message = i18n.__("commands.commands", recipient, command);
     bot.say(channel, message);
 }
 
 function executeLurk(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = userstate.username;
-    let lurk = __("commands.lurk", recipient);
+    let lurk = i18n.__("commands.lurk", recipient);
     bot.say(channel, lurk);
 }
 
@@ -288,7 +288,7 @@ function executeQuotes(bot: Client, matches: string[], userstate: Userstate) {
                     logger.error({ error: error });
                     return;
                 }
-                bot.say(channel, __("commands.quotes.newAdded", newQuote));
+                bot.say(channel, i18n.__("commands.quotes.newAdded", newQuote));
             }
         );
         return;
@@ -302,7 +302,7 @@ function executeQuotes(bot: Client, matches: string[], userstate: Userstate) {
                 return;
             }
             if (dbres.length == 0) {
-                bot.say(channel, __("commands.quotes.noQuotes"));
+                bot.say(channel, i18n.__("commands.quotes.noQuotes"));
                 return;
             }
             bot.say(channel, '"' + dbres[0].quote + '"');
@@ -317,14 +317,14 @@ function executeClip(bot: Client, matches: string[], userstate: Userstate) {
     }
     twitch.createClip(process.env.CHANNEL as string, (clip_url: string) => {
         if (clip_url == null) {
-            bot.say(channel, __("commands.clip.notCreated"));
+            bot.say(channel, i18n.__("commands.clip.notCreated"));
             return;
         }
         if (clip_url === "") {
-            bot.say(channel, __("commands.clip.notFound"));
+            bot.say(channel, i18n.__("commands.clip.notFound"));
             return;
         }
-        bot.say(channel, __("commands.clip.success", clip_url));
+        bot.say(channel, i18n.__("commands.clip.success", clip_url));
     });
 }
 
@@ -333,7 +333,7 @@ function executeClip(bot: Client, matches: string[], userstate: Userstate) {
 function executeShoutout(bot: Client, matches: string[], userstate: Userstate) {
     if (hasPermission(userstate, Level.moderator)) {
         if (!(matches.length > 0)) {
-            bot.say(channel, __("commands.shoutout.noChannel"));
+            bot.say(channel, i18n.__("commands.shoutout.noChannel"));
             return;
         }
         twitch.getLastPlayedName(
@@ -342,15 +342,15 @@ function executeShoutout(bot: Client, matches: string[], userstate: Userstate) {
                 if (lastGameName === "") {
                     bot.say(
                         channel,
-                        __("commands.shoutout.noGame", matches[0])
+                        i18n.__("commands.shoutout.noGame", matches[0])
                     );
                     return;
                 }
                 if (lastGameName === null) {
-                    bot.say(channel, __("commands.shoutout.noUser"));
+                    bot.say(channel, i18n.__("commands.shoutout.noUser"));
                     return;
                 }
-                let shoutout = __("commands.shoutout.message", {
+                let shoutout = i18n.__("commands.shoutout.message", {
                     name: matches[0].replace("@", ""),
                     game: lastGameName,
                 });
@@ -365,12 +365,12 @@ function executePermit(bot: Client, matches: string[], userstate: Userstate) {
         return;
     }
     if (matches.length === 0) {
-        let permitError = __("commands.permit.noNameProvided");
+        let permitError = i18n.__("commands.permit.noNameProvided");
         bot.say(channel, permitError);
         return;
     }
     filters.addPermit(matches[0].replaceAll("@", ""));
-    let permitMessage = __("commands.permit.message", matches[0]);
+    let permitMessage = i18n.__("commands.permit.message", matches[0]);
     bot.say(channel, permitMessage);
 }
 
@@ -381,7 +381,7 @@ function executeSetGame(bot: Client, matches: string[], userstate: Userstate) {
     if (matches.length == 0) {
         bot.say(
             channel,
-            __("commands.setGame.noGame", "@" + userstate["display-name"])
+            i18n.__("commands.setGame.noGame", "@" + userstate["display-name"])
         );
         return;
     }
@@ -389,13 +389,16 @@ function executeSetGame(bot: Client, matches: string[], userstate: Userstate) {
         if (!success) {
             bot.say(
                 channel,
-                __("commands.setGame.failed", "@" + userstate["display-name"])
+                i18n.__(
+                    "commands.setGame.failed",
+                    "@" + userstate["display-name"]
+                )
             );
             return;
         }
         bot.say(
             channel,
-            __(
+            i18n.__(
                 "commands.setGame.success",
                 "@" + userstate["display-name"],
                 gameName
@@ -411,7 +414,10 @@ function executeSetTitle(bot: Client, matches: string[], userstate: Userstate) {
     if (matches.length == 0) {
         bot.say(
             channel,
-            __("commands.setTitle.noTitle", "@" + userstate["display-name"])
+            i18n.__(
+                "commands.setTitle.noTitle",
+                "@" + userstate["display-name"]
+            )
         );
         return;
     }
@@ -419,13 +425,13 @@ function executeSetTitle(bot: Client, matches: string[], userstate: Userstate) {
         if (!success) {
             bot.say(
                 channel,
-                __("commands.failed", "@" + userstate["display-name"])
+                i18n.__("commands.failed", "@" + userstate["display-name"])
             );
             return;
         }
         bot.say(
             channel,
-            __(
+            i18n.__(
                 "commands.setTitle.success",
                 "@" + userstate["display-name"],
                 matches.join(" ")
@@ -442,7 +448,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
         if (matches[1] == null) {
             bot.say(
                 channel,
-                __(
+                i18n.__(
                     "commands.counters.noNameProvided",
                     "@" + userstate["display-name"]
                 )
@@ -457,7 +463,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                     if (error.code === "ER_DUP_KEY") {
                         bot.say(
                             channel,
-                            __(
+                            i18n.__(
                                 "commands.counters.addDuplicate",
                                 "@" + userstate["display-name"],
                                 matches[1]
@@ -470,7 +476,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 }
                 bot.say(
                     channel,
-                    __(
+                    i18n.__(
                         "commands.counters.addedNew",
                         "@" + userstate["display-name"],
                         matches[1]
@@ -485,7 +491,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
         if (matches[1] == null) {
             bot.say(
                 channel,
-                __(
+                i18n.__(
                     "commands.counters.noNameProvided",
                     "@" + userstate["display-name"]
                 )
@@ -504,7 +510,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 if (result.affectedRows === 0) {
                     bot.say(
                         channel,
-                        __(
+                        i18n.__(
                             "commands.counters.doesNotExist",
                             "@" + userstate["display-name"],
                             matches[1]
@@ -514,7 +520,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 }
                 bot.say(
                     channel,
-                    __(
+                    i18n.__(
                         "commands.counters.deleted",
                         "@" + userstate["display-name"],
                         matches[1]
@@ -526,7 +532,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
         if (matches.length == 0) {
             bot.say(
                 channel,
-                __(
+                i18n.__(
                     "commands.counters.noNameProvided",
                     "@" + userstate["display-name"]
                 )
@@ -546,7 +552,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 if (result.length == 0) {
                     bot.say(
                         channel,
-                        __(
+                        i18n.__(
                             "commands.counters.doesNotExist",
                             "@" + userstate["display-name"],
                             matches[0]
@@ -557,7 +563,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 if (matches[1] == null) {
                     bot.say(
                         channel,
-                        __(
+                        i18n.__(
                             "commands.counters.showCount",
                             "@" + userstate["display-name"],
                             matches[0],
@@ -600,7 +606,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                         }
                         bot.say(
                             channel,
-                            __(
+                            i18n.__(
                                 "commands.counters.updated",
                                 "@" + userstate["display-name"],
                                 matches[0],
@@ -617,16 +623,16 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
 //---------------------- Streamer ----------------------
 
 function executeLanguage(bot: Client, matches: string[], userstate: Userstate) {
-    if (!hasPermission(userstate, Level.broadcaster)) {
+    if (!hasPermission(userstate, Level.moderator)) {
         return;
     }
     let recipient = "@" + userstate["display-name"];
     if (matches.length == 0) {
-        bot.say(channel, __("commands.language.noLangGiven", recipient));
+        bot.say(channel, i18n.__("commands.language.noLangGiven", recipient));
         return;
     }
     i18n.setLocale(matches[0]);
-    bot.say(channel, __("commands.language.message", recipient));
+    bot.say(channel, i18n.__("commands.language.message", recipient));
 }
 
 module.exports = {

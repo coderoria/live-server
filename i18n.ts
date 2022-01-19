@@ -7,5 +7,3 @@ i18n.configure({
     register: global,
     autoReload: true,
 });
-
-export default i18n.__;

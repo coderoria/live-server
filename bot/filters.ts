@@ -1,4 +1,4 @@
-import __ from "../i18n";
+import * as i18n from "i18n";
 import { Client, Userstate } from "tmi.js";
 import getLogger from "../logger";
 const logger = getLogger("Filters");
@@ -24,22 +24,22 @@ export function checkMessage(
         checkCaps: {
             function: checkCaps,
             points: 3,
-            reason: __("filters.caps"),
+            reason: i18n.__("filters.caps"),
         },
         checkSpamLetters: {
             function: checkSpamLetters,
             points: 10,
-            reason: __("filters.spamLetters"),
+            reason: i18n.__("filters.spamLetters"),
         },
         checkLinks: {
             function: checkLinks,
             points: 1,
-            reason: __("filters.links"),
+            reason: i18n.__("filters.links"),
         },
         checkEmotes: {
             function: checkEmotes,
             points: 2,
-            reason: __("filters.emotes"),
+            reason: i18n.__("filters.emotes"),
         },
     };
     let violated = false;
@@ -79,11 +79,11 @@ export function checkMessage(
     let multipleActions = "";
 
     if (violations[userstate.username].multiple) {
-        multipleActions = __("filters.multiple");
+        multipleActions = i18n.__("filters.multiple");
     }
 
     let points = violations[userstate.username].points;
-    let currentPoints = __("filters.currentPoints", points);
+    let currentPoints = i18n.__("filters.currentPoints", points);
 
     if (points < 8) {
         bot.deletemessage(channel, userstate.id as string).catch((error) => {
@@ -102,7 +102,7 @@ export function checkMessage(
     }
     bot.say(
         channel,
-        __(
+        i18n.__(
             "filters.warning",
             "@" + userstate["display-name"],
             violations[userstate.username].reason
