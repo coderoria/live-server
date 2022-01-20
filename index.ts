@@ -2,10 +2,10 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 const app = express();
 const server = require("http").createServer(app);
-const io = require("socket.io")(server);
+const io: Server = require("socket.io")(server);
 import cookie from "cookie";
 import "./i18n";
 import * as tmi from "tmi.js";
@@ -16,8 +16,8 @@ import * as eventSub from "./server/eventsub";
 import * as spotify from "./server/spotify";
 import * as filters from "./bot/filters";
 import * as commands from "./bot/commands";
-import Sentry from "@sentry/node";
-import Tracing from "@sentry/tracing";
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
 const logger = getLogger("Index");
 import Pretzel from "./server/pretzel";
 
@@ -222,9 +222,14 @@ io.use((socket: Socket, next: Function) => {
 if (process.argv.includes("--test")) setTimeout(testEvents, 3000);
 
 function testEvents() {
-    io.sockets.emit("channel.follow", {
-        user_name: "wwwwwwwwwwwwwwwwwwx",
-        user_login: "wwwwwwwwwwwwwwwwwwx",
+    io.sockets.on("connect", (socket: Socket) => {
+        socket.on("testAlert", (username: string | null) => {
+            logger.info("Sending test alert");
+            io.sockets.emit("channel.follow", {
+                user_name: username ? username : "Strike",
+                user_login: username ? username.toLowerCase() : "strike",
+            });
+        });
     });
     /* io.sockets.emit(
         "playback",
