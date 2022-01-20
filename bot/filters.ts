@@ -99,6 +99,7 @@ export function checkMessage(
     }
     if (points >= 20) {
         bot.ban(channel, userstate.username);
+        return true;
     }
     bot.say(
         channel,
