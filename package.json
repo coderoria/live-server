@@ -43,7 +43,8 @@
         "pug": "^3.0.2",
         "sinon": "^11.1.1",
         "socket.io": "^4.0.1",
-        "tmi.js": "^1.8.3"
+        "tmi.js": "^1.8.3",
+        "typedoc": "^0.22.11"
     },
     "devDependencies": {
         "@types/express": "^4.17.13",

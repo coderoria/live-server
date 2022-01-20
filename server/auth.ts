@@ -225,12 +225,14 @@ export function getSystemAuth(callback: Function) {
     );
 }
 
-/*
+/**
 Checks that the login_token supplied is valid and checks the user authentication
 against Twitch. If the authentication is invalid, it calls refreshTwitchAuth.
 If this function calls your callback with true,
 you can be sure that 1) the user is an admin and 2) the access_token
 in the database is valid and can be used for requests
+@param token The token supplied with the http request
+@param callback Function to call when operation is done
 */
 export function checkTwitchAuth(token: string, callback: Function) {
     if (token == null) {
