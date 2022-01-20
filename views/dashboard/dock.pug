@@ -3,11 +3,11 @@ block content
     script(src="/socket.io/socket.io.js") 
     script(src="/static/js/dashboard/dock.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js")
-    .container-fluid.text-light.mt-5
-        .row.justify-content-center.h-50.overflow-hidden
+    .container-fluid.mt-4
+        .row.justify-content-center.h-50.overflow-scroll.border.border-dark
             .col
                 .list-group(id="events")
-        .row.justify-content-center
+        .row.justify-content-center.mt-2
             .col
                 form(action="" id="spotify-form") 
                     span 
