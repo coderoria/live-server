@@ -17,7 +17,7 @@ function showPlayBack(img, artists, title) {
         running = true;
 
         let titleAnim, artistsAnim;
-        if (title.length > 26) {
+        if (title.length > 24) {
             titleAnim = titleElement.animate(
                 [
                     { transform: `translateX(${titleElement.clientWidth}px)` },
@@ -29,7 +29,7 @@ function showPlayBack(img, artists, title) {
                 }
             );
         }
-        if (artists.length > 29) {
+        if (artists.length > 27) {
             artistsAnim = artistsElement.animate(
                 [
                     {
