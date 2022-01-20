@@ -48,7 +48,7 @@ function next() {
     if (alert_queue.length == 0) return;
 
     let alert = alert_queue[0];
-    showAlertBox(alert.name, alert.action, alert.details.message);
+    showAlertBox(alert.name, alert.action, alert.details);
 }
 
 socket.on("channel.follow", (event) => {
