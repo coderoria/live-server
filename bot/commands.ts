@@ -10,14 +10,6 @@ import * as i18n from "i18n";
 
 const logger = getLogger("Commands");
 
-enum Level {
-    broadcaster,
-    moderator,
-    vip,
-    subscriber,
-    viewer,
-}
-
 let commands = [
     //USER:
     {
