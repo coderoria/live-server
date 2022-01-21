@@ -15,6 +15,7 @@ enum Level {
     moderator,
     vip,
     subscriber,
+    viewer,
 }
 
 let commands = [
@@ -146,6 +147,9 @@ function findRecipient(matches: string[], userstate: Userstate) {
 }
 
 function hasPermission(userstate: Userstate, requiredLevel: Level) {
+    if (requiredLevel == Level.viewer) {
+        return true;
+    }
     if (userstate.badges == null) {
         return false;
     }
