@@ -99,16 +99,16 @@ export function checkCommand(
     bot: Client,
     message: string,
     userstate: Userstate
-) {
+): boolean {
     const re = /^!(\S*)\s?(.*)?$/m;
     const matches = re.exec(message);
     if (matches == null) {
-        return;
+        return false;
     }
     matches.shift();
     let command = matches.shift();
     if (command == undefined) {
-        return;
+        return false;
     }
     for (let i in commands) {
         if (commands[i].text.includes(command.toLowerCase())) {
@@ -126,8 +126,10 @@ export function checkCommand(
                 matches[0] ? matches[0].split(" ") : [],
                 userstate
             );
+            return true;
         }
     }
+    return false;
 }
 
 function findRecipient(matches: string[], userstate: Userstate) {

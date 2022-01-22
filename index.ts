@@ -20,8 +20,10 @@ import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 const logger = getLogger("Index");
 import Pretzel from "./server/pretzel";
+import CustomCommands from "./bot/CustomCommands";
 
 let bot: tmi.Client;
+let customCommands: CustomCommands;
 
 logger.info("Hosted on " + process.env.HOST);
 
@@ -116,11 +118,15 @@ bot.connect()
         logger.error({ error: error });
     });
 
+customCommands = new CustomCommands(bot, io);
+
 bot.on("message", (channel, userstate, message, self) => {
     if (self) return;
 
     if (!filters.checkMessage(bot, message, userstate)) {
-        commands.checkCommand(bot, message, userstate);
+        if (!customCommands.checkCommand(message, userstate)) {
+            commands.checkCommand(bot, message, userstate);
+        }
     }
 });
 
