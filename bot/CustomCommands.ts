@@ -1,11 +1,12 @@
 import { Server } from "socket.io";
 import { Client, Userstate } from "tmi.js";
+import { Level } from "./Level";
 
 interface CustomCommand {
     name: string;
     aliases: string[];
     requiredLevel: Level;
-    answer: string;
+    answer: object;
 }
 
 export default class CustomCommands {
@@ -30,7 +31,7 @@ export default class CustomCommands {
         name: string,
         aliases: string[],
         requiredLevel: Level,
-        answer: string
+        answer: object
     ): boolean {
         aliases = aliases.map((value) => {
             return value.toLowerCase();
@@ -84,7 +85,9 @@ export default class CustomCommands {
             ) {
                 this.bot.say(
                     process.env.CHANNEL as string,
-                    this.registeredCommands[i].answer
+                    "test"
+                    //TODO: this should be done
+                    //this.registeredCommands[i].answer{}
                 );
                 return true;
             }

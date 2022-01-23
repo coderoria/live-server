@@ -1,4 +1,4 @@
-enum Level {
+export enum Level {
     broadcaster,
     moderator,
     vip,

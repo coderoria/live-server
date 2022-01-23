@@ -6,7 +6,8 @@ import * as twitch from "../server/twitchApi";
 import * as filters from "../bot/filters";
 import moment from "moment";
 import Sentry from "@sentry/node";
-import * as i18n from "i18n";
+import { Level } from "./Level";
+import { changeLanguage, t } from "i18next";
 
 const logger = getLogger("Commands");
 
@@ -164,31 +165,31 @@ function hasPermission(userstate: Userstate, requiredLevel: Level) {
 
 function executeDiscord(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let discord = i18n.__("commands.discord", recipient);
+    let discord = t("commands.discord", { recipient: recipient });
     bot.say(channel, discord);
 }
 
 function executeTwitter(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let twitter = i18n.__("commands.twitter", recipient);
+    let twitter = t("commands.twitter", { recipient: recipient });
     bot.say(channel, twitter);
 }
 
 function executeGitHub(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let gitHub = i18n.__("commands.github", recipient);
+    let gitHub = t("commands.github", { recipient: recipient });
     bot.say(channel, gitHub);
 }
 
 function executeCredit(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let credit = i18n.__("commands.credit", recipient);
+    let credit = t("commands.credit", { recipient: recipient });
     bot.say(channel, credit);
 }
 
 function executeDonation(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = findRecipient(matches, userstate);
-    let donation = i18n.__("commands.donation", recipient); //LINK MISSING
+    let donation = t("commands.donation", { recipient: recipient }); //LINK MISSING
     bot.say(channel, donation);
 }
 
@@ -233,7 +234,10 @@ function executeUptime(bot: Client, matches: string[], userstate: Userstate) {
             if (data == null) {
                 bot.say(
                     channel,
-                    i18n.__("commands.uptime.noStream", recipient, channel)
+                    t("commands.uptime.noStream", {
+                        recipient: recipient,
+                        channel: channel,
+                    })
                 );
                 return;
             }
@@ -245,12 +249,11 @@ function executeUptime(bot: Client, matches: string[], userstate: Userstate) {
                 "min" +
                 diff.seconds() +
                 "sec";
-            let message = i18n.__(
-                "commands.uptime.message",
-                recipient,
-                channel,
-                uptime
-            );
+            let message = t("commands.uptime.message", {
+                recipient: recipient,
+                channel: channel,
+                uptime: uptime,
+            });
             bot.say(channel, message);
         }
     );
@@ -264,13 +267,16 @@ function executeCommands(bot: Client, matches: string[], userstate: Userstate) {
         commandStrings.push(commands[i].text[0]);
     }
     command = commandStrings.join(", ");
-    let message = i18n.__("commands.commands", recipient, command);
+    let message = t("commands.commands", {
+        recipient: recipient,
+        commands: command,
+    });
     bot.say(channel, message);
 }
 
 function executeLurk(bot: Client, matches: string[], userstate: Userstate) {
     let recipient = userstate.username;
-    let lurk = i18n.__("commands.lurk", recipient);
+    let lurk = t("commands.lurk", { recipient: recipient });
     bot.say(channel, lurk);
 }
 
@@ -290,7 +296,10 @@ function executeQuotes(bot: Client, matches: string[], userstate: Userstate) {
                     logger.error({ error: error });
                     return;
                 }
-                bot.say(channel, i18n.__("commands.quotes.newAdded", newQuote));
+                bot.say(
+                    channel,
+                    t("commands.quotes.newAdded", { newQuote: newQuote })
+                );
             }
         );
         return;
@@ -304,7 +313,7 @@ function executeQuotes(bot: Client, matches: string[], userstate: Userstate) {
                 return;
             }
             if (dbres.length == 0) {
-                bot.say(channel, i18n.__("commands.quotes.noQuotes"));
+                bot.say(channel, t("commands.quotes.noQuotes"));
                 return;
             }
             bot.say(channel, '"' + dbres[0].quote + '"');
@@ -319,14 +328,14 @@ function executeClip(bot: Client, matches: string[], userstate: Userstate) {
     }
     twitch.createClip(process.env.CHANNEL as string, (clip_url: string) => {
         if (clip_url == null) {
-            bot.say(channel, i18n.__("commands.clip.notCreated"));
+            bot.say(channel, t("commands.clip.notCreated"));
             return;
         }
         if (clip_url === "") {
-            bot.say(channel, i18n.__("commands.clip.notFound"));
+            bot.say(channel, t("commands.clip.notFound"));
             return;
         }
-        bot.say(channel, i18n.__("commands.clip.success", clip_url));
+        bot.say(channel, t("commands.clip.success", { clip_url: clip_url }));
     });
 }
 
@@ -335,7 +344,7 @@ function executeClip(bot: Client, matches: string[], userstate: Userstate) {
 function executeShoutout(bot: Client, matches: string[], userstate: Userstate) {
     if (hasPermission(userstate, Level.moderator)) {
         if (!(matches.length > 0)) {
-            bot.say(channel, i18n.__("commands.shoutout.noChannel"));
+            bot.say(channel, t("commands.shoutout.noChannel"));
             return;
         }
         twitch.getLastPlayedName(
@@ -344,15 +353,17 @@ function executeShoutout(bot: Client, matches: string[], userstate: Userstate) {
                 if (lastGameName === "") {
                     bot.say(
                         channel,
-                        i18n.__("commands.shoutout.noGame", matches[0])
+                        t("commands.shoutout.noGame", {
+                            recipient: matches[0],
+                        })
                     );
                     return;
                 }
                 if (lastGameName === null) {
-                    bot.say(channel, i18n.__("commands.shoutout.noUser"));
+                    bot.say(channel, t("commands.shoutout.noUser"));
                     return;
                 }
-                let shoutout = i18n.__("commands.shoutout.message", {
+                let shoutout = t("commands.shoutout.message", {
                     name: matches[0].replace("@", ""),
                     game: lastGameName,
                 });
@@ -367,12 +378,16 @@ function executePermit(bot: Client, matches: string[], userstate: Userstate) {
         return;
     }
     if (matches.length === 0) {
-        let permitError = i18n.__("commands.permit.noNameProvided");
+        let permitError = t("commands.permit.noNameProvided", {
+            sender: userstate["display-name"],
+        });
         bot.say(channel, permitError);
         return;
     }
     filters.addPermit(matches[0].replaceAll("@", ""));
-    let permitMessage = i18n.__("commands.permit.message", matches[0]);
+    let permitMessage = t("commands.permit.message", {
+        recipient: matches[0],
+    });
     bot.say(channel, permitMessage);
 }
 
@@ -383,7 +398,9 @@ function executeSetGame(bot: Client, matches: string[], userstate: Userstate) {
     if (matches.length == 0) {
         bot.say(
             channel,
-            i18n.__("commands.setGame.noGame", "@" + userstate["display-name"])
+            t("commands.setGame.noGame", {
+                recipient: "@" + userstate["display-name"],
+            })
         );
         return;
     }
@@ -391,20 +408,18 @@ function executeSetGame(bot: Client, matches: string[], userstate: Userstate) {
         if (!success) {
             bot.say(
                 channel,
-                i18n.__(
-                    "commands.setGame.failed",
-                    "@" + userstate["display-name"]
-                )
+                t("commands.setGame.failed", {
+                    recipient: "@" + userstate["display-name"],
+                })
             );
             return;
         }
         bot.say(
             channel,
-            i18n.__(
-                "commands.setGame.success",
-                "@" + userstate["display-name"],
-                gameName
-            )
+            t("commands.setGame.success", {
+                recipient: "@" + userstate["display-name"],
+                gameName: gameName,
+            })
         );
     });
 }
@@ -416,10 +431,9 @@ function executeSetTitle(bot: Client, matches: string[], userstate: Userstate) {
     if (matches.length == 0) {
         bot.say(
             channel,
-            i18n.__(
-                "commands.setTitle.noTitle",
-                "@" + userstate["display-name"]
-            )
+            t("commands.setTitle.noTitle", {
+                recipient: "@" + userstate["display-name"],
+            })
         );
         return;
     }
@@ -427,17 +441,18 @@ function executeSetTitle(bot: Client, matches: string[], userstate: Userstate) {
         if (!success) {
             bot.say(
                 channel,
-                i18n.__("commands.failed", "@" + userstate["display-name"])
+                t("commands.failed", {
+                    recipient: "@" + userstate["display-name"],
+                })
             );
             return;
         }
         bot.say(
             channel,
-            i18n.__(
-                "commands.setTitle.success",
-                "@" + userstate["display-name"],
-                matches.join(" ")
-            )
+            t("commands.setTitle.success", {
+                recipient: "@" + userstate["display-name"],
+                title: matches.join(" "),
+            })
         );
     });
 }
@@ -450,10 +465,9 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
         if (matches[1] == null) {
             bot.say(
                 channel,
-                i18n.__(
-                    "commands.counters.noNameProvided",
-                    "@" + userstate["display-name"]
-                )
+                t("commands.counters.noNameProvided", {
+                    recipient: "@" + userstate["display-name"],
+                })
             );
             return;
         }
@@ -465,11 +479,10 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                     if (error.code === "ER_DUP_KEY") {
                         bot.say(
                             channel,
-                            i18n.__(
-                                "commands.counters.addDuplicate",
-                                "@" + userstate["display-name"],
-                                matches[1]
-                            )
+                            t("commands.counters.addDuplicate", {
+                                recipient: "@" + userstate["display-name"],
+                                counter: matches[1],
+                            })
                         );
                         return;
                     }
@@ -478,11 +491,10 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 }
                 bot.say(
                     channel,
-                    i18n.__(
-                        "commands.counters.addedNew",
-                        "@" + userstate["display-name"],
-                        matches[1]
-                    )
+                    t("commands.counters.addedNew", {
+                        recipient: "@" + userstate["display-name"],
+                        counter: matches[1],
+                    })
                 );
             }
         );
@@ -493,10 +505,9 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
         if (matches[1] == null) {
             bot.say(
                 channel,
-                i18n.__(
-                    "commands.counters.noNameProvided",
-                    "@" + userstate["display-name"]
-                )
+                t("commands.counters.noNameProvided", {
+                    recipient: "@" + userstate["display-name"],
+                })
             );
             return;
         }
@@ -512,21 +523,19 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 if (result.affectedRows === 0) {
                     bot.say(
                         channel,
-                        i18n.__(
-                            "commands.counters.doesNotExist",
-                            "@" + userstate["display-name"],
-                            matches[1]
-                        )
+                        t("commands.counters.doesNotExist", {
+                            recipient: "@" + userstate["display-name"],
+                            counter: matches[1],
+                        })
                     );
                     return;
                 }
                 bot.say(
                     channel,
-                    i18n.__(
-                        "commands.counters.deleted",
-                        "@" + userstate["display-name"],
-                        matches[1]
-                    )
+                    t("commands.counters.deleted", {
+                        recipient: "@" + userstate["display-name"],
+                        counter: matches[1],
+                    })
                 );
             }
         );
@@ -534,10 +543,9 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
         if (matches.length == 0) {
             bot.say(
                 channel,
-                i18n.__(
-                    "commands.counters.noNameProvided",
-                    "@" + userstate["display-name"]
-                )
+                t("commands.counters.noNameProvided", {
+                    recipient: "@" + userstate["display-name"],
+                })
             );
             return;
         }
@@ -554,23 +562,21 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                 if (result.length == 0) {
                     bot.say(
                         channel,
-                        i18n.__(
-                            "commands.counters.doesNotExist",
-                            "@" + userstate["display-name"],
-                            matches[0]
-                        )
+                        t("commands.counters.doesNotExist", {
+                            recipient: "@" + userstate["display-name"],
+                            counter: matches[0],
+                        })
                     );
                     return;
                 }
                 if (matches[1] == null) {
                     bot.say(
                         channel,
-                        i18n.__(
-                            "commands.counters.showCount",
-                            "@" + userstate["display-name"],
-                            matches[0],
-                            result[0].count.toString()
-                        )
+                        t("commands.counters.showCount", {
+                            recipient: "@" + userstate["display-name"],
+                            counter: matches[0],
+                            count: result[0].count,
+                        })
                     );
                     return;
                 }
@@ -608,12 +614,11 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
                         }
                         bot.say(
                             channel,
-                            i18n.__(
-                                "commands.counters.updated",
-                                "@" + userstate["display-name"],
-                                matches[0],
-                                points.toString()
-                            )
+                            t("commands.counters.updated", {
+                                recipient: "@" + userstate["display-name"],
+                                counter: matches[0],
+                                count: points,
+                            })
                         );
                     }
                 );
@@ -624,17 +629,24 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
 
 //---------------------- Streamer ----------------------
 
-function executeLanguage(bot: Client, matches: string[], userstate: Userstate) {
+async function executeLanguage(
+    bot: Client,
+    matches: string[],
+    userstate: Userstate
+) {
     if (!hasPermission(userstate, Level.moderator)) {
         return;
     }
     let recipient = "@" + userstate["display-name"];
     if (matches.length == 0) {
-        bot.say(channel, i18n.__("commands.language.noLangGiven", recipient));
+        bot.say(
+            channel,
+            t("commands.language.noLangGiven", { recipient: recipient })
+        );
         return;
     }
-    i18n.setLocale(matches[0]);
-    bot.say(channel, i18n.__("commands.language.message", recipient));
+    await changeLanguage(matches[0]);
+    bot.say(channel, t("commands.language.message", { recipient: recipient }));
 }
 
 module.exports = {

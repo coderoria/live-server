@@ -1,57 +1,57 @@
 {
     "commands": {
-        "commands": "%s, das sind alle Befehle auf dem Kanal: %s",
+        "commands": "{{recipient}}, das sind alle Befehle auf dem Kanal: {{commands}}",
         "counters": {
             "addDuplicate": "%s, Counter existiert bereits, nutze !counter %s + zum hochzählen.",
-            "addedNew": "%s, Neuer Counter: %s",
-            "deleted": "%s, Counter gelöscht: %s",
-            "doesNotExist": "%s, Counter %s existiert nicht.",
-            "noNameProvided": "%s, Kein Name angegeben.",
-            "showCount": "%s, Der Counter %s hat den Wert %d",
-            "updated": "%s, Der Counter %s wurde aktualisiert und hat nun den Wert %d"
+            "addedNew": "{{recipient}}, Neuer Counter: {{counter}}",
+            "deleted": "{{recipient}}, Counter gelöscht: {{counter}}",
+            "doesNotExist": "{{recipient}}, Counter {{counter}} existiert nicht.",
+            "noNameProvided": "{{recipient}}, Kein Name angegeben.",
+            "showCount": "{{recipient}}, Der Counter {{counter}} hat den Wert {{count}}",
+            "updated": "{{recipient}}, Der Counter {{counter}} wurde aktualisiert und hat nun den Wert {{count}}"
         },
-        "credit": "%s, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
-        "discord": "%s, hier ist unser Discord: https://coderoria.com/discord",
-        "donation": "%s, aktuell haben wir keine Spenden, aber danke für den Gedanken <3",
-        "github": "%s, alle Projekte von uns sind hier zu finden: https://coderoria.com/github",
+        "credit": "{{recipient}}, Unser Overlay basiert auf dem Icon-Pack BeautyLine: https://www.gnome-look.org/p/1425426/",
+        "discord": "{{recipient}}, hier ist unser Discord: https://coderoria.com/discord",
+        "donation": "{{recipient}}, aktuell haben wir keine Spenden, aber danke für den Gedanken <3",
+        "github": "{{recipient}}, alle Projekte von uns sind hier zu finden: https://coderoria.com/github",
         "language": {
-            "message": "%s, die Sprache wurde gewechselt.",
-            "noLangGiven": "%s, bitte gebe eine Sprache an, auf die gewechselt werden soll."
+            "message": "{{recipient}}, die Sprache wurde gewechselt.",
+            "noLangGiven": "{{recipient}}, bitte gebe eine Sprache an, auf die gewechselt werden soll."
         },
-        "lurk": "%s ist jetzt im Lurk.",
+        "lurk": "{{recipient}} ist jetzt im Lurk.",
         "quotes": {
-            "newAdded": "Neues Zitat hinzugefügt: %s",
+            "newAdded": "Neues Zitat hinzugefügt: {{newQuote}}",
             "noQuotes": "Es gibt derzeit keine Zitate :("
         },
         "permit": {
-            "noNameProvided": "%s Kein Name angegeben.",
-            "message": "%s, du kannst für die nächsten 60s Links posten."
+            "noNameProvided": "{{sender}}, kein Name angegeben.",
+            "message": "{{recipient}}, du kannst für die nächsten 60s Links posten."
         },
         "shoutout": {
             "message": "Hey! Gib {{name}} doch einen Follow! Der letzte Stream war {{game}}: www.twitch.tv/{{name}}",
             "noChannel": "Kein Channel angegeben.",
-            "noGame": "Hey! Gib %s doch einen Follow! Der Kanal ist super",
+            "noGame": "Hey! Gib {{name}} doch einen Follow! Der Kanal ist super",
             "noUser": "Dieser Nutzer existiert nicht"
         },
-        "twitter": "%s, unser Twitter-Account: https://coderoria.com/twitter",
+        "twitter": "{{recipient}}, unser Twitter-Account: https://coderoria.com/twitter",
         "uptime": {
-            "message": "%s, %s ist seit %s live.",
-            "noStream": "%s, %s scheint nicht online zu sein."
+            "message": "{{recipient}}, {{channel}} ist seit {{uptime}} live.",
+            "noStream": "{{recipient}}, {{channel}} scheint nicht online zu sein."
         },
         "setTitle": {
-            "success": "%s, der Titel wurde geändert zu \"%s\"",
-            "noTitle": "%s, bitte gib einen Titel an.",
-            "failed": "%s, Titel konnte nicht gesetzt werden."
+            "success": "{{recipient}}, der Titel wurde geändert zu \"{{title}}\"",
+            "noTitle": "{{recipient}}, bitte gib einen Titel an.",
+            "failed": "{{recipient}}, Titel konnte nicht gesetzt werden."
         },
         "setGame": {
-            "success": "%s, das Spiel wurde geändrt zu \"%s\"",
-            "noGame": "%s, bitte gib ein Spiel an.",
-            "failed": "%s, Spiel konnte nicht gesetzt werden."
+            "success": "{{recipient}}, das Spiel wurde geändrt zu \"{{gameName}}\"",
+            "noGame": "{{recipient}}, bitte gib ein Spiel an.",
+            "failed": "{{recipient}}, Spiel konnte nicht gesetzt werden."
         },
-        "failed": "%s tut uns leid, der Befehl konnte nicht ausgeführt werden.",
+        "failed": "{{recipient}} tut uns leid, der Befehl konnte nicht ausgeführt werden.",
         "clip": {
             "notCreated": "Beim Erstellen des Clips ist ein fehler aufgetreten :(",
-            "success": "Clip erstellt: %s",
+            "success": "Clip erstellt: {{clip_url}}",
             "notFound": "Unser Clip ist verloren gegangen :("
         }
     },
