@@ -3,46 +3,46 @@
 name: CI
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-    formatting:
-        runs-on: ubuntu-latest
+  formatting:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
-              with:
-                  node-version: "16"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
 
-            - name: Preparing for CI
-              run: npm ci
+      - name: Preparing for CI
+        run: npm ci
 
-            - name: Checking format
-              run: npx prettier -c .
+      - name: Checking format
+        run: npx prettier -c .
 
-    # test:
-    #     runs-on: ubuntu-latest
+  # test:
+  #     runs-on: ubuntu-latest
 
-    #     steps:
-    #         - uses: actions/checkout@v2
-    #         - uses: actions/setup-node@v2
-    #           with:
-    #               node-version: "16"
+  #     steps:
+  #         - uses: actions/checkout@v2
+  #         - uses: actions/setup-node@v2
+  #           with:
+  #               node-version: "16"
 
-    #         - name: Preparing for CI
-    #           run: npm ci
+  #         - name: Preparing for CI
+  #           run: npm ci
 
-    #         - uses: paambaati/codeclimate-action@v2.7.2
-    #           name: Running tests
-    #           env:
-    #               CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-    #           with:
-    #               coverageCommand: npm test
-    #               coverageLocations: ${{github.workspace}}/.nyc_output/*.json:lcov
-    #               debug: false
+  #         - uses: paambaati/codeclimate-action@v2.7.2
+  #           name: Running tests
+  #           env:
+  #               CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+  #           with:
+  #               coverageCommand: npm test
+  #               coverageLocations: ${{github.workspace}}/.nyc_output/*.json:lcov
+  #               debug: false

@@ -1,20 +1,20 @@
 # Contributing to the live-server project
 
--   Install the project according to the instructions in the [README](README.md)
--   Instead of running `npm serve`, you can use `npm test` to emulate events after startup (follows, donations, etc)
--   To learn about PUG Templating, see [Pugjs.org](https://pugjs.org)
+- Install the project according to the instructions in the [README](README.md)
+- Instead of running `npm serve`, you can use `npm test` to emulate events after startup (follows, donations, etc)
+- To learn about PUG Templating, see [Pugjs.org](https://pugjs.org)
 
 ## Directory Structure
 
--   bot (bot functions)
--   static (static assets like scripts, styling, ...)
-    -   css
-    -   fonts
-    -   img
-    -   js
--   views (PUG web templates)
-    -   overlays (base overlay templates)
-        -   parts (components of overlays like alertbox)
+- bot (bot functions)
+- static (static assets like scripts, styling, ...)
+  - css
+  - fonts
+  - img
+  - js
+- views (PUG web templates)
+  - overlays (base overlay templates)
+    - parts (components of overlays like alertbox)
 
 ## Creating new overlay components
 
@@ -32,8 +32,8 @@ block content
 
 ### Notes
 
--   The base overlay template handles the connection to the server.
--   Your components html element should have an attribute named `data-function` containing the name of the function that should be called whenever an event happens
+- The base overlay template handles the connection to the server.
+- Your components html element should have an attribute named `data-function` containing the name of the function that should be called whenever an event happens
 
 ```js
 // alertbox.pug
@@ -47,12 +47,12 @@ function addAlert(name, action, message) {
 }
 ```
 
--   If you want your components function to be called, add it to `/static/js/overlay.js`:
+- If you want your components function to be called, add it to `/static/js/overlay.js`:
 
 ```js
 socket.on("follow", (userstate, message, self) => {
-    let alertBox = document.querySelector(".alert-box");
-    if (alertBox == undefined) return; //the component doesn't have to be loaded!
-    window[alertBox.dataset.function](userstate["username"], "follow", message);
+  let alertBox = document.querySelector(".alert-box");
+  if (alertBox == undefined) return; //the component doesn't have to be loaded!
+  window[alertBox.dataset.function](userstate["username"], "follow", message);
 });
 ```
