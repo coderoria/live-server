@@ -1,32 +1,32 @@
 extends parts/site
 block content 
-    script(src="/socket.io/socket.io.js") 
-    script(src="/static/js/dashboard/dock.js")
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js")
-    .container-fluid.mt-4
-        .row.justify-content-center.h-50.overflow-scroll.border.border-dark
-            .col
-                .list-group(id="events")
-        .row.justify-content-center.mt-2
-            .col
-                form(action="" id="spotify-form") 
-                    span 
-                        i.fab.fa-spotify.me-2
-                        span Spotify 
-                        .spinner-border.spinner-border-sm(style="display: none;")
-                        each user in spotify
-                            .form-check
-                                input.form-check-input(type="radio" id="spotify-user-"+user value=user)
-                                .form-check-label(for="spotify-user-"+user)
-                                    span= user
-            .col
-                form(action="" id="pretzel-form") 
-                    span 
-                        i.fab.fa-pretzel.me-2
-                        span Pretzel 
-                        .spinner-border.spinner-border-sm(style="display: none;")
-                        each user in pretzel
-                            .form-check
-                                input.form-check-input(type="radio" id="pretzel-user-"+user value=user)
-                                .form-check-label(for="pretzel-user-"+user)
-                                    span= user
+  script(src="/socket.io/socket.io.js") 
+  script(src="/static/js/dashboard/dock.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js")
+  .container-fluid.mt-4
+    .row.justify-content-center.h-50.overflow-scroll.border.border-dark
+      .col
+          .list-group(id="events")
+    .row.justify-content-center.mt-2
+      .col
+        form(action="" id="spotify-form") 
+          span 
+            i.fab.fa-spotify.me-2
+            span Spotify 
+            .spinner-border.spinner-border-sm(style="display: none;")
+            each user in spotify
+              .form-check
+                input.form-check-input(type="radio" id="spotify-user-"+user value=user)
+                .form-check-label(for="spotify-user-"+user)
+                  span= user
+      .col
+        form(action="" id="pretzel-form") 
+          span 
+            i.fab.fa-pretzel.me-2
+            span Pretzel 
+            .spinner-border.spinner-border-sm(style="display: none;")
+            each user in pretzel
+              .form-check
+                input.form-check-input(type="radio" id="pretzel-user-"+user value=user)
+                .form-check-label(for="pretzel-user-"+user)
+                  span= user

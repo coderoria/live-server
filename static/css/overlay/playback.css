@@ -1,55 +1,55 @@
 body {
-    overflow: hidden;
-    font-family: monospace;
+  overflow: hidden;
+  font-family: monospace;
 }
 
 .playback-box {
-    position: absolute;
-    bottom: -120px;
-    background-color: #1f1f2d;
-    border-radius: 0px 10px 0px 0px;
-    box-shadow: 0px 0px 6px -1px black;
-    max-width: 390px;
-    height: 105px;
-    left: 50%;
-    transform: translateX(-50%);
-    overflow: hidden;
+  position: absolute;
+  bottom: -120px;
+  background-color: #1f1f2d;
+  border-radius: 0px 10px 0px 0px;
+  box-shadow: 0px 0px 6px -1px black;
+  max-width: 390px;
+  height: 105px;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
 }
 
 .playback-info-wrapper {
-    display: flex;
+  display: flex;
 }
 
 .playback-image {
-    height: 100px;
+  height: 100px;
 }
 
 .playback-text-container {
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: 1em;
-    margin-right: 1em;
-    color: white;
-    overflow-x: hidden;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 1em;
+  margin-right: 1em;
+  color: white;
+  overflow-x: hidden;
 }
 
 .playback-title {
-    font-size: large;
-    white-space: nowrap;
+  font-size: large;
+  white-space: nowrap;
 }
 
 .playback-artists {
-    text-align: center;
-    white-space: nowrap;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .duration {
-    background: linear-gradient(
-        90deg,
-        rgba(222, 54, 129, 1) 0%,
-        rgba(249, 110, 115, 1) 100%
-    );
-    width: 100%;
-    height: 5px;
-    align-self: flex-end;
+  background: linear-gradient(
+    90deg,
+    rgba(222, 54, 129, 1) 0%,
+    rgba(249, 110, 115, 1) 100%
+  );
+  width: 100%;
+  height: 5px;
+  align-self: flex-end;
 }

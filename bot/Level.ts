@@ -1,7 +1,7 @@
 export enum Level {
-    broadcaster,
-    moderator,
-    vip,
-    subscriber,
-    viewer,
+  broadcaster,
+  moderator,
+  vip,
+  subscriber,
+  viewer,
 }

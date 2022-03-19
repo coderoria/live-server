@@ -1,18 +1,20 @@
 import * as i18n from "i18next";
 import resourcesToBackend from "i18next-resources-to-backend";
 
-i18n.use(
+i18n
+  .use(
     resourcesToBackend((language, namespace, callback) => {
-        import(`../locales/${language}.json`)
-            .then((resources) => {
-                callback(null, resources);
-            })
-            .catch((error) => {
-                callback(error, null);
-            });
+      import(`../locales/${language}.json`)
+        .then((resources) => {
+          callback(null, resources);
+        })
+        .catch((error) => {
+          callback(error, null);
+        });
     })
-).init({
+  )
+  .init({
     lng: "en",
     fallbackLng: "en",
     debug: true,
-});
+  });

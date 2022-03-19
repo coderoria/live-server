@@ -1,28 +1,28 @@
 head 
-    title= title 
-    link(rel="stylesheet", href="/static/css/site.css")
-    link(rel="stylesheet", href="/static/css/bootstrap.css")
-    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css")
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/js/bootstrap.bundle.min.js") 
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js") 
-    meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
-    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+  title= title 
+  link(rel="stylesheet", href="/static/css/site.css")
+  link(rel="stylesheet", href="/static/css/bootstrap.css")
+  link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.1/js/bootstrap.bundle.min.js") 
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js") 
+  meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
+  meta(name="viewport", content="width=device-width, initial-scale=1.0")
 body
-    nav.navbar.bg-transparent.navbar-light.navbar-expand-lg
-        .container-fluid 
-            span.navbar-brand.mb-0.h1 CodeRoria
-            button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbar")
-                span.navbar-toggler-icon
-            .collapse.navbar-collapse(id="navbar")
-                ul.navbar-nav.me-auto.mb-2.mb-lg-0 
-                    li.nav-item
-                        a.nav-link.active(href="/")
-                            i.fas.fa-home.me-1
-                            span Home
-                    li.nav-item
-                        a.nav-link.active(href="/dock")
-                            i.fas.fa-sliders-h.me-1
-                            span Dock
-                - if(username)
-                    span.navbar-text= username
-    block content
+  nav.navbar.bg-transparent.navbar-light.navbar-expand-lg
+    .container-fluid 
+      span.navbar-brand.mb-0.h1 CodeRoria
+      button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbar")
+        span.navbar-toggler-icon
+      .collapse.navbar-collapse(id="navbar")
+        ul.navbar-nav.me-auto.mb-2.mb-lg-0 
+          li.nav-item
+            a.nav-link.active(href="/")
+              i.fas.fa-home.me-1
+              span Home
+          li.nav-item
+            a.nav-link.active(href="/dock")
+              i.fas.fa-sliders-h.me-1
+              span Dock
+        - if(username)
+              span.navbar-text= username
+  block content
