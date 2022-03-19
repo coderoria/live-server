@@ -46,7 +46,7 @@
         "socket.io": "^4.0.1",
         "tmi.js": "^1.5.0",
         "typedoc": "^0.22.11",
-	"nanoid": "^3.1.31"
+        "nanoid": "^3.1.31"
     },
     "devDependencies": {
         "@types/express": "^4.17.13",
