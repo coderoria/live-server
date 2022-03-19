@@ -316,7 +316,8 @@ function playBackNotification() {
                             );
                             logger.debug(
                                 "progress < duration / 4. Rescheduling in " +
-                                    (duration / 4 - progress + 1000)
+                                    (duration / 4 - progress + 1000) +
+                                    "ms"
                             );
                             return;
                         } else if (
@@ -329,7 +330,8 @@ function playBackNotification() {
                             );
                             logger.debug(
                                 "In the middle. Rescheduling in " +
-                                    (duration / 1.25 - progress + 1000)
+                                    (duration / 1.25 - progress + 1000) +
+                                    "ms"
                             );
                         } else {
                             setTimeout(
