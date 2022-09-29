@@ -1,7 +1,6 @@
 let express = require("express");
 export let router = express.Router();
 const axios = require("axios");
-const mysql = require("mysql");
 import crypto from "crypto";
 import { Request, Response } from "express";
 import { Server } from "socket.io";

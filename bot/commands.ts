@@ -1,4 +1,3 @@
-import { MysqlError } from "mysql";
 import { Client, Userstate } from "tmi.js";
 import getLogger from "../logger";
 import { pool } from "../server/database";
@@ -296,7 +295,7 @@ function executeQuotes(bot: Client, matches: string[], userstate: Userstate) {
   }
   pool.query(
     "SELECT * FROM quotes ORDER BY RAND() LIMIT 1;",
-    (error: MysqlError, dbres: Array<{ quote: string }>) => {
+    (error: QueryError, dbres: Array<{ quote: string }>) => {
       if (error) {
         Sentry.captureException(error);
         logger.error({ error: error });
