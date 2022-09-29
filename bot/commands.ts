@@ -8,6 +8,7 @@ import moment from "moment";
 import Sentry from "@sentry/node";
 import { Level } from "./Level";
 import { changeLanguage, t } from "i18next";
+import { OkPacket, QueryError, RowDataPacket } from "mysql2";
 
 const logger = getLogger("Commands");
 
@@ -282,7 +283,7 @@ function executeQuotes(bot: Client, matches: string[], userstate: Userstate) {
     pool.query(
       "INSERT INTO quotes (quote) VALUES (?);",
       newQuote,
-      (error: MysqlError | null) => {
+      (error: QueryError | null) => {
         if (error) {
           Sentry.captureException(error);
           logger.error({ error: error });
@@ -463,7 +464,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
     pool.query(
       "INSERT INTO counter (name) VALUES (?);",
       matches[1].toLowerCase(),
-      (error: MysqlError | null) => {
+      (error: QueryError | null) => {
         if (error) {
           if (error.code === "ER_DUP_KEY") {
             bot.say(
@@ -503,7 +504,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
     pool.query(
       "DELETE FROM counter WHERE name = ?;",
       matches[1].toLowerCase(),
-      (error: MysqlError | null, result: { affectedRows: number }) => {
+      (error: QueryError | null, result: OkPacket) => {
         if (error) {
           Sentry.captureException(error);
           logger.error({ error: error });
@@ -541,7 +542,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
     pool.query(
       "SELECT * FROM counter WHERE name = ?;",
       matches[0].toLowerCase(),
-      (error: MysqlError | null, result: Array<{ count: number }>) => {
+      (error: QueryError | null, result: RowDataPacket[]) => {
         if (error) {
           Sentry.captureException(error);
           logger.error({ error: error });
@@ -595,7 +596,7 @@ function executeCounters(bot: Client, matches: string[], userstate: Userstate) {
         pool.query(
           "UPDATE counter SET count = ? WHERE name = ?;",
           [points, matches[0].toLowerCase()],
-          (error: MysqlError | null) => {
+          (error: QueryError | null) => {
             if (error) {
               Sentry.captureException(error);
               logger.error({ error: error });

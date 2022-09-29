@@ -7,6 +7,7 @@ import { pool } from "./database";
 const qs = require("querystring");
 import * as auth from "./auth";
 import getLogger from "../logger";
+import { RowDataPacket } from "mysql2";
 const logger = getLogger("Spotify");
 const Sentry = require("@sentry/node");
 export let router = express.Router();
@@ -38,7 +39,7 @@ export function setIO(socket: Server) {
       pool.query(
         `SELECT id FROM spotify JOIN admins ON admins.user_id=spotify.twitch_id WHERE admins.username=?;`,
         user,
-        (error, dbres) => {
+        (error, dbres: RowDataPacket[]) => {
           if (error) {
             Sentry.captureException(error);
             logger.error({ error: error });
@@ -165,7 +166,7 @@ function checkAuth(id: number) {
     pool.query(
       "SELECT access_token FROM spotify WHERE id=?;",
       id,
-      (error, res) => {
+      (error, res: RowDataPacket[]) => {
         if (error) {
           Sentry.captureException(error);
           logger.error({ error: error });
@@ -200,7 +201,7 @@ function refreshAuth(id: number) {
     pool.query(
       "SELECT `refresh_token` FROM `spotify` WHERE `id`=?;",
       id,
-      (error, dbres) => {
+      (error, dbres: RowDataPacket[]) => {
         if (error) {
           Sentry.captureException(error);
           logger.error({ error: error });
@@ -274,7 +275,7 @@ function playBackNotification() {
     pool.query(
       "SELECT access_token FROM spotify WHERE id=?;",
       usedId,
-      (error, res) => {
+      (error, res: RowDataPacket[]) => {
         if (error) {
           logger.error({ error: error });
           return;
@@ -346,7 +347,7 @@ export function getAvailableUsernames() {
   return new Promise<Array<string>>((resolve, reject) => {
     pool.query(
       `SELECT username FROM admins JOIN spotify ON spotify.twitch_id=admins.user_id;`,
-      (error, res) => {
+      (error, res: RowDataPacket[]) => {
         if (error) {
           logger.error({ error: error });
           reject(error);

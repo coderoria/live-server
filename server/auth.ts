@@ -8,6 +8,7 @@ import { MysqlError } from "mysql";
 import { pool } from "./database";
 const Sentry = require("@sentry/node");
 import getLogger from "../logger";
+import { OkPacket, QueryError, RowDataPacket } from "mysql2";
 const logger = getLogger("Auth");
 
 router.get("/auth/twitch", (req: Request, res: Response) => {
@@ -59,7 +60,7 @@ router.get("/auth/twitch", (req: Request, res: Response) => {
               "UPDATE `admins` SET `username`=?, " +
                 "`access_token`=?, `refresh_token`=?, `login_token`=? WHERE `user_id`=?;",
               [username, access_token, refresh_token, login_token, user_id],
-              (error: MysqlError | null, dbres: { affectedRows: number }) => {
+              (error: QueryError | null, dbres: OkPacket) => {
                 if (error) {
                   Sentry.captureException(error);
                   logger.error({ error: error });
@@ -115,7 +116,7 @@ export function addUser(name: string, callback: Function) {
           pool.query(
             "INSERT INTO `admins` (`user_id`, `username`) VALUES (?,?);",
             [user_id, name],
-            (error: MysqlError | null) => {
+            (error: QueryError | null) => {
               if (error) {
                 Sentry.captureException(error);
                 logger.error({ error: error });
@@ -153,7 +154,7 @@ export function authSystem(callback: Function) {
       pool.query(
         "REPLACE INTO `admins` (`user_id`, `access_token`) VALUES(?,?);",
         [-1, access_token],
-        (error: MysqlError | null, dbres: []) => {
+        (error: QueryError | null, dbres: []) => {
           if (error) {
             Sentry.captureException(error);
             logger.error({ error: error });
@@ -221,14 +222,7 @@ export function checkTwitchAuth(token: string, callback: Function) {
   pool.query(
     "SELECT * FROM `admins` WHERE `login_token`=?;",
     token,
-    (
-      error: MysqlError | null,
-      dbres: Array<{
-        access_token: string;
-        username: string;
-        user_id: number;
-      }>
-    ) => {
+    (error: QueryError | null, dbres: RowDataPacket[]) => {
       if (error) {
         Sentry.captureException(error);
         logger.error({ error: error });
@@ -264,14 +258,7 @@ export function checkTwitchAuthByName(username: string, callback: Function) {
   pool.query(
     "SELECT * FROM admins WHERE username = ?;",
     username,
-    (
-      error: MysqlError | null,
-      dbres: Array<{
-        access_token: string;
-        username: string;
-        user_id: number;
-      }>
-    ) => {
+    (error: QueryError | null, dbres: RowDataPacket[]) => {
       if (error) {
         Sentry.captureException(error);
         logger.error({ error: error });
@@ -304,7 +291,7 @@ export function refreshTwitchAuth(user_id: number, callback: Function) {
   pool.query(
     "SELECT `refresh_token` FROM `admins` WHERE `user_id`=?;",
     user_id,
-    (error: MysqlError | null, dbres: Array<{ refresh_token: string }>) => {
+    (error: QueryError | null, dbres: RowDataPacket[]) => {
       if (error) {
         Sentry.captureException(error);
         logger.error(error);
@@ -328,7 +315,7 @@ export function refreshTwitchAuth(user_id: number, callback: Function) {
             pool.query(
               "UPDATE `admins` SET `access_token`=?, `refresh_token`=? WHERE `user_id`=?;",
               [access_token, refresh_token, user_id],
-              (error: MysqlError | null) => {
+              (error: QueryError | null) => {
                 if (error) {
                   Sentry.captureException(error);
                   logger.error({ error: error });
@@ -376,7 +363,7 @@ export function getUserIdByToken(token: string) {
     pool.query(
       "SELECT `user_id` FROM `admins` WHERE `login_token`=?;",
       token,
-      (error: MysqlError | null, res: Array<{ user_id: number }>) => {
+      (error: QueryError | null, res: RowDataPacket[]) => {
         if (error) {
           reject(error);
           return;
@@ -400,7 +387,7 @@ export function getAccessTokenByName(username: string, callback: Function) {
     pool.query(
       "SELECT access_token FROM admins WHERE username=?;",
       username,
-      (error: MysqlError | null, dbres: Array<{ access_token: string }>) => {
+      (error: QueryError | null, dbres: RowDataPacket[]) => {
         if (error) {
           logger.error({ error: error });
           return;

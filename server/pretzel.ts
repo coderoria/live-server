@@ -1,3 +1,4 @@
+import { RowDataPacket } from "mysql2";
 import { Server, Socket } from "socket.io";
 import getLogger from "../logger";
 import { pool } from "./database";
@@ -16,7 +17,7 @@ export default class Pretzel {
         pool.query(
           "SELECT user_id FROM admins WHERE username=?;",
           user,
-          (error, dbres) => {
+          (error, dbres: RowDataPacket[]) => {
             if (error) {
               Sentry.captureException(error);
               logger.severe({ error: error });
@@ -40,7 +41,7 @@ export default class Pretzel {
     return new Promise((resolve, reject) => {
       pool.query(
         "SELECT username FROM admins WHERE user_id > 0;",
-        (error, dbres) => {
+        (error, dbres: RowDataPacket[]) => {
           if (error) {
             Sentry.captureException(error);
             logger.error({ error: error });
