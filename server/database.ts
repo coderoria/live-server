@@ -1,4 +1,4 @@
-import * as mysql from "mysql";
-export var pool: mysql.Pool = mysql.createPool(
-  <string>process.env.DATABASE_URL
-);
+import * as mysql from "mysql2";
+export var pool: mysql.Pool = mysql.createPool({
+  uri: process.env.DATABASE_URL,
+});

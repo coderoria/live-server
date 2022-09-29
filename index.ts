@@ -21,6 +21,7 @@ import * as Tracing from "@sentry/tracing";
 const logger = getLogger("Index");
 import Pretzel from "./server/pretzel";
 import CustomCommands from "./bot/CustomCommands";
+import { OkPacket } from "mysql2";
 
 let bot: tmi.Client;
 let customCommands: CustomCommands;
@@ -38,7 +39,7 @@ Sentry.init({
 
 pool.query(
   "CREATE TABLE IF NOT EXISTS `admins` ( `user_id` INT NOT NULL , `username` VARCHAR(50) , `access_token` VARCHAR(255) , `refresh_token` VARCHAR(255) , `login_token` VARCHAR(255) , PRIMARY KEY (`user_id`)) ENGINE = InnoDB;",
-  (error, dbres) => {
+  (error, dbres: OkPacket) => {
     if (error) {
       Sentry.captureException(error);
       logger.error(error);
