@@ -1,10 +1,8 @@
 let express = require("express");
 export let router = express.Router();
 const axios = require("axios");
-const mysql = require("mysql");
 import * as crypto from "crypto";
 import { Request, Response } from "express";
-import { MysqlError } from "mysql";
 import { pool } from "./database";
 const Sentry = require("@sentry/node");
 import getLogger from "../logger";
