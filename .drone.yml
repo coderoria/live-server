@@ -1,0 +1,23 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: Push to prod
+    image: alpine
+    environment:
+      DOKKU_SSH_KEY:
+        from_secret: DOKKU_SSH_KEY
+      GIT_SSH_COMMAND: "ssh -o 'UserKnownHostsFile=/dev/null' -o 'StrictHostKeyChecking=no' -i ../id_rsa"
+    commands:
+      - apk add git openssh
+      - echo "$DOKKU_SSH_KEY" | wc
+      - eval $(ssh-agent -s) && echo "$DOKKU_SSH_KEY" | ssh-add -
+      - git push dokku@ngsger.de:live-server
+    when:
+      branch:
+        - main
+
+trigger:
+  event:
+    - push
