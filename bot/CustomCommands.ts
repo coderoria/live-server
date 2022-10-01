@@ -6,7 +6,7 @@ interface CustomCommand {
   name: string;
   aliases: string[];
   requiredLevel: Level;
-  answer: object;
+  answer: Function;
 }
 
 export default class CustomCommands {
@@ -19,27 +19,22 @@ export default class CustomCommands {
       socket.on(
         "customCommand.add",
         (name, aliases, requiredLevel, answer, callback) => {
-          callback(this.addCommand(name, aliases, requiredLevel, answer));
+          callback(this.addCommand({ name, aliases, requiredLevel, answer }));
         }
       );
     });
   }
 
-  addCommand(
-    name: string,
-    aliases: string[],
-    requiredLevel: Level,
-    answer: object
-  ): boolean {
-    aliases = aliases.map((value) => {
+  addCommand(cmd: CustomCommand): boolean {
+    cmd.aliases = cmd.aliases.map((value) => {
       return value.toLowerCase();
     });
-    if (!this.exists(name, aliases)) {
+    if (!this.exists(cmd.name, cmd.aliases)) {
       this.registeredCommands.push(<CustomCommand>{
-        name: name.toLowerCase(),
-        aliases: aliases,
-        requiredLevel: requiredLevel,
-        answer: answer,
+        name: cmd.name.toLowerCase(),
+        aliases: cmd.aliases,
+        requiredLevel: cmd.requiredLevel,
+        answer: cmd.answer,
       });
       return true;
     }
@@ -81,9 +76,7 @@ export default class CustomCommands {
       ) {
         this.bot.say(
           process.env.CHANNEL as string,
-          "test"
-          //TODO: this should be done
-          //this.registeredCommands[i].answer{}
+          this.registeredCommands[i].answer()
         );
         return true;
       }
