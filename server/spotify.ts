@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Server } from "socket.io";
 
-const { default: axios } = require("axios");
+import { default as axios } from "axios";
 const express = require("express");
 import { pool } from "./database";
 const qs = require("querystring");
@@ -153,8 +153,8 @@ router.get("/auth/spotify", (req: Request, res: Response) => {
             });
         }
       )
-      .catch((error: { response: string }) => {
-        logger.warn(error.response, "User supplied invalid OAuth code");
+      .catch((error) => {
+        logger.warn(error, "User supplied invalid OAuth code");
         res.sendStatus(403);
         return;
       });
